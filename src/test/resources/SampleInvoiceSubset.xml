@@ -1,0 +1,42 @@
+<Invoices TotalResources="2" TotalPages="1" CurrentPage="1">
+	<InvoiceSubset url="https://api.fortnox.se/3/invoices/1">
+		<Balance>125</Balance>
+		<Booked>true</Booked>
+		<Cancelled>false</Cancelled>
+		<Currency>SEK</Currency>
+		<CurrencyRate>1</CurrencyRate>
+		<CurrencyUnit>1</CurrencyUnit>
+		<CustomerName>Fortnox Aktiebolag</CustomerName>
+		<CustomerNumber>1</CustomerNumber>
+		<DocumentNumber>1</DocumentNumber>
+		<DueDate>2014-06-16</DueDate>
+		<ExternalInvoiceReference1></ExternalInvoiceReference1>
+		<ExternalInvoiceReference2></ExternalInvoiceReference2>
+		<InvoiceDate>2014-05-17</InvoiceDate>
+		<OCR>133</OCR>
+		<TermsOfPayment>30</TermsOfPayment>
+		<Project>0</Project>
+		<Sent>false</Sent>
+		<Total>125</Total>
+	</InvoiceSubset>
+	<InvoiceSubset url="https://api.fortnox.se/3/invoices/2">
+		<Balance>406</Balance>
+		<Booked>false</Booked>
+		<Cancelled>false</Cancelled>
+		<Currency>SEK</Currency>
+		<CurrencyRate>1</CurrencyRate>
+		<CurrencyUnit>1</CurrencyUnit>
+		<CustomerName>Fortnox Aktiebolag</CustomerName>
+		<CustomerNumber>1</CustomerNumber>
+		<DocumentNumber>2</DocumentNumber>
+		<DueDate>2014-06-16</DueDate>
+		<ExternalInvoiceReference1></ExternalInvoiceReference1>
+		<ExternalInvoiceReference2></ExternalInvoiceReference2>
+		<InvoiceDate>2014-05-17</InvoiceDate>
+		<OCR>232</OCR>
+		<TermsOfPayment>30</TermsOfPayment>
+		<Project>0</Project>
+		<Sent>false</Sent>
+		<Total>406</Total>
+	</InvoiceSubset>
+</Invoices>

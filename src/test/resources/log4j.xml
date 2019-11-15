@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/'>
+
+    <appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d{ISO8601} %-5p %c{5} - %X{messageId} - %m%n" />
+        </layout>
+    </appender>
+
+    <appender name="LOGTXT" class="org.apache.log4j.FileAppender">
+        <param name="file" value="lss-client.log" />
+        <param name="append" value="false" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d{ISO8601} %-5p %c{5} - %X{messageId} - %m%n" />
+        </layout>
+    </appender>
+
+	<!-- Change level below to DEBUG to get more information -->
+    <logger name="org.notima.api.fortnox">
+        <level value="INFO" />
+    </logger>
+
+    <root>
+        <level value="INFO" />
+        <appender-ref ref="STDOUT" /> 
+    </root>
+</log4j:configuration>

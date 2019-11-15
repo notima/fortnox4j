@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CompanySettings>
+	<Address>Företagsvägen</Address>
+	<BG/>
+	<BIC/>
+	<BranchCode/>
+	<City>Växjö</City>
+	<ContactFirstName/>
+	<ContactLastName/>
+	<Country>Sverige</Country>
+	<CountryCode>SE</CountryCode>
+	<DatabaseNumber>241541</DatabaseNumber>
+	<Domicile/>
+	<Email>email@example.com</Email>
+	<Fax/>
+	<IBAN/>
+	<Name>Min webshop</Name>
+	<OrganizationNumber/>
+	<PG/>
+	<Phone1>012 - 345 6789</Phone1>
+	<Phone2/>
+	<TaxEnabled>false</TaxEnabled>
+	<VATNumber/>
+	<VisitAddress/>
+	<VisitCity/>
+	<VisitCountry/>
+	<VisitCountryCode/>
+	<VisitName/>
+	<VisitZipCode/>
+	<WWW/>
+	<ZipCode>123 45</ZipCode>
+</CompanySettings>

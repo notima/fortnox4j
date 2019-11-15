@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Voucher url="https://api.fortnox.se/3/vouchers/A/1?financialyear=4">
+	<Comments />
+	<CostCenter />
+	<Description>Testar</Description>
+	<Project />
+	<ReferenceNumber />
+	<ReferenceType>MANUAL</ReferenceType>
+	<TransactionDate>2017-12-11</TransactionDate>
+	<VoucherNumber>1</VoucherNumber>
+	<VoucherRows>
+		<VoucherRow>
+			<Account>1930</Account>
+			<CostCenter />
+			<Credit>50</Credit>
+			<Description>Företagskonto/checkkonto/affärskonto</Description>
+			<Debit>0</Debit>
+			<Project />
+			<Removed>false</Removed>
+			<TransactionInformation />
+			<Quantity>0</Quantity>
+		</VoucherRow>
+		<VoucherRow>
+			<Account>6570</Account>
+			<CostCenter />
+			<Credit>0</Credit>
+			<Description>Bankkostnader</Description>
+			<Debit>50</Debit>
+			<Project />
+			<Removed>false</Removed>
+			<TransactionInformation />
+			<Quantity>0</Quantity>
+		</VoucherRow>
+	</VoucherRows>
+	<VoucherSeries>A</VoucherSeries>
+	<Year>4</Year>
+	<ApprovalState>0</ApprovalState>
+</Voucher>
