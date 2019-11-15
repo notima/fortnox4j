@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -21,6 +22,8 @@ import javax.xml.bind.JAXB;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.FileConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -170,6 +173,12 @@ public class FortnoxClient3 {
 	 */
 	public static final String ERROR_CANT_FIND_CUSTOMER = "2000433";
 	
+	/**
+	 * Default values
+	 */
+	public static final String DFortnox4JFile = "Fortnox4JFile";
+	public static final String ENV_CONFIG_FILE = DFortnox4JFile.toUpperCase();
+	
 	private String 		m_clientSecret;
 	private String		m_authCode;
 	private String		m_accessToken;
@@ -187,8 +196,82 @@ public class FortnoxClient3 {
 	 */
 	private boolean		useArticles = true;
 	
-	
+	/**
+	 * Create FortnoxClient using default configuration file (if found).
+	 * 
+	 * Configuration file can be set using
+	 * 
+	 * -DFortnox4JFile=//file
+	 * 
+	 * or environment variable
+	 * 
+	 * export FORTNOX4JFILE=//file
+	 * 
+	 */
 	public FortnoxClient3() {
+		initFromFile(null);
+	}
+	
+	/**
+	 * Create FortnoxClient using specified configuration file.
+	 * 
+	 * @param configFile
+	 */
+	public FortnoxClient3(String configFile) {
+		initFromFile(configFile);
+	}
+	
+	/**
+	 * Read client parameters from file (if found).
+	 * 
+	 * @param configFile
+	 */
+	private void initFromFile(String configFile) {
+		if (configFile==null || configFile.trim().length()==0) {
+			// Try system properties
+			String defaultFile = System.getProperty("Fortnox4JFile");
+			if (defaultFile==null) {
+				// Try environment
+				defaultFile = System.getenv(ENV_CONFIG_FILE);
+			}
+			if (defaultFile!=null) {
+				configFile = defaultFile;
+				logger.debug("Trying config from environment: {}", configFile);
+			}
+		}
+		
+		// First check if this resolves to a file right away
+		File f = configFile!=null ? new File(configFile) : null;
+		if (f!=null && !f.exists()) {
+			// Try to resolve from classpath
+			URL url = ClassLoader.getSystemResource(configFile);
+			if (url!=null) {
+				f = new File(url.getFile());
+			} else {
+				f = null;
+			}
+			if (f==null || !f.exists()) {
+				logger.warn("Configuration file {} not found.", configFile);
+				return; // Don't configure from file.
+			}
+		}
+
+		FileConfiguration fc = new XMLConfiguration();
+		fc.setFile(f);
+		try {
+			logger.info("Using configuration file {}.", configFile);
+			fc.load();
+		} catch (ConfigurationException e) {
+			logger.error("Problem with reading configuration file {}.", configFile);
+			e.printStackTrace();
+			return;
+		}
+		
+		String clientSecret = fc.getString("clientSecret");
+		String accessToken = fc.getString("accessToken");
+		
+		setAccessToken(accessToken, clientSecret);
+		
 		
 	}
 	
@@ -197,11 +280,15 @@ public class FortnoxClient3 {
 	 * @param accessToken
 	 * @param clientSecret
 	 */
-	public void setAccessToken(String accessToken, String clientSecret) throws Exception {
-		
+	public void setAccessToken(String accessToken, String clientSecret) {
 		m_accessToken = accessToken;
 		m_clientSecret = clientSecret;
-		
+		if (accessToken==null || accessToken.trim().length()==0) {
+			logger.warn("Empty accessToken");
+		}
+		if (clientSecret==null || clientSecret.trim().length()==0) {
+			logger.warn("Empty clientSecret");
+		}
 	}
 	
 	

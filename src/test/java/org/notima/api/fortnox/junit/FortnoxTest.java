@@ -1,11 +1,13 @@
-package org.notima.api.fortnox;
+package org.notima.api.fortnox.junit;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import static org.junit.Assert.fail;
+
+import org.junit.BeforeClass;
+import org.notima.api.fortnox.FortnoxClient3;
+import org.slf4j.Logger;
 
 /**
- * Test suite for Fortnox4j
+ * Base class for Fortnox Tests
  * 
  * Copyright 2019 Notima System Integration AB (Sweden)
  *
@@ -25,15 +27,21 @@ import org.junit.runners.Suite.SuiteClasses;
  *
  */
 
+public class FortnoxTest {
 
-@RunWith(Suite.class)
-@SuiteClasses({ TestFortnoxClient3.class, TestGetAccessToken.class,
-		TestGetAccounts.class, TestGetErrorInformation.class,
-		TestGetPreDefinedAccounts.class, TestGetRevenueAccountMap.class,
-		TestGetVoucher.class, TestRemoveNonAllowedCharacters.class,
-		TestSearch.class })
+	protected static FortnoxClient3 client;
+	
+	protected Logger	log = org.slf4j.LoggerFactory.getLogger(this.getClass());
+	
+	@BeforeClass
+	public static void setUp() throws Exception {
 
-public class AllTests {
-
+		client = TestUtil.getFortnoxClient();
+		if (client==null) {
+			fail("Missing test-config3.xml. Please rename config3-template.xml and fill in your authorization details.");
+		}
+		
+	}
+	
 	
 }

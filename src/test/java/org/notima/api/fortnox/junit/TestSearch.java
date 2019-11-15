@@ -1,4 +1,4 @@
-package org.notima.api.fortnox;
+package org.notima.api.fortnox.junit;
 
 import static org.junit.Assert.fail;
 

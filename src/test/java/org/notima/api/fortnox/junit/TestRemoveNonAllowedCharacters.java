@@ -1,8 +1,9 @@
-package org.notima.api.fortnox;
+package org.notima.api.fortnox.junit;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.notima.api.fortnox.FortnoxUtil;
 
 public class TestRemoveNonAllowedCharacters {
 

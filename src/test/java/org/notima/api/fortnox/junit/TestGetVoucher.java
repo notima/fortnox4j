@@ -1,8 +1,9 @@
-package org.notima.api.fortnox;
+package org.notima.api.fortnox.junit;
 
 import java.util.List;
 
 import org.junit.Test;
+import org.notima.api.fortnox.FortnoxException;
 import org.notima.api.fortnox.entities3.FinancialYearSubset;
 import org.notima.api.fortnox.entities3.Voucher;
 import org.notima.api.fortnox.entities3.VoucherRow;

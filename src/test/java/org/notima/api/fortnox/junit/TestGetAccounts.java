@@ -1,4 +1,4 @@
-package org.notima.api.fortnox;
+package org.notima.api.fortnox.junit;
 
 import org.junit.Test;
 import org.notima.api.fortnox.entities3.AccountSubset;

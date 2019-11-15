@@ -1,10 +1,12 @@
-package org.notima.api.fortnox;
+package org.notima.api.fortnox.junit;
 
 import static org.junit.Assert.fail;
 
 import java.util.List;
 
 import org.junit.Test;
+import org.notima.api.fortnox.FortnoxClient3;
+import org.notima.api.fortnox.FortnoxException;
 import org.notima.api.fortnox.entities3.CompanySetting;
 import org.notima.api.fortnox.entities3.CustomerSubset;
 import org.notima.api.fortnox.entities3.Customers;
