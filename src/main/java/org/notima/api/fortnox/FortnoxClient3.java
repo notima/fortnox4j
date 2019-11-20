@@ -256,6 +256,11 @@ public class FortnoxClient3 {
 			}
 		}
 
+		if (f==null) {
+			logger.debug("Not using configuration file to init FortnoxClient");
+			return;
+		}
+		
 		FileConfiguration fc = new XMLConfiguration();
 		fc.setFile(f);
 		try {
