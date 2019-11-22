@@ -3,8 +3,15 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.notima.api</groupId>
 	<artifactId>fortnox4j</artifactId>
-	<version>1.8.6-SNAPSHOT</version>
+	<version>1.8.6</version>
 	<name>Fortnox Java API</name>
+
+	<distributionManagement>
+		<snapshotRepository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -50,6 +57,16 @@
 		</dependency>
 	</dependencies>
 	<build>
+	
+		<resources>
+			<resource>
+				<directory>src/test/resources</directory>
+				<excludes>
+					<exclude>test-config*</exclude>
+				</excludes>
+			</resource>
+		</resources>
+	
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -60,6 +77,47 @@
 					<target>1.8</target>
 				</configuration>
 			</plugin>
+			
+			<plugin>
+				<groupId>org.sonatype.plugins</groupId>
+				<artifactId>nexus-staging-maven-plugin</artifactId>
+				<version>1.6.7</version>
+				<extensions>true</extensions>
+				<configuration>
+					<serverId>ossrh</serverId>
+					<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+					<autoReleaseAfterClose>false</autoReleaseAfterClose>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.2.1</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.9.1</version>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
@@ -70,6 +128,22 @@
 					</includes>
 				</configuration>
 			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<version>1.5</version>
+				<executions>
+					<execution>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			
 			<!-- mvn assembly:single -->
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
@@ -102,4 +176,22 @@
   </issueManagement>
   <inceptionYear>2012</inceptionYear>
   <url>https://github.com/notima/fortnox4j</url>
+  
+  	<licenses>
+		<license>
+			<name>Apache License, Version 2.0</name>
+			<url>https://www.apache.org/licenses/LICENSE-2.0.html</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+  
+	<developers>
+		<developer>
+			<name>Daniel Tamm</name>
+			<email>daniel@notima.se</email>
+			<organization>Notima System Integration AB</organization>
+			<organizationUrl>https://github.com/notima</organizationUrl>
+		</developer>
+	</developers>
+  
 </project>
