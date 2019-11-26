@@ -36,7 +36,7 @@ See the file src/test/resources/config3-template.xml for an example of the file 
 
 ## Maven
 
-Releases are found in Maven-Central repository and can easliy be used by adding a dependency to you pom.xml.
+Releases are found in Maven-Central repository and can easliy be used by adding a dependency to your pom.xml.
 
     <dependency>
         <groupId>org.notima.api</groupId>
