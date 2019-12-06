@@ -7,7 +7,6 @@ import java.util.List;
 import org.junit.Test;
 import org.notima.api.fortnox.FortnoxClient3;
 import org.notima.api.fortnox.FortnoxException;
-import org.notima.api.fortnox.entities3.CompanySetting;
 import org.notima.api.fortnox.entities3.CustomerSubset;
 import org.notima.api.fortnox.entities3.Customers;
 import org.notima.api.fortnox.entities3.Invoice;
@@ -18,7 +17,7 @@ import org.notima.api.fortnox.entities3.Invoices;
 import org.notima.api.fortnox.entities3.OrderSubset;
 import org.notima.api.fortnox.entities3.Orders;
 
-public class TestFortnoxClient3 extends FortnoxTest {
+public class TestGetOrderInvoiceCustomers extends FortnoxTest {
 
 	String firstInvoice = null;
 	
@@ -78,22 +77,6 @@ public class TestFortnoxClient3 extends FortnoxTest {
 				orderCount++;
 			}
 			log.info("{} not invoiced orders retrieved.", orderCount);
-		}
-	}
-	
-	@Test
-	public void testGetCompanySetting() throws Exception{
-		
-		try {
-			CompanySetting cs = client.getCompanySetting();
-			
-			log.info("Name: " + cs.getName() + " | Adress: " + cs.getAdress() + " | Email: " + cs.getEmail() + 
-					"\nNumber: " + cs.getPhone1() + " | orgNr: " + cs.getOrganizationNumber() + " | Location: " + cs.getCity() + " " + cs.getZipCode()+
-					"\nBankGiro: " + cs.getBg()) ;
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail(e.getMessage());
 		}
 	}
 	

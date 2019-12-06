@@ -264,7 +264,7 @@ public class FortnoxClient3 {
 		FileConfiguration fc = new XMLConfiguration();
 		fc.setFile(f);
 		try {
-			logger.info("Using configuration file {}.", configFile);
+			logger.debug("Using configuration file {}.", configFile);
 			fc.load();
 		} catch (ConfigurationException e) {
 			logger.error("Problem with reading configuration file {}.", configFile);
@@ -282,8 +282,8 @@ public class FortnoxClient3 {
 	
 	/**
 	 * 
-	 * @param accessToken
-	 * @param clientSecret
+	 * @param accessToken		The access token
+	 * @param clientSecret		The client secret
 	 */
 	public void setAccessToken(String accessToken, String clientSecret) {
 		m_accessToken = accessToken;
@@ -507,9 +507,9 @@ public class FortnoxClient3 {
 	/**
 	 * Gets an invoice with specific invoice number
 	 * 
-	 * @param invoiceNo
-	 * @return
-	 * @throws Exception
+	 * @param invoiceNo			Fortnox Invoice Number
+	 * @return					The invoice
+	 * @throws Exception		If something fails
 	 */
 	public org.notima.api.fortnox.entities3.Invoice getInvoice(String invoiceNo) throws Exception { 
 		
@@ -535,8 +535,8 @@ public class FortnoxClient3 {
 	 * Gets financial year for given date. 
 	 * 
 	 * @param forDate		If null, current date is used.
-	 * @return
-	 * @throws Exception
+	 * @return				The financial year details for the given date.
+	 * @throws Exception	If something fails.
 	 */
 	public FinancialYearSubset getFinancialYear(Date forDate) throws Exception {
 		
@@ -572,11 +572,11 @@ public class FortnoxClient3 {
 	/**
 	 * Gets a voucher.
 	 * 
-	 * @param yearId
-	 * @param series
-	 * @param voucherNumber
-	 * @return
-	 * @throws Exception
+	 * @param yearId				The id of the fiscal year
+	 * @param series				Voucher series
+	 * @param voucherNumber			Number
+	 * @return						The voucher
+	 * @throws Exception			If something fails
 	 */
 	public Voucher getVoucher(int yearId, String series, int voucherNumber) throws Exception, FortnoxException {
 
@@ -1055,7 +1055,7 @@ public class FortnoxClient3 {
 	 * @param voucher
 	 * @throws Exception
 	 */
-	public Voucher setVoucher(Voucher voucher) throws Exception {
+	public Voucher setVoucher(Voucher voucher) throws FortnoxException, Exception {
 		
 		StringWriter result = new StringWriter();
 		ClassLoader cl = FortnoxClient3.class.getClassLoader();
@@ -1063,8 +1063,10 @@ public class FortnoxClient3 {
         javax.xml.bind.Marshaller marshaller = jaxbCtx.createMarshaller();
         marshaller.setProperty(javax.xml.bind.Marshaller.JAXB_ENCODING, "UTF-8"); //NOI18N
         marshaller.setProperty(javax.xml.bind.Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+
+        JAXB.marshal(voucher, result);
         
-        marshaller.marshal(voucher, result);
+        // marshaller.marshal(voucher, result);
        
         StringBuffer output = callFortnox("/vouchers" + 
         		(voucher.getVoucherNumber()!=null && voucher.getVoucherNumber()>0 ? "/" + voucher.getVoucherNumber() : ""), 
@@ -1076,8 +1078,7 @@ public class FortnoxClient3 {
 		
         Voucher out = null;
         if (output.toString().contains("ErrorInformation")) {
-        	System.err.println(output.toString());
-        	return null;
+        	throw new FortnoxException(output.toString());
         } else {
 	        StringReader reader = new StringReader(output.toString());
 	        if (output!=null && output.length()>0) {
