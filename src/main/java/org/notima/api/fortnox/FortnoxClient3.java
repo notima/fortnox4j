@@ -54,6 +54,9 @@ import org.notima.api.fortnox.entities3.Order;
 import org.notima.api.fortnox.entities3.Orders;
 import org.notima.api.fortnox.entities3.PreDefinedAccount;
 import org.notima.api.fortnox.entities3.PreDefinedAccounts;
+import org.notima.api.fortnox.entities3.Supplier;
+import org.notima.api.fortnox.entities3.SupplierSubset;
+import org.notima.api.fortnox.entities3.Suppliers;
 import org.notima.api.fortnox.entities3.Voucher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -186,7 +189,10 @@ public class FortnoxClient3 {
 	
 	public static DateFormat	s_dfmt = new SimpleDateFormat("yyyy-MM-dd");
 	
-	private Map<String, CustomerSubset>	m_contactTaxIdLookupMap;
+	// A map used to quickly lookup a customer using tax id
+	private Map<String, CustomerSubset>	m_customerTaxIdLookupMap;
+	// A map used to quickly lookup a supplier using tax id
+	private Map<String, SupplierSubset> m_supplierTaxIdLookupMap;
 
 	// Get logger
 	protected Logger	logger = LoggerFactory.getLogger(FortnoxClient3.class);
@@ -953,7 +959,182 @@ public class FortnoxClient3 {
 			throw new FortnoxException(e);
 		}
 	}
+	
+	/**
+	 * Read all suppliers
+	 * 
+	 * @return		A suppliers struct containing a list of SupplierSubset
+	 * @throws Exception	if something fails
+	 */
+	public Suppliers getSuppliers() throws Exception {
+		
+		Suppliers r = getSuppliers(0);
+		
+		int currentPage = 1;
+		int totalPages = r.getTotalPages();
+		while (currentPage<totalPages) {
+			// Pause not to exceed call limit
+			Thread.sleep(100);
+			Suppliers subset = getSuppliers(currentPage+1);
+			r.getSupplierSubset().addAll(subset.getSupplierSubset());
+			currentPage = subset.getCurrentPage();
+		}
 
+		return r;
+		
+	}
+
+	/**
+	 * 
+	 * @param page			The page to get
+	 * @return	A suppliers struct containing a list of SupplierSubset
+	 * @throws Exception	if something fails
+	 */
+	public Suppliers getSuppliers(int page) throws Exception {
+		// Create request
+		StringBuffer result = callFortnox("/suppliers/", (page>1 ? ("?page=" + page) : null), null);
+		ErrorInformation e = checkIfError(result);
+		Suppliers r = new Suppliers();
+		if (e==null) {
+
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(result.toString().getBytes()), "UTF-8"));
+	        r = JAXB.unmarshal(in,  r.getClass()); //NOI18N
+	        return(r);
+	        
+		} else {
+			throw new FortnoxException(e);
+		}
+	}
+	
+
+	/**
+	 * Creates or updates a customer
+	 * 
+	 * @param customer
+	 * @throws Exception
+	 */
+	public Supplier setSupplier(Supplier supplier) throws Exception {
+		
+		StringWriter result = new StringWriter();
+		ClassLoader cl = FortnoxClient3.class.getClassLoader();
+        javax.xml.bind.JAXBContext jaxbCtx = javax.xml.bind.JAXBContext.newInstance(supplier.getClass().getPackage().getName(), cl);
+        javax.xml.bind.Marshaller marshaller = jaxbCtx.createMarshaller();
+        marshaller.setProperty(javax.xml.bind.Marshaller.JAXB_ENCODING, "UTF-8"); //NOI18N
+        marshaller.setProperty(javax.xml.bind.Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+        marshaller.marshal(supplier, result);
+        
+        StringBuffer output = callFortnox("/suppliers", null, result.getBuffer());
+        
+        ErrorInformation e = checkIfError(output);
+
+        Supplier c = new Supplier();
+        
+		if (e==null) {
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(output.toString().getBytes()), "UTF-8"));
+	        c = JAXB.unmarshal(in, c.getClass());
+	        return(c); 
+		} else {
+			if (ERROR_CANT_FIND_CUSTOMER.equals(e.getCode())) {
+				return null;
+			} else {
+				throw new FortnoxException(e);
+			}
+		}
+        
+	}
+	
+	/**
+	 * Reads a vendor / supplier from database using custNo
+	 * If supplier doesn't exist, null is returned.
+	 * 
+	 * @param supplierNo
+	 * @return	Supplier if exists. Otherwise null.
+	 * @throws Exception	If something goes wrong
+	 */
+	public Supplier getSupplierBySupplierNo(String supplierNo) throws Exception {
+		
+		if (supplierNo==null) 
+			return null;
+		
+		Supplier c = new Supplier();
+		// Create request
+		String getStr = URLEncoder.encode(supplierNo, "UTF-8");
+		StringBuffer result = callFortnox("/suppliers/", getStr, null);
+		
+		ErrorInformation e = checkIfError(result);
+		if (e==null) {
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(result.toString().getBytes()), "UTF-8"));
+	        c = JAXB.unmarshal(in, c.getClass());
+	        return(c); 
+		} else {
+			if (ERROR_CANT_FIND_CUSTOMER.equals(e.getCode())) {
+				return null;
+			} else {
+				throw new FortnoxException(e);
+			}
+		}
+		
+	}
+	
+	/**
+	 * Read a supplier from database using tax id. All suppliers are read at the first call.
+	 * This method is synchronized to prevent other processes from running this method simultaneously. 
+	 * 
+	 * To reset the supplier-to-tax-id map (re-read from fortnox, call resetSupplierMaps
+	 * 
+	 * @param	taxId			The tax id we're searching for
+	 * @param	isCompany		If we're looking for a company (not private person).
+	 * @see		resetSupplierMaps
+	 */
+	public synchronized Supplier getSupplierByTaxId(String taxId, boolean isCompany) throws Exception {
+		taxId = formatTaxId(taxId, isCompany);
+		if (m_supplierTaxIdLookupMap==null) {
+			m_supplierTaxIdLookupMap = new TreeMap<String, SupplierSubset>();
+			
+			Suppliers suppliers = getSuppliers();
+			if (suppliers!=null && suppliers.getSupplierSubset()!=null) {
+				for(SupplierSubset c: suppliers.getSupplierSubset()) {
+					if (c.getOrganisationNumber()!=null && c.getOrganisationNumber().trim().length()>0) {
+						m_supplierTaxIdLookupMap.put(c.getOrganisationNumber(), c);
+						logger.debug("Adding '" + c.getOrganisationNumber() + "' " + c.getName() + " supplierNo " + c.getSupplierNumber());
+					}
+				}
+			}
+			while(suppliers.getTotalPages()>suppliers.getCurrentPage()) {
+				// Pause not to exceed call limit
+				Thread.sleep(100);
+				suppliers = getSuppliers(suppliers.getCurrentPage()+1);
+				
+				if (suppliers!=null && suppliers.getSupplierSubset()!=null) {
+					for(SupplierSubset c: suppliers.getSupplierSubset()) {
+
+						if (c.getOrganisationNumber()!=null && c.getOrganisationNumber().trim().length()>0) {
+							m_supplierTaxIdLookupMap.put(c.getOrganisationNumber(), c);
+							logger.debug("Adding '" + c.getOrganisationNumber() + "' " + c.getName() + " supplierno " + c.getSupplierNumber());
+						}
+						
+					}
+				}
+				
+			}
+			
+		}
+		SupplierSubset contact = m_supplierTaxIdLookupMap.get(taxId);
+		if (contact==null && taxId.length()==13) {
+			contact = m_supplierTaxIdLookupMap.get(taxId.substring(2));
+		}
+		if (contact==null) {
+			logger.warn("Could not find '" + taxId + "'");
+			throw new Exception("Could not find '" + taxId + "'");
+		} else {
+			return getSupplierBySupplierNo(contact.getSupplierNumber());
+		}
+	}
+	
+	
 	/**
 	 * Creates or updates a payment (customer)
 	 * 
@@ -1091,7 +1272,7 @@ public class FortnoxClient3 {
 	}
 	
 	/**
-	 * Creates or updates a customer / vendor.
+	 * Creates or updates a customer
 	 * 
 	 * @param customer
 	 * @throws Exception
@@ -1162,21 +1343,25 @@ public class FortnoxClient3 {
 	}
 	
 	/**
-	 * Read a customer from databas using tax id. All contacts are read at the first time.
+	 * Read a customer from database using tax id. All customers are read at the first time.
+	 * This method is synchronized to prevent other processes from running this method simultaneously. 
 	 * 
-	 * To reset the contacts (re-read from fortnox, call resetContactMaps
+	 * To reset the customer-to-tax-id map (re-read from fortnox, call resetContactMaps
+	 * 
+	 * @param	taxId			The tax id we're searching for
+	 * @param	isCompany		If we're looking for a company (not private person).
 	 * @see		resetContactMaps
 	 */
 	public synchronized Customer getCustomerByTaxId(String taxId, boolean isCompany) throws Exception {
 		taxId = formatTaxId(taxId, isCompany);
-		if (m_contactTaxIdLookupMap==null) {
-			m_contactTaxIdLookupMap = new TreeMap<String, CustomerSubset>();
+		if (m_customerTaxIdLookupMap==null) {
+			m_customerTaxIdLookupMap = new TreeMap<String, CustomerSubset>();
 			
 			Customers contacts = getCustomers();
 			if (contacts!=null && contacts.getCustomerSubset()!=null) {
 				for(CustomerSubset c: contacts.getCustomerSubset()) {
 					if (c.getOrganisationNumber()!=null && c.getOrganisationNumber().trim().length()>0) {
-						m_contactTaxIdLookupMap.put(c.getOrganisationNumber(), c);
+						m_customerTaxIdLookupMap.put(c.getOrganisationNumber(), c);
 						logger.debug("Adding '" + c.getOrganisationNumber() + "' " + c.getName() + " custno " + c.getCustomerNumber());
 					}
 				}
@@ -1190,7 +1375,7 @@ public class FortnoxClient3 {
 					for(CustomerSubset c: contacts.getCustomerSubset()) {
 
 						if (c.getOrganisationNumber()!=null && c.getOrganisationNumber().trim().length()>0) {
-							m_contactTaxIdLookupMap.put(c.getOrganisationNumber(), c);
+							m_customerTaxIdLookupMap.put(c.getOrganisationNumber(), c);
 							logger.debug("Adding '" + c.getOrganisationNumber() + "' " + c.getName() + " custno " + c.getCustomerNumber());
 						}
 						
@@ -1200,9 +1385,9 @@ public class FortnoxClient3 {
 			}
 			
 		}
-		CustomerSubset contact = m_contactTaxIdLookupMap.get(taxId);
+		CustomerSubset contact = m_customerTaxIdLookupMap.get(taxId);
 		if (contact==null && taxId.length()==13) {
-			contact = m_contactTaxIdLookupMap.get(taxId.substring(2));
+			contact = m_customerTaxIdLookupMap.get(taxId.substring(2));
 		}
 		if (contact==null) {
 			logger.warn("Could not find '" + taxId + "'");
@@ -1211,9 +1396,28 @@ public class FortnoxClient3 {
 			return getCustomerByCustNo(contact.getCustomerNumber());
 		}
 	}
-	
+
+	/**
+	 * Resets the tax id / customer map
+	 * @deprecated 	Use resetCustomerMap instead.
+	 * @since 		1.8.7
+	 */
 	public void resetContactMaps() {
-		m_contactTaxIdLookupMap = null;
+		resetCustomerMap();
+	}
+	
+	/**
+	 * Resets the tax id / customer map
+	 */
+	public void resetCustomerMap() {
+		m_customerTaxIdLookupMap = null;
+	}
+	
+	/**
+	 * Resets the tax id / supplier map
+	 */
+	public void resetSupplierMap() {
+		m_supplierTaxIdLookupMap = null;
 	}
 	
 	public String formatTaxId(String taxId, boolean isCompany) {

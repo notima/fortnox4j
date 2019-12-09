@@ -126,6 +126,10 @@
 					<includes>
 						<include>**/AllTests.java</include>
 					</includes>
+					<!-- Below tests should only be run intentionally -->
+					<excludes>
+						<exclude>**/TestCreateSupplier.java</exclude>
+					</excludes>
 				</configuration>
 			</plugin>
 			
