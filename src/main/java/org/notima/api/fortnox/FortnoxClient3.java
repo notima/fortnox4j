@@ -1011,8 +1011,8 @@ public class FortnoxClient3 {
 	/**
 	 * Creates or updates a customer
 	 * 
-	 * @param customer
-	 * @throws Exception
+	 * @param supplier		The supplier to persist.
+	 * @throws Exception	If something goes wrong.
 	 */
 	public Supplier setSupplier(Supplier supplier) throws Exception {
 		
@@ -1087,7 +1087,7 @@ public class FortnoxClient3 {
 	 * 
 	 * @param	taxId			The tax id we're searching for
 	 * @param	isCompany		If we're looking for a company (not private person).
-	 * @see		resetSupplierMaps
+	 * @see		resetSupplierMap
 	 */
 	public synchronized Supplier getSupplierByTaxId(String taxId, boolean isCompany) throws Exception {
 		taxId = formatTaxId(taxId, isCompany);
@@ -1350,7 +1350,7 @@ public class FortnoxClient3 {
 	 * 
 	 * @param	taxId			The tax id we're searching for
 	 * @param	isCompany		If we're looking for a company (not private person).
-	 * @see		resetContactMaps
+	 * @see		resetCustomerMap
 	 */
 	public synchronized Customer getCustomerByTaxId(String taxId, boolean isCompany) throws Exception {
 		taxId = formatTaxId(taxId, isCompany);
