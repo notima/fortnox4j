@@ -36,6 +36,23 @@ public class FortnoxException extends Exception {
 		errorInformation = e; 
 	}
 	
+	public org.notima.api.fortnox.entities3.Error getError() {
+		return error;
+	}
+
+	public void setError(org.notima.api.fortnox.entities3.Error error) {
+		this.error = error;
+	}
+
+	public org.notima.api.fortnox.entities3.ErrorInformation getErrorInformation() {
+		return errorInformation;
+	}
+
+	public void setErrorInformation(
+			org.notima.api.fortnox.entities3.ErrorInformation errorInformation) {
+		this.errorInformation = errorInformation;
+	}
+
 	public String toString() {
 		if (error!=null)
 			return(error.getCode() + " : " + error.getMessage());

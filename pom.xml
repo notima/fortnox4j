@@ -169,6 +169,7 @@
 		<name>Notima System Integration AB</name>
 		<url>https://github.com/notima</url>
 	</organization>
+	
 	<scm>
 		<url>https://github.com/notima/fortnox4j</url>
 		<connection>scm:git:git://github.com/notima/fortnox4j.git</connection>

@@ -175,6 +175,7 @@ public class FortnoxClient3 {
 	 * Error Codes
 	 */
 	public static final String ERROR_CANT_FIND_CUSTOMER = "2000433";
+	public static final String ERROR_CANT_FIND_INVOICE = "2000434";
 	
 	/**
 	 * Default values
