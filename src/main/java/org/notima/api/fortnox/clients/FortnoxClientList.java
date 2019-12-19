@@ -49,8 +49,6 @@ public class FortnoxClientList {
 			if (regenerate)
 				apiClientMap.clear();
 		else {
-			if (!regenerate)
-				return;
 			apiClientMap = new TreeMap<String, FortnoxApiClient>();
 		}
 		
@@ -70,12 +68,10 @@ public class FortnoxClientList {
 	 */
 	public void generateFortnoxClientMap(boolean regenerate) {
 		
-		if (clientMap!=null)
+		if (clientMap!=null) {
 			if (regenerate)
 				clientMap.clear();
-		else {
-			if (!regenerate)
-				return;
+		} else {
 			clientMap = new TreeMap<String, FortnoxClientInfo>();
 		}
 		
