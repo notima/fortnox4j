@@ -222,7 +222,7 @@ public class FortnoxClient3 {
 	/**
 	 * Create FortnoxClient using specified configuration file.
 	 * 
-	 * @param configFile
+	 * @param configFile		The configuration file to use.
 	 */
 	public FortnoxClient3(String configFile) {
 		initFromFile(configFile);
@@ -234,6 +234,7 @@ public class FortnoxClient3 {
 	 * @param configFile
 	 */
 	private void initFromFile(String configFile) {
+		
 		if (configFile==null || configFile.trim().length()==0) {
 			// Try system properties
 			String defaultFile = System.getProperty("Fortnox4JFile");
@@ -584,6 +585,7 @@ public class FortnoxClient3 {
 	 * @param voucherNumber			Number
 	 * @return						The voucher
 	 * @throws Exception			If something fails
+	 * @throws FortnoxException		If Fortnox returns an error
 	 */
 	public Voucher getVoucher(int yearId, String series, int voucherNumber) throws Exception, FortnoxException {
 
@@ -607,9 +609,9 @@ public class FortnoxClient3 {
 	/**
 	 * Returns all accounts for a given year id
 	 * 
-	 * @param yearId
-	 * @return
-	 * @throws Exception
+	 * @param yearId			The id of the year.
+	 * @return					The chart of accounts for the given year.
+	 * @throws Exception		If something goes wrong.
 	 */
 	public Accounts getAccounts(int yearId) throws Exception {
 		
@@ -630,9 +632,10 @@ public class FortnoxClient3 {
 	/**
 	 * Reads accounts on page
 	 * 
-	 * @param yearId
-	 * @return
-	 * @throws Exception
+	 * @param yearId			The year for the chart of accounts.
+	 * @param page				The page.
+	 * @return					Accounts.
+	 * @throws Exception		If something goes wrong.
 	 */
 	public Accounts getAccounts(int yearId, int page) throws Exception {
 
@@ -657,9 +660,9 @@ public class FortnoxClient3 {
 	/**
 	 * Return preDefinedAccount with specific name.
 	 * 
-	 * @param pname
-	 * @return
-	 * @throws Exception
+	 * @param pname			The name of the predefined account.
+	 * @return				The predefined account itself.
+	 * @throws Exception	If something goes wrong.
 	 */
 	public PreDefinedAccount getPreDefinedAccount(String pname) throws Exception {
 
@@ -686,8 +689,8 @@ public class FortnoxClient3 {
 	/**
 	 * Returns all predefined accounts
 	 * 
-	 * @return
-	 * @throws Exception
+	 * @return				Predefined accounts (if on many pages, they are concatinated).
+	 * @throws Exception	If something goes wrong.
 	 */
 	public PreDefinedAccounts getPreDefinedAccounts() throws Exception {
 		
@@ -709,9 +712,9 @@ public class FortnoxClient3 {
 	 * Reads predefined accounts on page. The predefined accounts are defined in
 	 * various settings in Fortnox.
 	 * 
-	 * @param page
-	 * @return
-	 * @throws Exception
+	 * @param page			The page
+	 * @return				A page of predefined accounts.
+	 * @throws Exception	If something goes wrong.
 	 */
 	public PreDefinedAccounts getPreDefinedAccounts(int page) throws Exception {
 
@@ -737,8 +740,9 @@ public class FortnoxClient3 {
 	 * Return default revenue account map for given accounting date.
 	 * Null as acctDate will return today.
 	 * 
-	 * @return
-	 * @throws Exception
+	 * @param 				acctDate	The date we want to use to determine the accounts (ie Fiscal Year).
+	 * @return				A map of revenue accounts.
+	 * @throws Exception	If something goes wrong.
 	 */
 	public Map<String, Integer> getRevenueAccountMap(Date acctDate) throws Exception {
 		FinancialYearSubset fy = getFinancialYear(acctDate);
@@ -754,8 +758,9 @@ public class FortnoxClient3 {
 	 * 
 	 * @see	getPreDefinedAccount
 	 * 
-	 * @return
-	 * @throws Exception 
+	 * @param 		year		The year to use for COA.
+	 * @return					A map of revenue accounts.
+	 * @throws Exception 		If something goes wrong.
 	 */
 	public Map<String, Integer> getRevenueAccountMap(int year) throws Exception {
 
@@ -830,8 +835,8 @@ public class FortnoxClient3 {
 	 * @param document			The document type on which to perform the action (invoice, order, invoicepayment) 
 	 * @param documentNo		The document number.
 	 * @param action			The action to perform.
-	 * @return
-	 * @throws Exception
+	 * @return					The result of the action.
+	 * @throws Exception		If something goes wrong.
 	 */
 	public String performAction(boolean put, String document, String documentNo, String action) throws Exception {
 		
@@ -856,10 +861,10 @@ public class FortnoxClient3 {
 	/**
 	 * Performs action on invoice
 	 * 
-	 * @param invoiceNo
-	 * @param action
-	 * @return
-	 * @throws Exception
+	 * @param invoiceNo			The invoice on which the action should be performed.
+	 * @param action			The action.
+	 * @return					The result of the action.
+	 * @throws Exception		If something goes wrong.
 	 */
 	public String invoiceGetAction(String invoiceNo, String action) throws Exception {
 
@@ -885,7 +890,14 @@ public class FortnoxClient3 {
 		}
 		
 	}
-	
+
+	/**
+	 * Return customer invoices with the given filter.
+	 * 
+	 * @param filter			The filter to use.
+	 * @return					A list of invoices. If many pages, the result is concatenated.
+	 * @throws Exception		If something goes wrong.
+	 */
 	public Invoices getInvoices(String filter) throws Exception {
 		
 		Invoices r = getInvoices(filter, 0);
@@ -903,6 +915,14 @@ public class FortnoxClient3 {
 		return r;
 	}
 	
+	/**
+	 * Returns a page of invoices with given filter(s) applied.
+	 * 
+	 * @param filter		Filter
+	 * @param page			The page of the result set
+	 * @return				A page 
+	 * @throws Exception	If something goes wrong.
+	 */
 	public Invoices getInvoices(String filter, int page) throws Exception {
 		// Create request
 		StringBuffer result = callFortnox("/invoices/" + (filter!=null&&filter.trim().length()>0 ? "?filter=" + filter.trim() : "") , (page>1 ? ((filter!=null&&filter.trim().length()>0 ? "&" : "?") + "page=" + page) : null), null);
@@ -923,8 +943,8 @@ public class FortnoxClient3 {
 	/**
 	 * Read all customers
 	 * 
-	 * @return
-	 * @throws Exception
+	 * @return				All customers.
+	 * @throws Exception	If something goes wrong.
 	 */
 	public Customers getCustomers() throws Exception {
 		
@@ -944,6 +964,13 @@ public class FortnoxClient3 {
 		
 	}
 	
+	/**
+	 * A page of customers.
+	 * 
+	 * @param page			The page
+	 * @return				A page of customers.
+	 * @throws Exception	If something goes wrong.
+	 */
 	public Customers getCustomers(int page) throws Exception {
 		// Create request
 		StringBuffer result = callFortnox("/customers/", (page>1 ? ("?page=" + page) : null), null);
@@ -986,7 +1013,8 @@ public class FortnoxClient3 {
 	}
 
 	/**
-	 * 
+	 * Gets a page of suppliers.
+	 *  
 	 * @param page			The page to get
 	 * @return	A suppliers struct containing a list of SupplierSubset
 	 * @throws Exception	if something fails
@@ -1010,9 +1038,10 @@ public class FortnoxClient3 {
 	
 
 	/**
-	 * Creates or updates a customer
+	 * Creates or updates a supplier
 	 * 
 	 * @param supplier		The supplier to persist.
+	 * @return  			The supplier.
 	 * @throws Exception	If something goes wrong.
 	 */
 	public Supplier setSupplier(Supplier supplier) throws Exception {
@@ -1047,10 +1076,10 @@ public class FortnoxClient3 {
 	}
 	
 	/**
-	 * Reads a vendor / supplier from database using custNo
+	 * Reads a vendor / supplier from database using supplierNo.
 	 * If supplier doesn't exist, null is returned.
 	 * 
-	 * @param supplierNo
+	 * @param supplierNo		The supplier number (Fortnox's supplier number)
 	 * @return	Supplier if exists. Otherwise null.
 	 * @throws Exception	If something goes wrong
 	 */
@@ -1089,6 +1118,8 @@ public class FortnoxClient3 {
 	 * @param	taxId			The tax id we're searching for
 	 * @param	isCompany		If we're looking for a company (not private person).
 	 * @see		resetSupplierMap
+	 * @return 	Supplier, null if not found.
+	 * @throws 	Exception	if something goes wrong.
 	 */
 	public synchronized Supplier getSupplierByTaxId(String taxId, boolean isCompany) throws Exception {
 		taxId = formatTaxId(taxId, isCompany);
@@ -1139,9 +1170,9 @@ public class FortnoxClient3 {
 	/**
 	 * Creates or updates a payment (customer)
 	 * 
-	 * @param payment
-	 * @return
-	 * @throws Exception
+	 * @param payment		The payment to be updated.
+	 * @return				The invoice payment.
+	 * @throws Exception	If something goes wrong.
 	 */
 	public InvoicePayment setCustomerPayment(InvoicePayment payment) throws Exception {
 
@@ -1180,8 +1211,9 @@ public class FortnoxClient3 {
 	/**
 	 * Creates or updates an invoice.
 	 * 
-	 * @param invoice
-	 * @throws Exception
+	 * @param invoice			The invoice to be updated.
+	 * @throws Exception		If something goes wrong.
+	 * @return	The invoice.
 	 */
 	public Invoice setInvoice(Invoice invoice) throws Exception {
 		
@@ -1234,8 +1266,10 @@ public class FortnoxClient3 {
 	/**
 	 * Creates or updates a voucher.
 	 * 
-	 * @param voucher
-	 * @throws Exception
+	 * @param voucher			The voucher to be updated / created.
+	 * @throws Exception		If something goes wrong.
+	 * @throws FortnoxException	Fortnox error if occured.
+	 * @return 					The voucher created / updated.
 	 */
 	public Voucher setVoucher(Voucher voucher) throws FortnoxException, Exception {
 		
@@ -1275,8 +1309,9 @@ public class FortnoxClient3 {
 	/**
 	 * Creates or updates a customer
 	 * 
-	 * @param customer
-	 * @throws Exception
+	 * @param customer				The customer to be created / updated.
+	 * @throws Exception			If something goes wrong.
+	 * @return 			The customer created / updated.
 	 */
 	public Customer setCustomer(Customer customer) throws Exception {
 		
@@ -1313,9 +1348,9 @@ public class FortnoxClient3 {
 	 * Reads a customer / vendor from database using custNo
 	 * If customer doesn't exist, null is returned.
 	 * 
-	 * @param custNo
-	 * @return
-	 * @throws Exception
+	 * @param custNo			The customer's customer number (in Fortnox)
+	 * @return					The customer.
+	 * @throws Exception		If something goes wrong.
 	 */
 	public Customer getCustomerByCustNo(String custNo) throws Exception {
 		
@@ -1352,6 +1387,8 @@ public class FortnoxClient3 {
 	 * @param	taxId			The tax id we're searching for
 	 * @param	isCompany		If we're looking for a company (not private person).
 	 * @see		resetCustomerMap
+	 * @return 	The customer. Null if not found.
+	 * @throws	Exception		If something goes wrong.
 	 */
 	public synchronized Customer getCustomerByTaxId(String taxId, boolean isCompany) throws Exception {
 		taxId = formatTaxId(taxId, isCompany);
@@ -1442,8 +1479,9 @@ public class FortnoxClient3 {
 	/**
 	 * Checks if the buffer contains a fortnox error message.
 	 * 
-	 * @param buf
-	 * @return
+	 * @param buf			The sting buffer to parse.
+	 * @return				An ErrorInformation struct.
+	 * @throws		Exception if something goes wrong.
 	 */
 	public ErrorInformation checkIfError(StringBuffer buf) throws Exception {
 		org.notima.api.fortnox.entities3.ErrorInformation e = null;
@@ -1486,9 +1524,9 @@ public class FortnoxClient3 {
 	/**
 	 * Converts a java date into an XML-date
 	 * 
-	 * @param date
-	 * @return
-	 * @throws DatatypeConfigurationException
+	 * @param date		The date to convert.
+	 * @return			A date in XMLGregorianCalendar format.
+	 * @throws DatatypeConfigurationException	If something goes wrong.
 	 */
 	public static XMLGregorianCalendar getXMLDate(java.util.Date date) throws DatatypeConfigurationException {
 		GregorianCalendar cal = new GregorianCalendar();
@@ -1570,10 +1608,11 @@ public class FortnoxClient3 {
 	/**
 	 * Search document and field.
 	 * 
-	 * @param document
-	 * @param field
-	 * @param value
-	 * @return
+	 * @param document		The document (invoice etc).
+	 * @param field			The field to use when searching.
+	 * @param value			The value to search for.
+	 * @return				The search result as a stringBuffer (must be parsed).
+	 * @throws		Exception if something goes wrong.
 	 */
 	public StringBuffer search(String document, String field, String value) throws Exception {
 		

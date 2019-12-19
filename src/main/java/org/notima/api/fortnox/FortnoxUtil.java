@@ -1,7 +1,14 @@
 package org.notima.api.fortnox;
 
+import java.io.File;
+import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.xml.bind.JAXB;
+import javax.xml.bind.JAXBException;
+
+import org.notima.api.fortnox.clients.FortnoxClientList;
 
 /**
  * Utility class for Fortnox API.
@@ -33,8 +40,8 @@ public class FortnoxUtil {
 	/**
 	 * Removes non-allowed characters from given string by replacing it by a white space
 	 * 
-	 * @param src
-	 * @return
+	 * @param src		The string to be parsed.
+	 * @return			A string cleared of non-allowed characters.
 	 */
 	public static String removeNonAllowedCharacters(String src) {
 		
@@ -62,6 +69,30 @@ public class FortnoxUtil {
 			
 			return dst.toString();
 		}
+		
+	}
+	
+	/**
+	 * Reads a Fortnox Client list from XML-file
+	 * 
+	 * @param fileName		The file to read. If path isn't given, the classpath is searched.
+	 * @return	The client list if successfully read
+	 * @throws JAXBException	If XML can't be parsed. 
+	 */
+	public static FortnoxClientList readFortnoxClientListFromFile(String fileName) throws JAXBException {
+		
+		FortnoxClientList result = null;
+
+		URL url = ClassLoader.getSystemResource(fileName);
+		
+		if (url!=null) {
+			fileName = url.getFile();
+		}
+		File f = new File(fileName);
+		
+		result = JAXB.unmarshal(f, FortnoxClientList.class);
+		
+		return result;
 		
 	}
 	

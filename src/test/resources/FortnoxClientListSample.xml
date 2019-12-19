@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:FortnoxClientList xmlns:ns2="https://github.com/notima/fortnox4j/clients">
+    <FortnoxApiClients>
+        <FortnoxApiClient>
+            <clientApiName>Fortnox4J</clientApiName>
+            <clientId>TestClientId</clientId>
+            <clientSecret>TestClientSecret</clientSecret>
+        </FortnoxApiClient>
+    </FortnoxApiClients>
+    <FortnoxClients>
+        <FortnoxClientInfo>
+            <accessToken>TestAccessToken</accessToken>
+            <clientId>TestClientId</clientId>
+            <clientName>TestClientName</clientName>
+            <orgNo>555555-5555</orgNo>
+        </FortnoxClientInfo>
+    </FortnoxClients>
+</ns2:FortnoxClientList>
+

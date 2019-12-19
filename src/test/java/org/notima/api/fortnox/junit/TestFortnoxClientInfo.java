@@ -1,0 +1,61 @@
+package org.notima.api.fortnox.junit;
+
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.xml.bind.JAXB;
+
+import org.junit.After;
+import org.junit.Test;
+import org.notima.api.fortnox.clients.FortnoxApiClient;
+import org.notima.api.fortnox.clients.FortnoxClientInfo;
+import org.notima.api.fortnox.clients.FortnoxClientList;
+import org.notima.api.fortnox.clients.ListOfApiClient;
+import org.notima.api.fortnox.clients.ListOfClientInfo;
+
+public class TestFortnoxClientInfo extends FortnoxTest {
+
+	@After
+	public void tearDown() throws Exception {
+	}
+
+	/**
+	 * Test to create a client info XML struct
+	 */
+	@Test
+	public void testFortnoxClientInfo() {
+		
+		FortnoxClientList list = new FortnoxClientList();
+		FortnoxApiClient apiClient = new FortnoxApiClient();
+		apiClient.setClientId("TestClientId");
+		apiClient.setClientSecret("TestClientSecret");
+		apiClient.setClientApiName("Fortnox4J");
+		List<FortnoxApiClient> apiClients = new ArrayList<FortnoxApiClient>();
+		apiClients.add(apiClient);
+		ListOfApiClient lia = new ListOfApiClient();
+		lia.setApiClient(apiClients);
+		list.setApiClients(lia);
+		
+		List<FortnoxClientInfo> clientList = new ArrayList<FortnoxClientInfo>();
+		FortnoxClientInfo fortnoxClient = new FortnoxClientInfo();
+		fortnoxClient.setOrgNo("555555-5555");
+		fortnoxClient.setAccessToken("TestAccessToken");
+		fortnoxClient.setClientId(apiClient.getClientId());
+		fortnoxClient.setClientName("TestClientName");
+		
+		clientList.add(fortnoxClient);
+		ListOfClientInfo li = new ListOfClientInfo();
+		li.setFortnoxClient(clientList);
+		list.setClients(li);
+		
+		StringWriter swr = new StringWriter();
+		JAXB.marshal(list, swr);
+		
+		System.out.println(swr.toString());
+		log.debug(swr.toString());
+		
+		
+	}
+
+}
