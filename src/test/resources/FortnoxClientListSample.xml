@@ -11,7 +11,7 @@
         <FortnoxClientInfo>
             <accessToken>TestAccessToken</accessToken>
             <clientId>TestClientId</clientId>
-            <clientName>TestClientName</clientName>
+            <orgName>TestClientName</orgName>
             <orgNo>555555-5555</orgNo>
         </FortnoxClientInfo>
     </FortnoxClients>

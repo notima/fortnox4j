@@ -42,7 +42,7 @@ public class TestFortnoxClientInfo extends FortnoxTest {
 		fortnoxClient.setOrgNo("555555-5555");
 		fortnoxClient.setAccessToken("TestAccessToken");
 		fortnoxClient.setClientId(apiClient.getClientId());
-		fortnoxClient.setClientName("TestClientName");
+		fortnoxClient.setOrgName("TestOrgName");
 		
 		clientList.add(fortnoxClient);
 		ListOfClientInfo li = new ListOfClientInfo();
@@ -54,7 +54,6 @@ public class TestFortnoxClientInfo extends FortnoxTest {
 		
 		System.out.println(swr.toString());
 		log.debug(swr.toString());
-		
 		
 	}
 

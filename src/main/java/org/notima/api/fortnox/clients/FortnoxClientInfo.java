@@ -2,8 +2,6 @@ package org.notima.api.fortnox.clients;
 
 import java.util.Date;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
 /**
  * Class containing information about a Fortnox client
  * 
@@ -14,16 +12,21 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class FortnoxClientInfo {
 
 	private String	clientId;
+	private String	apiCode;
 	private String	accessToken;
+	private String	clientSecret;
 	
 	private String	orgNo;
-	private String	clientName;
+	private String	orgName;
 
 	private String	pollType;
 	private Date	lastPollTime;
 
 	/**
 	 * The client ID associated with this access token.
+	 * 
+	 * The client ID is an identifier of the API client talking to Fortnox.
+	 * This API client can have access to several Fortnox clients (customers).
 	 * 
 	 * @return		The client ID
 	 */
@@ -35,14 +38,52 @@ public class FortnoxClientInfo {
 		this.clientId = clientId;
 	}
 
+	/**
+	 * The API code is used once to get an access token. 
+	 * 
+	 * @return	The API code if set.
+	 */
+	public String getApiCode() {
+		return apiCode;
+	}
+
+	public void setApiCode(String apiCode) {
+		this.apiCode = apiCode;
+	}
+
+	/**
+	 * The Access Token is used together with the Client Secret to gain access
+	 * to a particular Fortnox organization.
+	 * 
+	 * @return		The access token if set.
+	 */
 	public String getAccessToken() {
 		return accessToken;
 	}
-
+	
 	public void setAccessToken(String accessToken) {
 		this.accessToken = accessToken;
 	}
 	
+	/**
+	 * The client secret is used to gain access to the Fortnox organization 
+	 * paired with the access token.
+	 * The client secret can also be supplied in the FortnoxApiClient if this
+	 * class is part of a FortnoxClientList. 
+	 * 
+	 * @see			FortnoxApiClient#getClientSecret()
+	 * @see			FortnoxClientList
+	 * 	
+	 * @return		The client secret if set.
+	 */
+	public String getClientSecret() {
+		return clientSecret;
+	}
+
+	public void setClientSecret(String clientSecret) {
+		this.clientSecret = clientSecret;
+	}
+
 	public String getOrgNo() {
 		return orgNo;
 	}
@@ -59,12 +100,12 @@ public class FortnoxClientInfo {
 		this.pollType = pollType;
 	}
 
-	public String getClientName() {
-		return clientName;
+	public String getOrgName() {
+		return orgName;
 	}
 
-	public void setClientName(String clientName) {
-		this.clientName = clientName;
+	public void setOrgName(String clientName) {
+		this.orgName = clientName;
 	}
 
 	public Date getLastPollTime() {
