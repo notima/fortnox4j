@@ -17,10 +17,14 @@ public class InvoiceSubset {
 	private String externalInvoiceReference1;
 	private String externalInvoiceReference2;
 	private String invoiceDate;
+	private String invoiceType;
+	private boolean noxFinans;
 	private String OCR;
 	private String project;
 	private boolean sent;
+	private String termsOfPayment;
 	private double total;
+	private String wayOfDelivery;
 
 	@XmlElement(name="Balance")
 	public double getBalance() {
@@ -139,6 +143,24 @@ public class InvoiceSubset {
 		this.invoiceDate = invoiceDate;
 	}
 
+	@XmlElement(name="InvoiceType")
+	public String getInvoiceType() {
+		return invoiceType;
+	}
+
+	public void setInvoiceType(String invoiceType) {
+		this.invoiceType = invoiceType;
+	}
+
+	@XmlElement(name="NoxFinans")
+	public boolean isNoxFinans() {
+		return noxFinans;
+	}
+
+	public void setNoxFinans(boolean noxFinans) {
+		this.noxFinans = noxFinans;
+	}
+
 	@XmlElement(name="OCR")	
 	public String getOCR() {
 		return OCR;
@@ -166,6 +188,15 @@ public class InvoiceSubset {
 		this.sent = sent;
 	}
 
+	@XmlElement(name="TermsOfPayment")
+	public String getTermsOfPayment() {
+		return termsOfPayment;
+	}
+
+	public void setTermsOfPayment(String termsOfPayment) {
+		this.termsOfPayment = termsOfPayment;
+	}
+
 	@XmlElement(name="Total")	
 	public double getTotal() {
 		return total;
@@ -175,4 +206,14 @@ public class InvoiceSubset {
 		this.total = total;
 	}
 
+	@XmlElement(name="WayOfDelivery")
+	public String getWayOfDelivery() {
+		return wayOfDelivery;
+	}
+
+	public void setWayOfDelivery(String wayOfDelivery) {
+		this.wayOfDelivery = wayOfDelivery;
+	}
+	
+	
 }
