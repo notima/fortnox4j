@@ -1174,7 +1174,7 @@ public class FortnoxClient3 {
 		}
 		if (contact==null) {
 			logger.warn("Could not find '" + taxId + "'");
-			throw new Exception("Could not find '" + taxId + "'");
+			return null;
 		} else {
 			return getSupplierBySupplierNo(contact.getSupplierNumber());
 		}

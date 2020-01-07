@@ -45,10 +45,10 @@ public class FortnoxClientList {
 	 */
 	public void generateApiMap(boolean regenerate) {
 		
-		if (apiClientMap!=null)
+		if (apiClientMap!=null) {
 			if (regenerate)
 				apiClientMap.clear();
-		else {
+		} else {
 			apiClientMap = new TreeMap<String, FortnoxApiClient>();
 		}
 		
