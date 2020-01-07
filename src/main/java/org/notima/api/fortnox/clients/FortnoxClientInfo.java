@@ -2,6 +2,10 @@ package org.notima.api.fortnox.clients;
 
 import java.util.Date;
 
+import javax.xml.bind.annotation.XmlTransient;
+
+import org.notima.api.fortnox.entities3.CompanySetting;
+
 /**
  * Class containing information about a Fortnox client
  * 
@@ -21,6 +25,9 @@ public class FortnoxClientInfo {
 
 	private String	pollType;
 	private Date	lastPollTime;
+	
+	@XmlTransient
+	private CompanySetting		companySetting;
 
 	/**
 	 * The client ID associated with this access token.
@@ -114,6 +121,14 @@ public class FortnoxClientInfo {
 
 	public void setLastPollTime(Date lastPollTime) {
 		this.lastPollTime = lastPollTime;
+	}
+
+	public CompanySetting getCompanySetting() {
+		return companySetting;
+	}
+
+	public void setCompanySetting(CompanySetting companySetting) {
+		this.companySetting = companySetting;
 	}
 
 	
