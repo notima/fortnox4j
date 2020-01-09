@@ -1058,7 +1058,7 @@ public class FortnoxClient3 {
 	 * @return  			The supplier.
 	 * @throws Exception	If something goes wrong.
 	 */
-	public Supplier setSupplier(Supplier supplier) throws Exception {
+	public Supplier setSupplier(Supplier supplier, boolean createNew) throws Exception {
 		
 		StringWriter result = new StringWriter();
 		ClassLoader cl = FortnoxClient3.class.getClassLoader();
@@ -1068,7 +1068,12 @@ public class FortnoxClient3 {
         marshaller.setProperty(javax.xml.bind.Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
         marshaller.marshal(supplier, result);
         
-        StringBuffer output = callFortnox("/suppliers", null, result.getBuffer());
+        StringBuffer output = callFortnox("/suppliers" + 
+        		(!createNew ? "/" + supplier.getSupplierNumber() : "")
+        		, null,
+        		result.getBuffer(),
+        		null, // Headers
+        		(!createNew ? "put" : null));
         
         ErrorInformation e = checkIfError(output);
 

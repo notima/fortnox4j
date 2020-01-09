@@ -16,7 +16,7 @@ public class TestCreateSupplier extends FortnoxTest {
 			s.setName("Fortnox4J");
 			s.setComments("Test supplier created by Fortnox4J");
 			
-			s = client.setSupplier(s);
+			s = client.setSupplier(s, true);
 			
 			log.info("Supplier {} successfully created.", s.getSupplierNumber());
 			
