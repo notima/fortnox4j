@@ -22,6 +22,8 @@ public class FortnoxClientInfo {
 	
 	private String	orgNo;
 	private String	orgName;
+	
+	private String	settingsSupplierNo;
 
 	private String	pollType;
 	private Date	lastPollTime;
@@ -114,6 +116,14 @@ public class FortnoxClientInfo {
 	public void setOrgName(String clientName) {
 		this.orgName = clientName;
 	}
+	
+	public String getSettingsSupplierNo() {
+		return settingsSupplierNo;
+	}
+
+	public void setSettingsSupplierNo(String settingsSupplierNo) {
+		this.settingsSupplierNo = settingsSupplierNo;
+	}
 
 	public Date getLastPollTime() {
 		return lastPollTime;
@@ -130,7 +140,5 @@ public class FortnoxClientInfo {
 	public void setCompanySetting(CompanySetting companySetting) {
 		this.companySetting = companySetting;
 	}
-
-	
 	
 }

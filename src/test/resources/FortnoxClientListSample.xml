@@ -13,6 +13,7 @@
             <clientId>TestClientId</clientId>
             <orgName>TestClientName</orgName>
             <orgNo>555555-5555</orgNo>
+            <settingsSupplierNo>1000</settingsSupplierNo>
         </FortnoxClientInfo>
     </FortnoxClients>
 </ns2:FortnoxClientList>

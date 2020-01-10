@@ -43,6 +43,7 @@ public class TestFortnoxClientInfo extends FortnoxTest {
 		fortnoxClient.setAccessToken("TestAccessToken");
 		fortnoxClient.setClientId(apiClient.getClientId());
 		fortnoxClient.setOrgName("TestOrgName");
+		fortnoxClient.setSettingsSupplierNo("1000");
 		
 		clientList.add(fortnoxClient);
 		ListOfClientInfo li = new ListOfClientInfo();
