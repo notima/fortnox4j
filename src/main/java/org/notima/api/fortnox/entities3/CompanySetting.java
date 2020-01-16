@@ -99,11 +99,11 @@ public class CompanySetting {
 		this.countryCode = countryCode;
 	}
 	@XmlElement(name="DatabaseNumber")
-	public String getDatabaseNubmer() {
+	public String getDatabaseNumber() {
 		return databaseNumber;
 	}
-	public void setDatabaseNubmer(String databaseNubmer) {
-		this.databaseNumber = databaseNubmer;
+	public void setDatabaseNumber(String databaseNumber) {
+		this.databaseNumber = databaseNumber;
 	}
 	@XmlElement(name="Domicile")
 	public String getDomicile() {

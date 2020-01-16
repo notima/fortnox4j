@@ -13,7 +13,7 @@ public class TestGetCompanySettings extends FortnoxTest {
 		try {
 			CompanySetting cs = client.getCompanySetting();
 			
-			log.info("Running tests on database: {} : {}", cs.getDatabaseNubmer(), cs.getName());
+			log.info("Running tests on database: {} : {}", cs.getDatabaseNumber(), cs.getName());
 			log.info("Adress: " + cs.getAdress() + " | Email: " + cs.getEmail() + 
 					"\nNumber: " + cs.getPhone1() + " | orgNr: " + cs.getOrganizationNumber() + " | Location: " + cs.getCity() + " " + cs.getZipCode()+
 					"\nBankGiro: " + cs.getBg()) ;
