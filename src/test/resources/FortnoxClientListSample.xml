@@ -30,17 +30,17 @@
 			These fields are not necessary since that information is obtainable
 			using only the clientSecret and accessToken.
 			However, currently, the organization number is used as a key to lookup
-			clientInfo records, so currently it must be provided in this field.
+			clientInfo records, so currently it must be provided in this record.
     	 -->
     
         <FortnoxClientInfo>
             <accessToken>TestAccessToken</accessToken>
             <!-- 
-            	This clientId must exist in a FortnoxApiClient record
+            	This clientId must normally exist in a FortnoxApiClient record
             	since the clientSecret is derived using the entry in 
             	FortnoxApiClient.
             	ClientSecret can also be supplied in this record, thus
-            	removing the need to have it separately in a FortnoxApiClient.
+            	removing the need to have it separately in a FortnoxApiClient record.
              -->
             <clientId>TestClientId</clientId>
             <orgName>TestClientName</orgName>
