@@ -1,6 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ns2:FortnoxClientList xmlns:ns2="https://github.com/notima/fortnox4j/clients">
+    
     <FortnoxApiClients>
+    
+    <!--
+    	FortnoxApiClients are the integration API clients, meaning the agent that
+    	accesses a specific Fortnox client in order to read/write data to Fortnox
+    	clients.
+    	An API client has an ID and a corresponding clientSecret. This secret is the
+    	secret of the actual API integration. The secret is combined with the specific
+    	accessToken of a specific Fortnox client to gain access to that Fortnox client.
+    	
+    	There can be many ApiClients with different purposes and access rights. This is
+    	why it's a list.  
+     -->
+    
         <FortnoxApiClient>
             <clientApiName>Fortnox4J</clientApiName>
             <clientId>TestClientId</clientId>
@@ -8,11 +22,34 @@
         </FortnoxApiClient>
     </FortnoxApiClients>
     <FortnoxClients>
+    
+    	<!--
+			A FortnoxClientInfo record contains information about a specific
+			Fortnox client (organization).
+			The orgName and orgNo fields are mostly for easy recognition in this file.
+			These fields are not necessary since that information is obtainable
+			using only the clientSecret and accessToken.
+			However, currently, the organization number is used as a key to lookup
+			clientInfo records, so currently it must be provided in this field.
+    	 -->
+    
         <FortnoxClientInfo>
             <accessToken>TestAccessToken</accessToken>
+            <!-- 
+            	This clientId must exist in a FortnoxApiClient record
+            	since the clientSecret is derived using the entry in 
+            	FortnoxApiClient.
+            	ClientSecret can also be supplied in this record, thus
+            	removing the need to have it separately in a FortnoxApiClient.
+             -->
             <clientId>TestClientId</clientId>
             <orgName>TestClientName</orgName>
             <orgNo>555555-5555</orgNo>
+            <!--
+            	The settingsSupplierNo is an optional field that points
+            	to the first supplier where settings are stored (if the settings
+            	functionality is used). 
+             -->
             <settingsSupplierNo>1000</settingsSupplierNo>
         </FortnoxClientInfo>
     </FortnoxClients>
