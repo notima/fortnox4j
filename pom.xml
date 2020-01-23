@@ -69,6 +69,7 @@
 				<excludes>
 					<exclude>test-config*</exclude>
 					<exclude>*.xml</exclude>
+					<exclude>*.si</exclude>
 				</excludes>
 			</resource>
 		</resources>
@@ -135,6 +136,7 @@
 					<!-- Below tests should only be run intentionally -->
 					<excludes>
 						<exclude>**/TestCreateSupplier.java</exclude>
+						<exclude>**/TestGetSieFile.java</exclude>
 					</excludes>
 				</configuration>
 			</plugin>

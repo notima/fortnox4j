@@ -1,9 +1,12 @@
 package org.notima.api.fortnox;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URL;
@@ -1657,5 +1660,51 @@ public class FortnoxClient3 {
 	public void setUseArticles(boolean useArticles) {
 		this.useArticles = useArticles;
 	}
+	
+
+	/**
+	 * Retrieve SIE file
+	 * 
+	 * @param sieType			1 (Year balance), 2 (Period Balance), 3 (Object Balance) or 4 (Transactions). 
+	 * @param financialYear		The financial year. Use getFinancialYear(Date) to find out the actual year.
+	 * @return					A StringBuffer that can be saved to a file.
+	 * @throws Exception		If something goes wrong.
+	 */
+	public StringBuffer retrieveSieFile(int sieType, int financialYear) throws Exception {
+		
+		StringBuffer result = getFortnox("/sie/" + sieType + "?financialyear=" + financialYear, null);
+		ErrorInformation e = checkIfError(result);
+		
+		if (e==null) {
+			return (result);
+		} else {
+			throw new FortnoxException(e);
+		}
+		
+	}
+	
+
+	/**
+	 * Retrieve SIE file and saves it to a file
+	 * 
+	 * @param sieType			1 (Year balance), 2 (Period Balance), 3 (Object Balance) or 4 (Transactions). 
+	 * @param financialYear		The financial year. Use getFinancialYear(Date) to find out the actual year.
+	 * @param dir				The directory where to save the file.
+	 * @param fileName			The filename part.
+	 * @return					The full pathname of the file saved.
+	 * @throws Exception		If something goes wring
+	 */
+	public String retrieveSieAndSaveToFile(int sieType, int financialYear, String dir, String fileName) throws Exception {
+
+		StringBuffer result = retrieveSieFile(sieType, financialYear);
+		File f = new File(dir + File.separator + fileName);
+		PrintWriter fr = new PrintWriter(new BufferedWriter(new FileWriter(f)));
+		fr.append(result);
+		fr.close();
+		return f.getAbsolutePath();
+		
+	}
+	
+	
 	
 }
