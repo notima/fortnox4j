@@ -907,7 +907,7 @@ public class FortnoxClient3 {
 		}
 		
 	}
-
+	
 	/**
 	 * Return customer invoices with the given filter.
 	 * 
@@ -941,8 +941,11 @@ public class FortnoxClient3 {
 	 * @throws Exception	If something goes wrong.
 	 */
 	public Invoices getInvoices(String filter, int page) throws Exception {
+		// Include the filter word if the filter is not a global search (containing key/values)
+		String filterWord = filter.contains("=") ? "" : "filter=";
+		
 		// Create request
-		StringBuffer result = callFortnox("/invoices/" + (filter!=null&&filter.trim().length()>0 ? "?filter=" + filter.trim() : "") , (page>1 ? ((filter!=null&&filter.trim().length()>0 ? "&" : "?") + "page=" + page) : null), null);
+		StringBuffer result = callFortnox("/invoices/" + (filter!=null&&filter.trim().length()>0 ? "?" + filterWord + filter.trim() : "") , (page>1 ? ((filter!=null&&filter.trim().length()>0 ? "&" : "?") + "page=" + page) : null), null);
 		ErrorInformation e = checkIfError(result);
 		Invoices r = new Invoices();
 		if (e==null) {
