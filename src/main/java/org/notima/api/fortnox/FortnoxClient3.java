@@ -533,7 +533,7 @@ public class FortnoxClient3 {
 	 * Gets an invoice with specific invoice number
 	 * 
 	 * @param invoiceNo			Fortnox Invoice Number
-	 * @return					The invoice
+	 * @return					The invoice, null if it doesn't exist.
 	 * @throws Exception		If something fails
 	 */
 	public org.notima.api.fortnox.entities3.Invoice getInvoice(String invoiceNo) throws Exception { 
@@ -551,6 +551,9 @@ public class FortnoxClient3 {
 	        c = (org.notima.api.fortnox.entities3.Invoice)JAXB.unmarshal(in, Invoice.class); //NOI18N
 	        return(c); 
 		} else {
+			if (FortnoxClient3.ERROR_CANT_FIND_INVOICE.equals(e.getCode())) {
+				return null;
+			}
 			throw new FortnoxException(e);
 		}
 		

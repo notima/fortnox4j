@@ -9,6 +9,9 @@ import javax.xml.bind.JAXB;
 import javax.xml.bind.JAXBException;
 
 import org.notima.api.fortnox.clients.FortnoxClientList;
+import org.notima.api.fortnox.entities3.Invoice;
+import org.notima.api.fortnox.entities3.InvoiceRow;
+import org.notima.api.fortnox.entities3.InvoiceRows;
 
 /**
  * Utility class for Fortnox API.
@@ -95,5 +98,73 @@ public class FortnoxUtil {
 		return result;
 		
 	}
+	
+	/**
+	 * Purges an invoice from read-only fields and optional other fields.
+	 * Handy when copying an invoice.
+	 * 
+	 * @param src					The invoice to be purged. This record is changed and returned.
+	 * @param removeArticleNo		Remove references to articles.
+	 * @param removeCostCenter		Remove references to cost center.
+	 * @param removeProject			Remove references to project.
+	 * @return		A purged invoice.
+	 */
+	public static Invoice purgeInvoice(Invoice src, boolean removeArticleNo, boolean removeCostCenter, boolean removeProject) {
+		
+		// Clear read only fields
+		src.setAdministrationFeeVAT(null);
+		src.setBasisTaxReduction(null);
+		src.setBalance(null);
+		src.setBooked(null);
+		src.setCancelled(null);
+		src.setCredit(null);
+		src.setCreditInvoiceReference(null);
+		src.setContributionPercent(null);
+		src.setContributionValue(null);
+		src.setFreightVAT(null);
+		src.setGross(null);
+		src.setHouseWork(null);
+		src.setInvoicePeriodStart(null);
+		src.setInvoicePeriodEnd(null);
+		src.setLastRemindDate(null);
+		src.setNet(null);
+		src.setOfferReference(null);
+		src.setOrderReference(null);
+		src.setInvoiceReference(null);
+		src.setOrganisationNumber(null);
+		src.setReminders(null);
+		src.setRoundOff(null);
+		src.setSent(null);
+		src.setTaxReduction(null);
+		src.setTotal(null);
+		src.setTotalVAT(null);
+		src.setVoucherNumber(null);
+		src.setVoucherSeries(null);
+		src.setVoucherYear(null);
+		src.setEdiInformation(null);
+		src.setTotalToPay(null);
+		if (removeProject)
+			src.setProject(null);
+		if (removeCostCenter)
+			src.setCostCenter(null);
+		
+		// Clear on row level
+		InvoiceRows rows = src.getInvoiceRows();
+		for (InvoiceRow r : rows.getInvoiceRow()) {
+			r.setContributionPercent(null);
+			r.setContributionValue(null);
+			// Don't use articles, costcenters or projects
+			if (removeArticleNo)
+				r.setArticleNumber(null);
+			if (removeProject)
+				r.setProject(null);
+			if (removeCostCenter)
+				r.setCostCenter(null);
+		}
+		
+		return src;
+		
+	}
+	
 	
 }
