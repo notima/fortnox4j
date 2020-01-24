@@ -1,7 +1,10 @@
 package org.notima.api.fortnox;
 
 import java.io.File;
+import java.io.PrintStream;
 import java.net.URL;
+import java.util.Date;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -9,9 +12,12 @@ import javax.xml.bind.JAXB;
 import javax.xml.bind.JAXBException;
 
 import org.notima.api.fortnox.clients.FortnoxClientList;
+import org.notima.api.fortnox.entities3.Customer;
 import org.notima.api.fortnox.entities3.Invoice;
 import org.notima.api.fortnox.entities3.InvoiceRow;
 import org.notima.api.fortnox.entities3.InvoiceRows;
+import org.notima.api.fortnox.entities3.InvoiceSubset;
+import org.notima.api.fortnox.entities3.Invoices;
 
 /**
  * Utility class for Fortnox API.
@@ -96,6 +102,67 @@ public class FortnoxUtil {
 		result = JAXB.unmarshal(f, FortnoxClientList.class);
 		
 		return result;
+		
+	}
+	
+	/**
+	 * Copies customer invoices from one Fortnox client to another.
+	 * 
+	 * @param clSrc			The source client.
+	 * @param clDst			The destination client.
+	 * @param fromDate		From date
+	 * @param untilDate		Until date
+	 * @param os			Optional output stream to print progress.
+	 * @return				The number of invoices copied.
+	 * @throws 				Exception if something goes wrong.
+	 */
+	public static int copyCustomerInvoices(
+			FortnoxClient3 clSrc, 
+			FortnoxClient3 clDst, 
+			Date fromDate, 
+			Date untilDate,
+			PrintStream os) throws Exception {
+		
+		int invoiceCount = 0;
+		
+		Invoices src = clSrc.getAllCustomerInvoicesByDateRange(fromDate, untilDate);
+		List<InvoiceSubset> subset = src.getInvoiceSubset();
+		Invoice i, existingInvoice;
+		
+		Customer customer, dstCustomer;
+		String custNo, invoiceNo;
+		for (InvoiceSubset is : subset) {
+
+			i = clSrc.getInvoice(is.getDocumentNumber());
+			custNo = i.getCustomerNumber();
+			customer = clSrc.getCustomerByCustNo(custNo);
+			dstCustomer = clDst.getCustomerByCustNo(custNo);
+			if (dstCustomer==null) {
+				if (os!=null)
+					os.println("Creating new customer " + customer.getCustomerNumber() + " : " + customer.getName());
+				// Clear read only fields
+				customer.setCountry(null);
+				customer.setDeliveryCountry(null);
+				dstCustomer = clDst.setCustomer(customer);
+			}
+			i.setCustomerNumber(dstCustomer.getCustomerNumber());
+			// See if invoice already exists
+			invoiceNo = i.getDocumentNumber();
+			existingInvoice = clDst.getInvoice(invoiceNo);
+			if (existingInvoice==null) {
+				// Clear invoice number, since we can't have an invoice number set when creating a new invoice
+				i.setDocumentNumber(null);
+			}
+			// Purge the invoice from read-only fields
+			FortnoxUtil.purgeInvoice(i, true, true, true);
+			// Persist the invoice
+			clDst.setInvoice(i);
+			invoiceCount++;
+			if (os!=null)
+				os.println("Invoice No " + invoiceNo + " copied");
+		}
+		
+		return invoiceCount;
 		
 	}
 	
