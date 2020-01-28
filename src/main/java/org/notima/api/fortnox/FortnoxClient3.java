@@ -945,7 +945,7 @@ public class FortnoxClient3 {
 	 */
 	public Invoices getInvoices(String filter, int page) throws Exception {
 		// Include the filter word if the filter is not a global search (containing key/values)
-		String filterWord = filter.contains("=") ? "" : "filter=";
+		String filterWord = filter!=null && filter.contains("=") ? "" : "filter=";
 		
 		// Create request
 		StringBuffer result = callFortnox("/invoices/" + (filter!=null&&filter.trim().length()>0 ? "?" + filterWord + filter.trim() : "") , (page>1 ? ((filter!=null&&filter.trim().length()>0 ? "&" : "?") + "page=" + page) : null), null);
