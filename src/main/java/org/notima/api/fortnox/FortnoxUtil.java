@@ -105,6 +105,22 @@ public class FortnoxUtil {
 		
 	}
 	
+	
+	/**
+	 * Writes a Fortnox Client list to XML-file
+	 * 
+	 * @param list				The client list
+	 * @param fileName			Should be absolute path to avoid saving the file in wrong location
+	 * @throws JAXBException	If XML can't be parsed. 
+	 */
+	public static void writeFortnoxClientListToFile(FortnoxClientList list, String fileName) throws JAXBException {
+		
+		File f = new File(fileName);
+		JAXB.marshal(list, f);
+		
+	}
+	
+	
 	/**
 	 * Copies customer invoices from one Fortnox client to another.
 	 * 
