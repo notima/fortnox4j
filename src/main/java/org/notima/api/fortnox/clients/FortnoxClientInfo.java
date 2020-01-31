@@ -28,6 +28,8 @@ public class FortnoxClientInfo {
 	private String	pollType;
 	private Date	lastPollTime;
 	
+	private String	customSettings;
+	
 	@XmlTransient
 	private CompanySetting		companySetting;
 
@@ -131,6 +133,14 @@ public class FortnoxClientInfo {
 
 	public void setLastPollTime(Date lastPollTime) {
 		this.lastPollTime = lastPollTime;
+	}
+	
+	public String getCustomSettings() {
+		return customSettings;
+	}
+
+	public void setCustomSettings(String customSettings) {
+		this.customSettings = customSettings;
 	}
 
 	public CompanySetting getCompanySetting() {

@@ -43,6 +43,10 @@
             	removing the need to have it separately in a FortnoxApiClient record.
              -->
             <clientId>TestClientId</clientId>
+            <!--
+            	The custom setting can be used for arbitrary data 
+             -->
+            <customSettings>{ "someJsonSetting" : "setting" }</customSettings>
             <orgName>TestClientName</orgName>
             <orgNo>555555-5555</orgNo>
             <!--

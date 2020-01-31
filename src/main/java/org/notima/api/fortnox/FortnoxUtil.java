@@ -168,6 +168,8 @@ public class FortnoxUtil {
 			if (existingInvoice==null) {
 				// Clear invoice number, since we can't have an invoice number set when creating a new invoice
 				i.setDocumentNumber(null);
+				// Copy source invoice number to extInvoiceNo2
+				i.setExternalInvoiceReference2(i.getDocumentNumber());
 			}
 			// Purge the invoice from read-only fields
 			FortnoxUtil.purgeInvoice(i, true, true, true);
