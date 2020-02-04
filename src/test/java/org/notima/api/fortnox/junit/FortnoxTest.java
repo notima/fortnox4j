@@ -2,6 +2,10 @@ package org.notima.api.fortnox.junit;
 
 import static org.junit.Assert.fail;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.net.URL;
+
 import org.junit.BeforeClass;
 import org.notima.api.fortnox.FortnoxClient3;
 import org.slf4j.Logger;
@@ -39,6 +43,28 @@ public class FortnoxTest {
 		client = TestUtil.getFortnoxClient();
 		if (client==null) {
 			fail("Missing test-config3.xml. Please rename config3-template.xml and fill in your authorization details.");
+		}
+		
+	}
+	
+	/**
+	 * Gets a file by first trying to find it as absolute path and then as a resource in classpath
+	 * 
+	 * @param filename
+	 * @return	The file
+	 * @throws FileNotFoundException 
+	 */
+	public File getFile(String filename) throws FileNotFoundException {
+		
+		File f = new File(filename);
+		if (!f.exists()) {
+			// Try finding it as a resource
+			URL url = ClassLoader.getSystemResource(filename);
+			if (url==null) throw new FileNotFoundException(filename);
+			f = new File(url.getFile());
+			return f;
+		} else {
+			return f;
 		}
 		
 	}

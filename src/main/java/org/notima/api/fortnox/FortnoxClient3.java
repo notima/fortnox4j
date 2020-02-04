@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringReader;
@@ -30,15 +31,24 @@ import org.apache.commons.configuration.FileConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.util.EntityUtils;
 import org.notima.api.fortnox.entities3.AccountSubset;
 import org.notima.api.fortnox.entities3.Accounts;
 import org.notima.api.fortnox.entities3.Authorization;
@@ -49,6 +59,7 @@ import org.notima.api.fortnox.entities3.Customers;
 import org.notima.api.fortnox.entities3.ErrorInformation;
 import org.notima.api.fortnox.entities3.FinancialYearSubset;
 import org.notima.api.fortnox.entities3.FinancialYears;
+import org.notima.api.fortnox.entities3.FortnoxFile;
 import org.notima.api.fortnox.entities3.Invoice;
 import org.notima.api.fortnox.entities3.InvoicePayment;
 import org.notima.api.fortnox.entities3.InvoiceRow;
@@ -179,6 +190,15 @@ public class FortnoxClient3 {
 	 */
 	public static final String ERROR_CANT_FIND_CUSTOMER = "2000433";
 	public static final String ERROR_CANT_FIND_INVOICE = "2000434";
+	
+	/**
+	 * Inbox folders
+	 */
+	public static final String	INBOX_SUPPLIER_INVOICES = "inbox_s";
+	public static final String	INBOX_VOUCHERS = "inbox_v";
+	public static final String	INBOX_DAILY_TAKINGS = "inbox_d";
+	public static final String	INBOX_ASSET_REGISTER = "inbox_a";
+	public static final String	INBOX_BANK_FILES = "inbox_b";
 	
 	/**
 	 * Default values
@@ -1708,6 +1728,68 @@ public class FortnoxClient3 {
 		fr.append(result);
 		fr.close();
 		return f.getAbsolutePath();
+		
+	}
+	
+	/**
+	 * Upload a binary file (or at least it's uploaded as binary) to given inbox in Fortnox.
+	 * 
+	 * @param file			Full pathname to file to be uploaded.
+	 * @param folderId		Any of 
+	 * 							INBOX_SUPPLIER_INVOICES
+	 * 							INBOX_VOUCHERS
+	 * 							INBOX_DAILY_TAKINGS
+	 * 							INBOX_ASSET_REGISTER
+	 * 							INBOX_BANK_FILES
+	 * @return
+	 * @throws Exception 
+	 */
+	public FortnoxFile uploadFile(String file, String folderId) throws Exception {
+		
+		FortnoxFile of = null;
+		
+		CloseableHttpClient httpclient = HttpClients.createDefault();
+		
+		File f = new File(file);
+		// Build multipart upload request
+		HttpEntity data = MultipartEntityBuilder.create()
+				.setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
+				.addBinaryBody("file", f, ContentType.DEFAULT_BINARY, f.getName())
+				.build();
+		
+		// Build http request and assign multipart upload data
+		HttpUriRequest request = RequestBuilder
+				.post(m_baseUrl + "/inbox?folderid=" + folderId)
+				.setHeader("Access-Token", m_accessToken)
+				.setHeader("Client-Secret", m_clientSecret)
+				.setHeader("Accept", "application/xml")
+				.setEntity(data)
+				.build();
+
+		ResponseHandler<String> responseHandler = response -> {
+			int status = response.getStatusLine().getStatusCode();
+			HttpEntity entity = response.getEntity();
+			if (status >= 200 && status < 300) {
+				return entity !=null ? EntityUtils.toString(entity) : null;
+			} else {
+				System.out.println(EntityUtils.toString(entity));
+				throw new ClientProtocolException("Unexpected response status: " + status);
+			}
+		};
+				 
+		StringBuffer result = new StringBuffer(httpclient.execute(request, responseHandler));
+		
+		ErrorInformation e = checkIfError(result);
+		
+		StringReader r = new StringReader(result.toString());
+		
+		if (e==null) {
+			of = JAXB.unmarshal(r, FortnoxFile.class);
+		} else {
+			throw new FortnoxException(e);
+		}
+		
+		return of;	
 		
 	}
 	

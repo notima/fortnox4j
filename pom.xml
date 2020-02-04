@@ -26,6 +26,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpmime</artifactId>
+			<version>4.5.10</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpcore</artifactId>
 			<version>4.4.12</version>
 		</dependency>
@@ -137,6 +142,7 @@
 					<excludes>
 						<exclude>**/TestCreateSupplier.java</exclude>
 						<exclude>**/TestGetSieFile.java</exclude>
+						<exclude>**/TestPostBankFile.java</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
