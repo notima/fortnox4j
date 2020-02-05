@@ -5,7 +5,6 @@ import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringReader;
@@ -64,6 +63,7 @@ import org.notima.api.fortnox.entities3.Invoice;
 import org.notima.api.fortnox.entities3.InvoicePayment;
 import org.notima.api.fortnox.entities3.InvoiceRow;
 import org.notima.api.fortnox.entities3.Invoices;
+import org.notima.api.fortnox.entities3.ModesOfPayments;
 import org.notima.api.fortnox.entities3.Order;
 import org.notima.api.fortnox.entities3.Orders;
 import org.notima.api.fortnox.entities3.PreDefinedAccount;
@@ -1030,6 +1030,56 @@ public class FortnoxClient3 {
 			throw new FortnoxException(e);
 		}
 	}
+	
+
+	/**
+	 * Gets all modes of payments
+	 * 
+	 * @return		All modes of payments
+	 * @throws Exception
+	 */
+	public ModesOfPayments getModesOfPayments() throws Exception {
+
+		ModesOfPayments r = getModesOfPayments(0);
+		
+		int currentPage = 1;
+		int totalPages = r.getTotalPages();
+		while (currentPage<totalPages) {
+			// Pause not to exceed call limit
+			Thread.sleep(100);
+			ModesOfPayments subset = getModesOfPayments(currentPage+1);
+			r.getModeOfPaymentSubset().addAll(subset.getModeOfPaymentSubset());
+			currentPage = subset.getCurrentPage();
+		}
+
+		return r;
+		
+	}
+	
+	/**
+	 * Gets a page modes of payments
+	 *  
+	 * @param page			The page to get
+	 * @return	A ModesOfPayments struct containing a list of ModeOfPaymentSubset
+	 * @throws Exception	if something fails
+	 */
+	public ModesOfPayments getModesOfPayments(int page) throws Exception {
+		// Create request
+		StringBuffer result = callFortnox("/modesofpayments/", (page>1 ? ("?page=" + page) : null), null);
+		ErrorInformation e = checkIfError(result);
+		ModesOfPayments r = new ModesOfPayments();
+		if (e==null) {
+
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(result.toString().getBytes()), "UTF-8"));
+	        r = JAXB.unmarshal(in,  r.getClass()); //NOI18N
+	        return(r);
+	        
+		} else {
+			throw new FortnoxException(e);
+		}
+	}
+	
 	
 	/**
 	 * Read all suppliers
