@@ -63,6 +63,7 @@ import org.notima.api.fortnox.entities3.Invoice;
 import org.notima.api.fortnox.entities3.InvoicePayment;
 import org.notima.api.fortnox.entities3.InvoiceRow;
 import org.notima.api.fortnox.entities3.Invoices;
+import org.notima.api.fortnox.entities3.LockedPeriod;
 import org.notima.api.fortnox.entities3.ModesOfPayments;
 import org.notima.api.fortnox.entities3.Order;
 import org.notima.api.fortnox.entities3.Orders;
@@ -1870,6 +1871,37 @@ public class FortnoxClient3 {
 	public Invoices getUnpaidCustomerInvoices() throws Exception {
 		Invoices result = getInvoices(FortnoxClient3.FILTER_UNPAID);
 		return result;
+	}
+
+	/**
+	 * Returns the date until which accounting is locked.
+	 * If no lock exists, null is returned.
+	 * 
+	 * @return		Date until accounting is locked. If no lock, null.
+	 * @throws Exception
+	 */
+	public Date getLockedPeriodUntil() throws Exception {
+		
+		LockedPeriod lp = null;
+		
+		StringBuffer result = callFortnox("/settings/lockedperiod", null, null);
+		
+		ErrorInformation e = checkIfError(result);
+		if (e==null) {
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(result.toString().getBytes()), "UTF-8"));
+	        lp = JAXB.unmarshal(in, LockedPeriod.class);
+	        if (lp!=null) {
+	        	if (lp.getEndDate()==null || lp.getEndDate().trim().length()==0)
+	        		return null;
+	        	return FortnoxClient3.s_dfmt.parse(lp.getEndDate());
+	        } else {
+	        	return null;
+	        }
+		} else {
+			throw new FortnoxException(e);
+		}
+		
 	}
 	
 	
