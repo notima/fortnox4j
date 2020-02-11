@@ -129,6 +129,51 @@ public class Fortnox4JSettings {
 		return rider.getSettingsMap();
 		
 	}
+
+	/**
+	 * Writes a setting to supplier
+	 * 
+	 * @param supplierNo		Supplier no
+	 * @param settingKey		Setting key
+	 * @param settingValue		Setting value
+	 * @return	The supplier if successful. Null if supplier is not found.
+	 * @throws Exception 		If something goes wrong
+	 */
+	public Supplier writeSettingToSupplier(
+			String supplierNo, 
+			String settingKey, 
+			String settingValue) throws Exception {
+
+		
+		Supplier supplier = client.getSupplierBySupplierNo(supplierNo);
+		if (supplier==null) {
+			log.warn("Supplier with no {} doesn't exist.", supplierNo);
+			return null;
+		}
+		
+		String comment = supplier.getComments();
+		
+		// Scan for settings in comments
+		FieldRider rider = new FieldRider(comment);
+		FieldRiderKeyValuePair kvp = rider.lookupKeyValuePair(settingKey);
+		if (kvp==null) {
+			// The key doesn't yet exist.
+			kvp = new FieldRiderKeyValuePair(settingKey, settingValue);
+			rider.addKeyValuePair(kvp);
+		} else {
+			// Update the value
+			kvp.setValue(settingValue);
+		}
+
+		// Save the setting
+		StringBuffer newContent = rider.updateContent();
+		supplier.setComments(newContent.toString());
+		
+		supplier = client.setSupplier(supplier, false);
+		
+		return supplier;
+	}
+	
 	
 	/**
 	 * Writes a setting to supplier

@@ -191,6 +191,7 @@ public class FortnoxClient3 {
 	 */
 	public static final String ERROR_CANT_FIND_CUSTOMER = "2000433";
 	public static final String ERROR_CANT_FIND_INVOICE = "2000434";
+	public static final String ERROR_NOT_AUTH_FOR_SCOPE = "2000663";
 	
 	/**
 	 * Inbox folders
