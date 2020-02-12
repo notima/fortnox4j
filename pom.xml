@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.notima.api</groupId>
 	<artifactId>fortnox4j</artifactId>
-	<version>1.8.8-SNAPSHOT</version>
+	<version>1.8.8</version>
 	<name>Fortnox Java API</name>
 
 	<distributionManagement>
@@ -74,7 +74,13 @@
 				<excludes>
 					<exclude>test-config*</exclude>
 					<exclude>*.xml</exclude>
+				</excludes>
+			</resource>
+			<resource>
+				<directory>**</directory>
+				<excludes>
 					<exclude>*.si</exclude>
+					<exclude>*.IN</exclude>
 				</excludes>
 			</resource>
 		</resources>

@@ -15,7 +15,7 @@ import org.notima.api.fortnox.entities3.FinancialYearSubset;
  */
 public class TestGetSieFile extends FortnoxTest {
 
-	String TEST_DATE = "2019-12-01";
+	String TEST_DATE = "2020-01-01";
 	
 	@Test
 	public void testGetSieFile() throws Exception{
