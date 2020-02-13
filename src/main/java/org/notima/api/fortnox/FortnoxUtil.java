@@ -120,14 +120,15 @@ public class FortnoxUtil {
 		
 	}
 	
+
+	
 	
 	/**
 	 * Copies customer invoices from one Fortnox client to another.
 	 * 
 	 * @param clSrc			The source client.
 	 * @param clDst			The destination client.
-	 * @param fromDate		From date
-	 * @param untilDate		Until date
+	 * @param invoices		The invoices to be copied. Must belong to the source client clSrc. 
 	 * @param os			Optional output stream to print progress.
 	 * @return				The number of invoices copied.
 	 * @throws 				Exception if something goes wrong.
@@ -135,14 +136,12 @@ public class FortnoxUtil {
 	public static int copyCustomerInvoices(
 			FortnoxClient3 clSrc, 
 			FortnoxClient3 clDst, 
-			Date fromDate, 
-			Date untilDate,
+			Invoices invoices, 
 			PrintStream os) throws Exception {
 		
 		int invoiceCount = 0;
 		
-		Invoices src = clSrc.getAllCustomerInvoicesByDateRange(fromDate, untilDate);
-		List<InvoiceSubset> subset = src.getInvoiceSubset();
+		List<InvoiceSubset> subset = invoices.getInvoiceSubset();
 		Invoice i, existingInvoice;
 		
 		Customer customer, dstCustomer;
@@ -181,6 +180,31 @@ public class FortnoxUtil {
 		}
 		
 		return invoiceCount;
+		
+	}
+	
+	
+	/**
+	 * Copies customer invoices from one Fortnox client to another.
+	 * 
+	 * @param clSrc			The source client.
+	 * @param clDst			The destination client.
+	 * @param fromDate		From date
+	 * @param untilDate		Until date
+	 * @param os			Optional output stream to print progress.
+	 * @return				The number of invoices copied.
+	 * @throws 				Exception if something goes wrong.
+	 */
+	public static int copyCustomerInvoices(
+			FortnoxClient3 clSrc, 
+			FortnoxClient3 clDst, 
+			Date fromDate, 
+			Date untilDate,
+			PrintStream os) throws Exception {
+		
+		Invoices src = clSrc.getAllCustomerInvoicesByDateRange(fromDate, untilDate);
+				
+		return copyCustomerInvoices(clSrc, clDst, src, os);
 		
 	}
 	

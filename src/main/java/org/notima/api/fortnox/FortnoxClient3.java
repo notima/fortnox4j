@@ -13,6 +13,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -62,6 +63,7 @@ import org.notima.api.fortnox.entities3.FortnoxFile;
 import org.notima.api.fortnox.entities3.Invoice;
 import org.notima.api.fortnox.entities3.InvoicePayment;
 import org.notima.api.fortnox.entities3.InvoiceRow;
+import org.notima.api.fortnox.entities3.InvoiceSubset;
 import org.notima.api.fortnox.entities3.Invoices;
 import org.notima.api.fortnox.entities3.LockedPeriod;
 import org.notima.api.fortnox.entities3.ModesOfPayments;
@@ -1874,6 +1876,26 @@ public class FortnoxClient3 {
 		return result;
 	}
 
+	/**
+	 * Returns a list of unpaid and unbooked invoices (union)
+	 * @return 	A list of unpaid and unbooked invoices (union)
+	 * @throws Exception 	If something goes wrong.
+	 */
+	public Invoices getUnpaidAndUnbookedCustomerInvoices() throws Exception {
+		
+		Invoices unpaid = getInvoices(FortnoxClient3.FILTER_UNPAID);
+		Invoices unbooked = getInvoices(FortnoxClient3.FILTER_UNBOOKED);
+		Invoices result = new Invoices();
+		result.setInvoiceSubset(new ArrayList<InvoiceSubset>());
+		if (unpaid!=null && unpaid.getInvoiceSubset()!=null) {
+			result.getInvoiceSubset().addAll(unpaid.getInvoiceSubset());
+		}
+		if (unbooked!=null && unbooked.getInvoiceSubset()!=null) {
+			result.getInvoiceSubset().addAll(unbooked.getInvoiceSubset());
+		}
+		return result;
+	}
+	
 	/**
 	 * Returns the date until which accounting is locked.
 	 * If no lock exists, null is returned.
