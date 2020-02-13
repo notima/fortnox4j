@@ -1144,12 +1144,7 @@ public class FortnoxClient3 {
 	public Supplier setSupplier(Supplier supplier, boolean createNew) throws Exception {
 		
 		StringWriter result = new StringWriter();
-		ClassLoader cl = FortnoxClient3.class.getClassLoader();
-        javax.xml.bind.JAXBContext jaxbCtx = javax.xml.bind.JAXBContext.newInstance(supplier.getClass().getPackage().getName(), cl);
-        javax.xml.bind.Marshaller marshaller = jaxbCtx.createMarshaller();
-        marshaller.setProperty(javax.xml.bind.Marshaller.JAXB_ENCODING, "UTF-8"); //NOI18N
-        marshaller.setProperty(javax.xml.bind.Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-        marshaller.marshal(supplier, result);
+		JAXB.marshal(supplier, result);
         
         StringBuffer output = callFortnox("/suppliers" + 
         		(!createNew ? "/" + supplier.getSupplierNumber() : "")
@@ -1279,12 +1274,7 @@ public class FortnoxClient3 {
 	public InvoicePayment setCustomerPayment(InvoicePayment payment) throws Exception {
 
 		StringWriter result = new StringWriter();
-		ClassLoader cl = FortnoxClient3.class.getClassLoader();
-        javax.xml.bind.JAXBContext jaxbCtx = javax.xml.bind.JAXBContext.newInstance(payment.getClass().getPackage().getName(), cl);
-        javax.xml.bind.Marshaller marshaller = jaxbCtx.createMarshaller();
-        marshaller.setProperty(javax.xml.bind.Marshaller.JAXB_ENCODING, "UTF-8"); //NOI18N
-        marshaller.setProperty(javax.xml.bind.Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-        marshaller.marshal(payment, result);
+		JAXB.marshal(payment, result);
 		
         StringBuffer output = callFortnox("/invoicepayments" + 
         		(payment.getNumber()!=null && payment.getNumber()>0 ? "/" + payment.getNumber() : ""), 
@@ -1320,11 +1310,6 @@ public class FortnoxClient3 {
 	public Invoice setInvoice(Invoice invoice) throws Exception {
 		
 		StringWriter result = new StringWriter();
-		ClassLoader cl = FortnoxClient3.class.getClassLoader();
-        javax.xml.bind.JAXBContext jaxbCtx = javax.xml.bind.JAXBContext.newInstance(invoice.getClass().getPackage().getName(), cl);
-        javax.xml.bind.Marshaller marshaller = jaxbCtx.createMarshaller();
-        marshaller.setProperty(javax.xml.bind.Marshaller.JAXB_ENCODING, "UTF-8"); //NOI18N
-        marshaller.setProperty(javax.xml.bind.Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
         
         // Remove totals from invoice lines (read only)
         for (InvoiceRow ir : invoice.getInvoiceRows().getInvoiceRow()) {
@@ -1340,7 +1325,7 @@ public class FortnoxClient3 {
         	}
         }
         
-        marshaller.marshal(invoice, result);
+		JAXB.marshal(invoice, result);
        
         StringBuffer output = callFortnox("/invoices" + 
         		(invoice.getDocumentNumber()!=null && invoice.getDocumentNumber().trim().length()>0 ? "/" + invoice.getDocumentNumber().trim() : ""), 
@@ -1376,15 +1361,8 @@ public class FortnoxClient3 {
 	public Voucher setVoucher(Voucher voucher) throws FortnoxException, Exception {
 		
 		StringWriter result = new StringWriter();
-		ClassLoader cl = FortnoxClient3.class.getClassLoader();
-        javax.xml.bind.JAXBContext jaxbCtx = javax.xml.bind.JAXBContext.newInstance(voucher.getClass().getPackage().getName(), cl);
-        javax.xml.bind.Marshaller marshaller = jaxbCtx.createMarshaller();
-        marshaller.setProperty(javax.xml.bind.Marshaller.JAXB_ENCODING, "UTF-8"); //NOI18N
-        marshaller.setProperty(javax.xml.bind.Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 
         JAXB.marshal(voucher, result);
-        
-        // marshaller.marshal(voucher, result);
        
         StringBuffer output = callFortnox("/vouchers" + 
         		(voucher.getVoucherNumber()!=null && voucher.getVoucherNumber()>0 ? "/" + voucher.getVoucherNumber() : ""), 
@@ -1418,12 +1396,7 @@ public class FortnoxClient3 {
 	public Customer setCustomer(Customer customer) throws Exception {
 		
 		StringWriter result = new StringWriter();
-		ClassLoader cl = FortnoxClient3.class.getClassLoader();
-        javax.xml.bind.JAXBContext jaxbCtx = javax.xml.bind.JAXBContext.newInstance(customer.getClass().getPackage().getName(), cl);
-        javax.xml.bind.Marshaller marshaller = jaxbCtx.createMarshaller();
-        marshaller.setProperty(javax.xml.bind.Marshaller.JAXB_ENCODING, "UTF-8"); //NOI18N
-        marshaller.setProperty(javax.xml.bind.Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-        marshaller.marshal(customer, result);
+        JAXB.marshal(customer, result);
         
         StringBuffer output = callFortnox("/customers", null, result.getBuffer());
         
