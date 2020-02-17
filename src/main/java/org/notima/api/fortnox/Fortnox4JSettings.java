@@ -96,7 +96,7 @@ public class Fortnox4JSettings {
 	public Map<String, String> getSettingsFromSupplierByOrgNo(
 			String supplierOrgNo) throws Exception {
 		
-		
+		if (supplierOrgNo==null) return null;
 		Supplier supplier = client.getSupplierByTaxId(supplierOrgNo, true);
 		if (supplier==null) {
 			log.warn("Supplier with tax id {} doesn't exist.", supplierOrgNo);
@@ -119,6 +119,7 @@ public class Fortnox4JSettings {
 	 */
 	public Map<String, String> getSettingsFromSupplierNo(String supplierNo) throws Exception {
 		
+		if (supplierNo==null) return null;
 		Supplier supplier = client.getSupplierBySupplierNo(supplierNo);
 		if (supplier==null) {
 			log.warn("Supplier with no {} doesn't exist.", supplierNo);

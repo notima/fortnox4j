@@ -665,7 +665,7 @@ public class FortnoxClient3 {
 	 * This map is excellent to check if a given accounts exists and is active before trying to post to
 	 * it.
 	 * 
-	 * @param  date		If null, current date is used.
+	 * @param  acctDate		If null, current date is used.
 	 * @return	A map of account subsets.
 	 * @throws Exception If something goes wrong.
 	 */
