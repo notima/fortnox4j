@@ -1,22 +1,19 @@
 package org.notima.api.fortnox.junit;
 
+import java.util.Map;
+
 import org.junit.Test;
 import org.notima.api.fortnox.entities3.AccountSubset;
-import org.notima.api.fortnox.entities3.Accounts;
-import org.notima.api.fortnox.entities3.FinancialYearSubset;
 
 public class TestGetAccounts extends FortnoxTest {
 	
-	private FinancialYearSubset fy;
-	
 	
 	@Test
-	public void testGetAccounts() throws Exception {
+	public void testGetAccountMap() throws Exception {
+
+		Map<String, AccountSubset> acctMap = client.getAccountMap(null);
 		
-		fy = client.getFinancialYear(null);
-		Accounts accounts = client.getAccounts(fy.getId());
-		
-		for (AccountSubset a : accounts.getAccountSubset()) {
+		for (AccountSubset a : acctMap.values()) {
 			if (a.getVATCode()!=null && a.getVATCode().trim().length()>0)
 				System.out.println(a.getNumber() + " : " + a.getDescription() + " : " + a.getVATCode());
 		}

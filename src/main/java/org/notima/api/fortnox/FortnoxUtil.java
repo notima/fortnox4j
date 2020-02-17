@@ -125,6 +125,8 @@ public class FortnoxUtil {
 	
 	/**
 	 * Copies customer invoices from one Fortnox client to another.
+	 * The source invoice number (document number) is copied to externalInvoiceReference2 of the 
+	 * destination invoice.
 	 * 
 	 * @param clSrc			The source client.
 	 * @param clDst			The destination client.
@@ -140,6 +142,11 @@ public class FortnoxUtil {
 			PrintStream os) throws Exception {
 		
 		int invoiceCount = 0;
+
+		// Make sure that source and destination are not the same
+		if (clSrc.equals(clDst)) {
+			throw new Exception("Source and destination are the same. Won't copy!");
+		}
 		
 		List<InvoiceSubset> subset = invoices.getInvoiceSubset();
 		Invoice i, existingInvoice;

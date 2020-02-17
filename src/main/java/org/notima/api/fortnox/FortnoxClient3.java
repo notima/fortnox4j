@@ -66,6 +66,7 @@ import org.notima.api.fortnox.entities3.InvoiceRow;
 import org.notima.api.fortnox.entities3.InvoiceSubset;
 import org.notima.api.fortnox.entities3.Invoices;
 import org.notima.api.fortnox.entities3.LockedPeriod;
+import org.notima.api.fortnox.entities3.ModeOfPaymentSubset;
 import org.notima.api.fortnox.entities3.ModesOfPayments;
 import org.notima.api.fortnox.entities3.Order;
 import org.notima.api.fortnox.entities3.Orders;
@@ -75,6 +76,8 @@ import org.notima.api.fortnox.entities3.Supplier;
 import org.notima.api.fortnox.entities3.SupplierSubset;
 import org.notima.api.fortnox.entities3.Suppliers;
 import org.notima.api.fortnox.entities3.Voucher;
+import org.notima.api.fortnox.entities3.VoucherSeriesCollection;
+import org.notima.api.fortnox.entities3.VoucherSeriesSubset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -345,7 +348,14 @@ public class FortnoxClient3 {
 		}
 	}
 	
-	
+	/**
+	 * Gets access token from an auth code (API-code) and client secret.
+	 * 
+	 * @param authCode			The auth code supplied by the Fortnox client.
+	 * @param clientSecret		The secret to access the API.
+	 * @return					The access token if successful.
+	 * @throws Exception		If something goes wrong.
+	 */
 	public String getAccessToken(String authCode, String clientSecret) throws Exception {
 		
 		Map<String,String> headers = new TreeMap<String,String>();
@@ -650,6 +660,31 @@ public class FortnoxClient3 {
 		
 	}
 
+	/**
+	 * Returns an account map for a given date.
+	 * This map is excellent to check if a given accounts exists and is active before trying to post to
+	 * it.
+	 * 
+	 * @param  date		If null, current date is used.
+	 * @return	A map of account subsets.
+	 * @throws Exception If something goes wrong.
+	 */
+	public Map<String, AccountSubset> getAccountMap(Date acctDate) throws Exception {
+		
+		Map<String, AccountSubset> acctMap = new TreeMap<String, AccountSubset>();
+		
+		FinancialYearSubset fy = getFinancialYear(acctDate);
+		Accounts accounts = getAccounts(fy.getId());
+		
+		for (AccountSubset a : accounts.getAccountSubset()) {
+			acctMap.put(a.getNumber().toString(), a);
+		}
+		
+		return acctMap;
+		
+	}
+	
+	
 	/**
 	 * Returns all accounts for a given year id
 	 * 
@@ -1035,6 +1070,32 @@ public class FortnoxClient3 {
 		}
 	}
 	
+	/**
+	 * Returns a specific mode of payment.
+	 * 
+	 * @param mode		The string representation of the mode of payment.
+	 * @return			A mode of payment subset if it exists. Otherwise null
+	 * @throws Exception If something goes wrong.
+	 */
+	public ModeOfPaymentSubset getModeOfPayment(String mode) throws Exception {
+
+		if (mode==null) return null;
+		
+		ModesOfPayments modes = getModesOfPayments();
+		if (modes==null || modes.getModeOfPaymentSubset()==null)
+			return null;
+		
+		ModeOfPaymentSubset result = null;
+		
+		for (ModeOfPaymentSubset m : modes.getModeOfPaymentSubset()) {
+			if (mode.equalsIgnoreCase(m.getCode())) {
+				result = m;
+				break;
+			}
+		}
+		
+		return result;
+	}
 
 	/**
 	 * Gets all modes of payments
@@ -1083,6 +1144,83 @@ public class FortnoxClient3 {
 			throw new FortnoxException(e);
 		}
 	}
+	
+	/**
+	 * Returns a specific voucher series
+	 * 
+	 * @param code		The string representation of the voucher series
+	 * @return			A voucher series subset if it exists. Otherwise null
+	 * @throws Exception If something goes wrong.
+	 */
+	public VoucherSeriesSubset getVoucherSeries(String code) throws Exception {
+
+		if (code==null) return null;
+		
+		VoucherSeriesCollection series = getVoucherSeriesCollection();
+		if (series==null || series.getVoucherSeriesSubset()==null)
+			return null;
+		
+		VoucherSeriesSubset result = null;
+		
+		for (VoucherSeriesSubset m : series.getVoucherSeriesSubset()) {
+			if (code.equalsIgnoreCase(m.getCode())) {
+				result = m;
+				break;
+			}
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Gets all voucher series collection pages
+	 * 
+	 * @return		All voucher series collections
+	 * @throws Exception
+	 */
+	public VoucherSeriesCollection getVoucherSeriesCollection() throws Exception {
+
+		VoucherSeriesCollection r = getVoucherSeriesCollection(0);
+		
+		int currentPage = 1;
+		int totalPages = r.getTotalPages();
+		while (currentPage<totalPages) {
+			// Pause not to exceed call limit
+			Thread.sleep(100);
+			VoucherSeriesCollection subset = getVoucherSeriesCollection(currentPage+1);
+			r.getVoucherSeriesSubset().addAll(subset.getVoucherSeriesSubset());
+			currentPage = subset.getCurrentPage();
+		}
+
+		return r;
+		
+	}
+	
+	
+	/**
+	 * Gets a page of VoucherSeriesCollection
+	 *  
+	 * @param page			The page to get
+	 * @return	A VoucherSeriesCollection struct containing a list of VoucherSeriesSubset
+	 * @throws Exception	if something fails
+	 */
+	public VoucherSeriesCollection getVoucherSeriesCollection(int page) throws Exception {
+		// Create request
+		StringBuffer result = callFortnox("/voucherseries/", (page>1 ? ("?page=" + page) : null), null);
+		ErrorInformation e = checkIfError(result);
+		VoucherSeriesCollection r = new VoucherSeriesCollection();
+		if (e==null) {
+
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(result.toString().getBytes()), "UTF-8"));
+	        r = JAXB.unmarshal(in,  r.getClass()); //NOI18N
+	        return(r);
+	        
+		} else {
+			throw new FortnoxException(e);
+		}
+	}
+	
 	
 	
 	/**
@@ -1867,6 +2005,20 @@ public class FortnoxClient3 {
 			result.getInvoiceSubset().addAll(unbooked.getInvoiceSubset());
 		}
 		return result;
+	}
+	
+	/**
+	 * Compares the access token.
+	 * 
+	 * @param that
+	 * @return	True if the accessToken is equal.
+	 */
+	public boolean equals(FortnoxClient3 that) {
+		if (m_accessToken==null && that.m_accessToken==null)
+			return true;
+		if (m_accessToken==null)
+			return false;
+		return (m_accessToken.equals(that.m_accessToken));
 	}
 	
 	/**
