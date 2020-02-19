@@ -42,7 +42,7 @@ public class FortnoxTest {
 
 		client = TestUtil.getFortnoxClient();
 		if (client==null) {
-			fail("Missing test-config3.xml. Please rename config3-template.xml and fill in your authorization details.");
+			fail("Missing FortnoxClientList.xml. Please rename FortnoxClientListSample.xml and fill in your authorization details.");
 		}
 		
 	}

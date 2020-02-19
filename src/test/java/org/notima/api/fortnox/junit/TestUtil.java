@@ -12,7 +12,7 @@ public class TestUtil {
 	 */
 	public static FortnoxClient3 getFortnoxClient() throws Exception {
 
-		FortnoxClient3 client = new FortnoxClient3("test-config3.xml");
+		FortnoxClient3 client = new FortnoxClient3("FortnoxClientList.xml");
 		
 		return client;
 		

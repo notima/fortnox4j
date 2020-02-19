@@ -103,5 +103,21 @@ public class FortnoxClientList {
 		generateFortnoxClientMap(false);
 		return clientMap.get(orgNo);
 	}
+
+	/**
+	 * Returns the first client available. Used normally when there's only one client in the file.
+	 * 
+	 * @return	Fortnox Client Info. Null if no client available. 
+	 */
+	public FortnoxClientInfo getFirstClient() {
+		if (clients==null || clients.getFortnoxClient()==null || clients.getFortnoxClient().size()==0) return null;
+		FortnoxClientInfo first = clients.getFortnoxClient().get(0);
+		if (first.getClientSecret()==null || first.getClientSecret().trim().length()==0) {
+			FortnoxApiClient apiClient = getApiClientById(first.getClientId());
+			if (apiClient!=null) 
+				first.setClientSecret(apiClient.getClientSecret());
+		}
+		return first;
+	}
 	
 }

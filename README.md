@@ -44,3 +44,9 @@ Releases are found in Maven-Central repository and can easliy be used by adding 
         <version>1.8.6</version>
     </dependency>
 
+Or karaf
+
+	install -s mvn:org.apache.httpcomponents/httpcore-osgi/4.4.12
+	install -s mvn:org.apache.httpcomponents/httpclient-osgi/4.5.10
+	install -s mvn:org.notima.piggyback-tools/0.0.2
+	install -s mvn:org.notima.api/fortnox4j

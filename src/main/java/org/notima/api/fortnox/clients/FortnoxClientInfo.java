@@ -24,6 +24,7 @@ public class FortnoxClientInfo {
 	private String	orgName;
 	
 	private String	settingsSupplierNo;
+	private Boolean sandbox;
 
 	private String	pollType;
 	private Date	lastPollTime;
@@ -125,6 +126,14 @@ public class FortnoxClientInfo {
 
 	public void setSettingsSupplierNo(String settingsSupplierNo) {
 		this.settingsSupplierNo = settingsSupplierNo;
+	}
+	
+	public Boolean getSandbox() {
+		return sandbox;
+	}
+
+	public void setSandbox(Boolean sandbox) {
+		this.sandbox = sandbox;
 	}
 
 	public Date getLastPollTime() {

@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringReader;
@@ -26,9 +27,6 @@ import javax.xml.bind.JAXB;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.FileConfiguration;
-import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -49,6 +47,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
+import org.notima.api.fortnox.clients.FortnoxClientInfo;
+import org.notima.api.fortnox.clients.FortnoxClientList;
 import org.notima.api.fortnox.entities3.AccountSubset;
 import org.notima.api.fortnox.entities3.Accounts;
 import org.notima.api.fortnox.entities3.Authorization;
@@ -228,6 +228,9 @@ public class FortnoxClient3 {
 	// Get logger
 	protected Logger	logger = LoggerFactory.getLogger(FortnoxClient3.class);
 	
+	// Current client list
+	private FortnoxClientList	clientList;
+	
 	/**
 	 * Flag to say if articles should be used on invoices / orders
 	 */
@@ -250,7 +253,11 @@ public class FortnoxClient3 {
 	 * 
 	 */
 	public FortnoxClient3() {
-		initFromFile(null);
+		try {
+			initFromFile(null);
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
 	}
 	
 	/**
@@ -267,8 +274,9 @@ public class FortnoxClient3 {
 	 * Create FortnoxClient using specified configuration file.
 	 * 
 	 * @param configFile		The configuration file to use.
+	 * @throws IOException 
 	 */
-	public FortnoxClient3(String configFile) {
+	public FortnoxClient3(String configFile) throws IOException {
 		initFromFile(configFile);
 	}
 	
@@ -276,8 +284,9 @@ public class FortnoxClient3 {
 	 * Read client parameters from file (if found).
 	 * 
 	 * @param configFile
+	 * @throws IOException 
 	 */
-	private void initFromFile(String configFile) {
+	private void initFromFile(String configFile) throws IOException {
 		
 		if (configFile==null || configFile.trim().length()==0) {
 			// Try system properties
@@ -313,19 +322,19 @@ public class FortnoxClient3 {
 			return;
 		}
 		
-		FileConfiguration fc = new XMLConfiguration();
-		fc.setFile(f);
 		try {
 			logger.debug("Using configuration file {}.", configFile);
-			fc.load();
-		} catch (ConfigurationException e) {
+			clientList = FortnoxUtil.readFortnoxClientListFromFile(configFile);
+		} catch (Exception e) {
 			logger.error("Problem with reading configuration file {}.", configFile);
 			e.printStackTrace();
 			return;
 		}
+
+		FortnoxClientInfo fc = clientList.getFirstClient();
 		
-		String clientSecret = fc.getString("clientSecret");
-		String accessToken = fc.getString("accessToken");
+		String clientSecret = fc.getClientSecret();
+		String accessToken = fc.getAccessToken();
 		
 		setAccessToken(accessToken, clientSecret);
 		
@@ -1101,7 +1110,7 @@ public class FortnoxClient3 {
 	 * Gets all modes of payments
 	 * 
 	 * @return		All modes of payments
-	 * @throws Exception
+	 * @throws Exception	If something goes wrong.
 	 */
 	public ModesOfPayments getModesOfPayments() throws Exception {
 
@@ -1793,13 +1802,14 @@ public class FortnoxClient3 {
 		
 		if ("getAccessToken".equalsIgnoreCase(args[1])) {
 			
-			XMLConfiguration config = new XMLConfiguration();
 			try {
+			
+				FortnoxClientList clientList = FortnoxUtil.readFortnoxClientListFromFile(configFile.getCanonicalPath());				
+
+				FortnoxClientInfo fc = clientList.getFirstClient();
 				
-				config.load(configFile);
-				
-				String clientSecret = config.getString("clientSecret");
-				String authCode = config.getString("authCode");
+				String clientSecret = fc.getClientSecret();
+				String authCode = fc.getApiCode();
 
 				FortnoxClient3 client = new FortnoxClient3();
 				String accessToken = client.getAccessToken(authCode, clientSecret);

@@ -44,6 +44,7 @@ public class TestFortnoxClientInfo extends FortnoxTest {
 		fortnoxClient.setClientId(apiClient.getClientId());
 		fortnoxClient.setOrgName("TestOrgName");
 		fortnoxClient.setSettingsSupplierNo("1000");
+		fortnoxClient.setSandbox(Boolean.TRUE);
 		fortnoxClient.setCustomSettings("{ \"someJsonSetting\" : \"setting\" }");
 		
 		clientList.add(fortnoxClient);
