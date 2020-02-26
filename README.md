@@ -1,21 +1,17 @@
 # fortnox4j
 API to communicate with Fortnox (https://www.fortnox.se)
 
-After cloning this repository from git, the following command causes eclipse to recognize it as a project.
+After cloning this repository from git, use Import Existing Maven Project to work with it in eclipse.
 
-<pre>
-mvn eclipse:eclipse
-</pre>
-
-To successfully run mvn test
+To successfully run `mvn test`
 
 Copy file 
 
-src/test/resources/config3-template.xml 
+src/test/resources/FortnoxClientListSample.xml 
 
 to
 
-src/test/resources/test-config3.xml
+src/test/resources/FortnoxClientList.xml
 
 and set your own credentials.
 
@@ -28,11 +24,11 @@ The credentials for accessing a Fortnox entity are normally put in an xml-file a
 * A constructor parameter pointing to the configuration file
 * An empty constructor and then calling setAccessToken with the credentials
 * OS Environment variable FORTNOX4JFILE pointing to configuration file
-<br>ex. export FORTNOX4JFILE=/home/user/config.xml
+<br>ex. export FORTNOX4JFILE=/home/user/fortnoxClients.xml
 * Java Environment variable Fortnox4JFile pointing to configuration file.
-<br>ex. -DFortnox4JFile=/home/user/config.xml 
+<br>ex. -DFortnox4JFile=/home/user/fortnoxClients.xml 
 
-See the file src/test/resources/config3-template.xml for an example of the file structure.
+See the file [FortnoxClientListSample.xml](https://github.com/notima/fortnox4j/blob/master/src/test/resources/FortnoxClientListSample.xml) for an example of the file structure.
 
 ## Maven
 
@@ -41,7 +37,7 @@ Releases are found in Maven-Central repository and can easliy be used by adding 
     <dependency>
         <groupId>org.notima.api</groupId>
         <artifactId>fortnox4j</artifactId>
-        <version>1.8.6</version>
+        <version>1.8.9</version>
     </dependency>
 
 Or karaf

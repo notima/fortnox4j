@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.notima.api</groupId>
 	<artifactId>fortnox4j</artifactId>
-	<version>1.8.9-SNAPSHOT</version>
+	<version>1.8.9</version>
 	<packaging>bundle</packaging>
 	<name>Fortnox Java API</name>
 
@@ -99,10 +99,6 @@
 							org.notima.api.fortnox.clients,
 							org.notima.api.fortnox.entities3
 						</Export-Package>
-						<!-- 
-						<Embed-Dependency>artifactId=blowfishj|commons-configuration2|commons-beanutils|piggyback-tools;scope=compile|runtime</Embed-Dependency>
-						<Embed-Transitive>true</Embed-Transitive>
-						 -->
 					</instructions>
 				</configuration>
 			</plugin>
