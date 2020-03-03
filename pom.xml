@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.notima.api</groupId>
 	<artifactId>fortnox4j</artifactId>
-	<version>1.8.9</version>
+	<version>1.8.10-SNAPSHOT</version>
 	<packaging>bundle</packaging>
 	<name>Fortnox Java API</name>
 
@@ -156,6 +156,7 @@
 						<exclude>**/TestCreateSupplier.java</exclude>
 						<exclude>**/TestGetSieFile.java</exclude>
 						<exclude>**/TestPostBankFile.java</exclude>
+						<exclude>**/TestCreateVoucher.java</exclude>
 					</excludes>
 				</configuration>
 			</plugin>

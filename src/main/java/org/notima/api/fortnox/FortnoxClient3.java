@@ -198,6 +198,7 @@ public class FortnoxClient3 {
 	public static final String ERROR_CANT_FIND_INVOICE = "2000434";
 	public static final String ERROR_NOT_AUTH_FOR_SCOPE = "2000663";
 	public static final String ERROR_INVALID_LOGIN = "2000310";
+	public static final String ERROR_ACCOUNT_NOT_ACTIVE = "2000550";
 	
 	/**
 	 * Inbox folders
@@ -1520,9 +1521,11 @@ public class FortnoxClient3 {
         		(voucher.getVoucherNumber()!=null && voucher.getVoucherNumber()>0 ? "put" : null) // method
         		);
 		
+        ErrorInformation e = checkIfError(output);
+        
         Voucher out = null;
-        if (output.toString().contains("ErrorInformation")) {
-        	throw new FortnoxException(output.toString());
+        if (e!=null) {
+        	throw new FortnoxException(e);
         } else {
 	        StringReader reader = new StringReader(output.toString());
 	        if (output!=null && output.length()>0) {

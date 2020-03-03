@@ -3,6 +3,7 @@ package org.notima.api.fortnox;
 import java.io.File;
 import java.io.PrintStream;
 import java.net.URL;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -18,6 +19,8 @@ import org.notima.api.fortnox.entities3.InvoiceRow;
 import org.notima.api.fortnox.entities3.InvoiceRows;
 import org.notima.api.fortnox.entities3.InvoiceSubset;
 import org.notima.api.fortnox.entities3.Invoices;
+import org.notima.api.fortnox.entities3.Voucher;
+import org.notima.api.fortnox.entities3.VoucherRow;
 
 /**
  * Utility class for Fortnox API.
@@ -121,6 +124,57 @@ public class FortnoxUtil {
 	}
 	
 
+	/**
+	 * Creates a single transaction voucher with two lines (debet / credit)
+	 * 
+	 * @param voucherSeries		The voucher series to use
+	 * @param acctDate			The accounting date
+	 * @param creditAcct		The account to be credited.
+	 * @param debitAcct			The account to be debited.
+	 * @param amount		The total amount of the transaction
+	 * @param description		The description for the voucher text.
+	 * 
+	 * @return	A Fortnox Voucher.
+	 */
+	public static Voucher createSingleTransactionVoucher(
+			String voucherSeries,
+			Date   acctDate,
+			String creditAcct, 
+			String debitAcct, 
+			double amount, 
+			String description) {
+
+		Voucher result = new Voucher();
+		
+		if (acctDate==null) {
+			acctDate = Calendar.getInstance().getTime();
+		}
+		
+		result.setDescription(description);
+		result.setTransactionDate(FortnoxClient3.s_dfmt.format(acctDate));
+		if (voucherSeries!=null)
+			result.setVoucherSeries(voucherSeries);
+		
+		VoucherRow r = new VoucherRow();
+		r.setAccount(Integer.parseInt(creditAcct));
+		if (amount>0)
+			r.setCredit(amount);
+		else
+			r.setDebit(-amount);
+		result.addVoucherRow(r);
+		r = new VoucherRow();
+		r.setAccount(Integer.parseInt(debitAcct));
+		if (amount>0)
+			r.setDebit(amount);
+		else
+			r.setCredit(-amount);
+		
+		result.addVoucherRow(r);
+		
+		return result;
+		
+	}
+	
 	
 	
 	/**

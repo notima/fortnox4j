@@ -15,7 +15,7 @@ public class TestGetPreDefinedAccounts extends FortnoxTest {
 		int count = 0;
 		
 		for (PreDefinedAccountSubset a : accounts.getPreDefinedAccountSubset()) {
-			log.debug(a.getAccount() + " : " + a.getName());
+			log.info(a.getAccount() + " : " + a.getName());
 			count++;
 			if (a.getAccount()==0) {
 				unsetCount++;
