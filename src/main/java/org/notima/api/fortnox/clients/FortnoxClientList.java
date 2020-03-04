@@ -116,6 +116,8 @@ public class FortnoxClientList {
 			FortnoxApiClient apiClient = getApiClientById(first.getClientId());
 			if (apiClient!=null) 
 				first.setClientSecret(apiClient.getClientSecret());
+			else
+				System.err.println("No client secret found for clientId : " + first.getClientId());
 		}
 		return first;
 	}
