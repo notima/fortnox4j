@@ -30,7 +30,6 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
@@ -43,7 +42,6 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
@@ -281,6 +279,19 @@ public class FortnoxClient3 {
 	public FortnoxClient3(String configFile) throws IOException {
 		initFromFile(configFile);
 	}
+
+	/**
+	 * 
+	 * 
+	 * @return	True if this client has been initialized with credentials.
+	 */
+	public boolean hasCredentials() {
+		if (m_accessToken!=null && m_accessToken.trim().length()>0 && 
+				m_clientSecret!=null && m_clientSecret.trim().length()>0) {
+			return true;
+		}
+		return false;
+	}
 	
 	/**
 	 * Read client parameters from file (if found).
@@ -429,7 +440,7 @@ public class FortnoxClient3 {
 	private StringBuffer callFortnox(String cmd, String getStr, StringBuffer postContents, Map<String,String> headers, String method) throws Exception {
 		StringBuffer result = new StringBuffer();
 		
-		HttpClient httpClient = new DefaultHttpClient();
+		CloseableHttpClient httpClient = HttpClients.createDefault();
 		
 		// Create url
 		String urlStr = m_baseUrl;
@@ -503,7 +514,7 @@ public class FortnoxClient3 {
 			result.append(line + "\n");
 		}
 		// Mark that the content is consumed.
-		entity.consumeContent();
+		EntityUtils.consume(entity);
 
 		logger.debug("Received reply: \n" + result.toString());
 		
