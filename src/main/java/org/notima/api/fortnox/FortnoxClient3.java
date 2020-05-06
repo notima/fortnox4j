@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -69,6 +70,7 @@ import org.notima.api.fortnox.entities3.ModesOfPayments;
 import org.notima.api.fortnox.entities3.Order;
 import org.notima.api.fortnox.entities3.Orders;
 import org.notima.api.fortnox.entities3.PreDefinedAccount;
+import org.notima.api.fortnox.entities3.PreDefinedAccountSubset;
 import org.notima.api.fortnox.entities3.PreDefinedAccounts;
 import org.notima.api.fortnox.entities3.Supplier;
 import org.notima.api.fortnox.entities3.SupplierSubset;
@@ -156,6 +158,16 @@ public class FortnoxClient3 {
 	public static final String ACCT_SALES_EU_W_VAT_SERVICE = "SALESEUVAT2";
 	public static final String ACCT_SALES_SE_REV = "SALESCONSTR2";
 	public static final String ACCT_ROUNDING = "ROUNDOFF";
+	public static final String ACCT_CURRENCYGAIN = "CURRENCYWIN";
+	public static final String ACCT_CURRENCYLOSS = "CURRENCYLOSS";
+	public static final String ACCT_ADMFEE = "ADMFEE";
+	public static final String ACCT_FREIGHT_REVENUE = "FREIGHT";
+	public static final String ACCT_INVAT = "INVAT";
+	public static final String ACCT_OUTVAT_MP1 = "OUTVAT_MP1";
+	public static final String ACCT_OUTVAT_MP2 = "OUTVAT_MP2";
+	public static final String ACCT_OUTVAT_MP3 = "OUTVAT_MP3";
+	public static final String ACCT_OUTVAT_MP4 = "OUTVAT_MP4";
+	public static final String ACCT_CASHBYCARD = "CASHBYCARD";
 	
 
 	/**
@@ -163,10 +175,10 @@ public class FortnoxClient3 {
 	 * These exist as predefined accounts in Fortnox
 	 */
 	public static String[] PREDEFINED_REV_ACCT = new String[] {
-		"CURRENCYWIN",
-		"CURRENCYLOSS",
-		"ADMFEE",
-		"FREIGHT",
+		ACCT_CURRENCYGAIN,
+		ACCT_CURRENCYLOSS,
+		ACCT_ADMFEE,
+		ACCT_FREIGHT_REVENUE,
 		ACCT_ROUNDING,
 		ACCT_SALES_MP1,
 		ACCT_SALES_SERVICE_MP1,
@@ -807,6 +819,23 @@ public class FortnoxClient3 {
 		}
 		
 		return r;
+	}
+	
+
+	/**
+	 * 
+	 * @return	Returns all predefined accounts as an easy to access map.
+	 * @throws Exception		If something goes wrong.
+	 */
+	public Map<String,PreDefinedAccountSubset> getPredefinedAccountMap() throws Exception {
+		
+		Map<String,PreDefinedAccountSubset> result = new TreeMap<String,PreDefinedAccountSubset>();
+		PreDefinedAccounts pdas = getPreDefinedAccounts();
+		List<PreDefinedAccountSubset> pdaList = pdas.getPreDefinedAccountSubset();
+		for (PreDefinedAccountSubset ps : pdaList) {
+			result.put(ps.getName(), ps);
+		}
+		return result;
 	}
 	
 	/**
