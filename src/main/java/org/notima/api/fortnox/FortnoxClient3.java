@@ -3,15 +3,23 @@ package org.notima.api.fortnox;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -432,6 +440,117 @@ public class FortnoxClient3 {
 	private StringBuffer callFortnox(String cmd, String getStr, StringBuffer postContents) throws Exception {
 		return (callFortnox(cmd, getStr, postContents, null, null));
 	}
+	
+	/**
+	 * Method for calling Fortnox web interface.
+	 * NOTE! To call this method, the token and database must be set first.
+	 * Returns a byte buffer as the result is treated as raw data (octetstream)
+	 * 
+	 * @param cmd				The command. For instance: set_contact.
+	 * @param getStr			If the command is a "get" command. I e fetch information
+	 * 							from Fortnox, only get-parameters are necessary.
+	 * @param postContents		If an xml-struct must be posted, the xml struct is
+	 * 							placed here.
+	 * @param headers			Headers
+	 * @return					The reply from the web server.
+	 * @throws Exception
+	 * 
+	 * @see		setToken(String)
+	 * @see		setDatabase(String)
+	 */
+	private ByteBuffer callFortnoxOctetStream(String cmd, String getStr, StringBuffer postContents, Map<String,String> headers, String method) throws Exception {
+		ByteBuffer result = null;
+		
+		CloseableHttpClient httpClient = HttpClients.createDefault();
+		
+		// Create url
+		String urlStr = m_baseUrl;
+		if (cmd!=null)
+			urlStr += cmd;
+		// If we have a get command, append it to the URL.
+		if (getStr!=null)
+			urlStr = urlStr + getStr;
+		HttpUriRequest request;
+		
+		// Create a headers map if it wasn't supplied
+		if (headers==null) {
+			headers = new TreeMap<String, String>();
+		}
+		
+		boolean put = "PUT".equalsIgnoreCase(method);
+		boolean delete = "DELETE".equalsIgnoreCase(method);
+		if (postContents!=null) {
+			// If there are xml content to be posted. Create a post/put request
+			// and create a name value pair using 'xml' as the name.
+			if (put) {
+				request = new HttpPut(urlStr);
+			} else if (delete) {
+				request = new HttpDelete(urlStr);
+			} else {
+				request = new HttpPost(urlStr);
+			}
+			StringEntity entity = new StringEntity(postContents.toString(), HTTP.UTF_8);
+			if (!put)
+				((HttpPost)request).setEntity(entity);
+			else 
+				((HttpPut)request).setEntity(entity);
+			
+			headers.put("Content-Type", "application/xml");
+			
+			logger.debug("Posting: \n" + postContents + "\nto " + urlStr);
+			
+		} else {
+			// If there are no xml content, just create a get/put request.
+			if (put)
+				request = new HttpPut(urlStr);
+			else
+				request = new HttpGet(urlStr);
+			logger.debug((put ? "Putting" : "Getting url") + ": " + urlStr);
+		}
+
+		// Add access token and client secret if not already there
+		if (m_accessToken!=null && !headers.containsKey("Access-Token")) {
+			headers.put("Access-Token", m_accessToken);
+		}
+		if (m_clientSecret!=null && !headers.containsKey("Client-Secret")) {
+			headers.put("Client-Secret", m_clientSecret);
+		}
+
+		// Set headers
+		if (headers!=null) {
+			for (String s : headers.keySet()) {
+				request.setHeader(s, headers.get(s));
+			}
+		}
+		
+		// We want XML in return
+		request.setHeader("Accept", "application/xml");
+		
+		// Read response
+		HttpResponse response = httpClient.execute(request);
+		HttpEntity entity = response.getEntity();
+		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+		InputStream is = entity.getContent();
+		int nRead;
+		byte[] data = new byte[1024];
+		while ((nRead = is.read(data, 0, data.length))!=-1) {
+			buffer.write(data, 0, nRead);
+		}
+		
+		buffer.flush();
+		result = ByteBuffer.wrap(buffer.toByteArray());
+		
+		// Mark that the content is consumed.
+		EntityUtils.consume(entity);
+
+		logger.debug("Received octet-stream with " + buffer.size() + " bytes");
+		
+		// Max 16 requests per second. Call a sleep here
+		Thread.sleep(100);
+		// Return response
+		return(result);
+	}
+		
 	
 	/**
 	 * Method for calling Fortnox web interface.
@@ -1565,6 +1684,7 @@ public class FortnoxClient3 {
         
         Voucher out = null;
         if (e!=null) {
+        	logger.error(result.toString() + " : " + e.getMessage());
         	throw new FortnoxException(e);
         } else {
 	        StringReader reader = new StringReader(output.toString());
@@ -1912,19 +2032,20 @@ public class FortnoxClient3 {
 	 * 
 	 * @param sieType			1 (Year balance), 2 (Period Balance), 3 (Object Balance) or 4 (Transactions). 
 	 * @param financialYear		The financial year. Use getFinancialYear(Date) to find out the actual year.
-	 * @return					A StringBuffer that can be saved to a file.
+	 * @return					A ByteBuffer that can be saved to a file. The bytebuffer is encoded in IBM437 / PC437
 	 * @throws Exception		If something goes wrong.
 	 */
-	public StringBuffer retrieveSieFile(int sieType, int financialYear) throws Exception {
+	public ByteBuffer retrieveSieFile(int sieType, int financialYear) throws Exception {
 		
-		StringBuffer result = getFortnox("/sie/" + sieType + "?financialyear=" + financialYear, null);
-		ErrorInformation e = checkIfError(result);
+		ByteBuffer byteBuf = callFortnoxOctetStream("/sie/" + sieType + "?financialyear=" + financialYear, null, null, null, "GET");
 		
-		if (e==null) {
-			return (result);
-		} else {
-			throw new FortnoxException(e);
-		}
+		// StringBuffer result = getFortnox("/sie/" + sieType + "?financialyear=" + financialYear, null);
+			
+		// Charset charset = Charset.forName("IBM437");
+		// CharsetDecoder decoder = charset.newDecoder();
+		// CharBuffer dest = decoder.decode(byteBuf);
+		
+		return (byteBuf);
 		
 	}
 	
@@ -1941,11 +2062,13 @@ public class FortnoxClient3 {
 	 */
 	public String retrieveSieAndSaveToFile(int sieType, int financialYear, String dir, String fileName) throws Exception {
 
-		StringBuffer result = retrieveSieFile(sieType, financialYear);
+		ByteBuffer result = retrieveSieFile(sieType, financialYear);
 		File f = new File(dir + File.separator + fileName);
-		PrintWriter fr = new PrintWriter(new BufferedWriter(new FileWriter(f)));
-		fr.append(result);
-		fr.close();
+		
+		FileOutputStream fos = new FileOutputStream(f.getAbsoluteFile());
+		fos.write(result.array());
+		fos.close();
+		
 		return f.getAbsolutePath();
 		
 	}
