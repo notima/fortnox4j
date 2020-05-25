@@ -1,7 +1,6 @@
 package org.notima.api.fortnox;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -9,17 +8,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CharsetEncoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -84,6 +77,7 @@ import org.notima.api.fortnox.entities3.Supplier;
 import org.notima.api.fortnox.entities3.SupplierSubset;
 import org.notima.api.fortnox.entities3.Suppliers;
 import org.notima.api.fortnox.entities3.Voucher;
+import org.notima.api.fortnox.entities3.VoucherFileConnection;
 import org.notima.api.fortnox.entities3.VoucherSeriesCollection;
 import org.notima.api.fortnox.entities3.VoucherSeriesSubset;
 import org.slf4j.Logger;
@@ -1696,6 +1690,59 @@ public class FortnoxClient3 {
         }
         
 	}
+
+	/**
+	 * Creates a file voucher connection.
+	 * 
+	 * @param fileId			The id of the uploaded file.
+	 * @param voucherNo			The voucher number to attach to.
+	 * @param voucherSeries		The voucher series of the number to attach to.
+	 * @param financialYearId	The financial year of the voucher number. If null, current year is used.
+	 * @return		If successful, a voucher file connection.
+	 * @throws Exception 		If something goes wrong
+	 */
+	public VoucherFileConnection setVoucherFileConnection(String fileId, String voucherNo, String voucherSeries, Integer financialYearId) throws Exception {
+		
+		VoucherFileConnection req = new VoucherFileConnection();
+		
+		req.setFileId(fileId);
+		req.setVoucherNumber(voucherNo);
+		req.setVoucherSeries(voucherSeries);
+		
+		if (financialYearId==null) {
+			FinancialYearSubset fys = this.getFinancialYear(null);
+			financialYearId = fys.getId();
+		}
+		
+		StringWriter reqstr = new StringWriter();
+		
+		JAXB.marshal(req, reqstr);
+		
+        StringBuffer output = callFortnox("/voucherfileconnections?financialyeardate=" + financialYearId, 
+        		null, 
+        		reqstr.getBuffer(),
+        		null, // Headers
+        		"post" // method
+        		);
+		
+        ErrorInformation e = checkIfError(output);
+        
+        VoucherFileConnection out = null;
+        if (e!=null) {
+        	logger.error(req.toString() + " : " + e.getMessage());
+        	throw new FortnoxException(e);
+        } else {
+	        StringReader reader = new StringReader(output.toString());
+	        if (output!=null && output.length()>0) {
+	        	// Try to create invoice
+	        	out = JAXB.unmarshal(reader, VoucherFileConnection.class);
+	        }
+	        return out;
+        }
+
+		
+	}
+	
 	
 	/**
 	 * Creates or updates a customer

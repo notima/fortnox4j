@@ -157,6 +157,7 @@
 						<exclude>**/TestGetSieFile.java</exclude>
 						<exclude>**/TestPostBankFile.java</exclude>
 						<exclude>**/TestCreateVoucher.java</exclude>
+						<exclude>**/TestUploadVoucherPDF.java</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
