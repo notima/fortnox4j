@@ -35,6 +35,9 @@ public class TestGetOrderInvoiceCustomers extends FortnoxTest {
 				}
 			}
 			log.info("{} invoices retrieved.", invoiceCount);
+			
+			log.info("{} calls per minute. ", client.calculateCallRate());
+			
 		} catch (FortnoxException fe) {
 			log.error(fe.getMessage());
 		} catch (Exception e) {
@@ -55,6 +58,8 @@ public class TestGetOrderInvoiceCustomers extends FortnoxTest {
 					log.debug("  " + r.getArticleNumber() + " " + r.getDescription() + " " + r.getTotal());
 				}
 				log.info("Invoice rows for invoice {} successfully retrieved", firstInvoice);
+				log.info("{} calls per minute. ", client.calculateCallRate());
+				
 			} else {
 				log.warn("No invoice available to fetch.");
 			}
@@ -63,7 +68,6 @@ public class TestGetOrderInvoiceCustomers extends FortnoxTest {
 			e.printStackTrace();
 			fail(e.getMessage());
 		}
-		
 		
 	}
 	
@@ -91,6 +95,7 @@ public class TestGetOrderInvoiceCustomers extends FortnoxTest {
 				customerCount++;
 			}
 			log.info("{} customers retrieved.", customerCount);
+			log.info("{} calls per minute. ", client.calculateCallRate());
 			
 		} catch (Exception e) {
 			e.printStackTrace();

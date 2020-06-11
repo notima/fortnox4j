@@ -242,6 +242,12 @@ public class FortnoxClient3 {
 	// Get logger
 	protected Logger	logger = LoggerFactory.getLogger(FortnoxClient3.class);
 	
+	// Variables for rate limiting
+	protected Long		firstCall;
+	protected Long		lastCall;
+	protected long		totalCalls = 0;
+	protected long		minMillisBetweenCalls = 250;	// Max 4 calls / second
+	
 	// Current client list
 	private FortnoxClientList	clientList;
 	
@@ -455,6 +461,8 @@ public class FortnoxClient3 {
 	private ByteBuffer callFortnoxOctetStream(String cmd, String getStr, StringBuffer postContents, Map<String,String> headers, String method) throws Exception {
 		ByteBuffer result = null;
 		
+		rateLimit();
+		
 		CloseableHttpClient httpClient = HttpClients.createDefault();
 		
 		// Create url
@@ -539,8 +547,11 @@ public class FortnoxClient3 {
 
 		logger.debug("Received octet-stream with " + buffer.size() + " bytes");
 		
+		// Max 3 requests per second.
+		registerCall();
+		
 		// Max 16 requests per second. Call a sleep here
-		Thread.sleep(100);
+		// Thread.sleep(100);
 		// Return response
 		return(result);
 	}
@@ -564,6 +575,8 @@ public class FortnoxClient3 {
 	 */
 	private StringBuffer callFortnox(String cmd, String getStr, StringBuffer postContents, Map<String,String> headers, String method) throws Exception {
 		StringBuffer result = new StringBuffer();
+		
+		rateLimit();
 		
 		CloseableHttpClient httpClient = HttpClients.createDefault();
 		
@@ -643,8 +656,11 @@ public class FortnoxClient3 {
 
 		logger.debug("Received reply: \n" + result.toString());
 		
+		// Max 3 requests per second.
+		registerCall();
+		
 		// Max 16 requests per second. Call a sleep here
-		Thread.sleep(100);
+		// Thread.sleep(100);
 		// Return response
 		return(result);
 	}
@@ -2165,7 +2181,9 @@ public class FortnoxClient3 {
 				throw new ClientProtocolException("Unexpected response status: " + status);
 			}
 		};
-				 
+
+		registerCall();
+		
 		StringBuffer result = new StringBuffer(httpclient.execute(request, responseHandler));
 		
 		ErrorInformation e = checkIfError(result);
@@ -2273,6 +2291,81 @@ public class FortnoxClient3 {
 		} else {
 			throw new FortnoxException(e);
 		}
+		
+	}
+	
+	
+	/**
+	 *	Default value currently is 250 ms.
+	 *
+	 * @see 	https://developer.fortnox.se/general/regarding-fortnox-api-rate-limits/
+	 * 
+	 * @return	The minimum time that has to pass between each call to the Fortnox API.
+	 */
+	public long getMinMillisBetweenCalls() {
+		return minMillisBetweenCalls;
+	}
+
+	/**
+	 * Sets the minimum time that has to pass between each call to the Fortnox APi.
+	 * 	
+	 * @param minMillisBetweenCalls		The minimum time in milliseconds.
+	 */
+	public void setMinMillisBetweenCalls(long minMillisBetweenCalls) {
+		this.minMillisBetweenCalls = minMillisBetweenCalls;
+	}
+
+	/**
+	 * Register that a HTTP-call to the Fortnox API has been made.
+	 */
+	private void registerCall() {
+		
+		lastCall = Calendar.getInstance().getTimeInMillis();
+		if (firstCall==null)
+			firstCall = lastCall.longValue();
+		
+		totalCalls++;
+		
+	}
+	
+	/**
+	 * Waits if necessary to avoid hitting the rate limit.
+	 */
+	private synchronized void rateLimit() {
+		
+		if (lastCall==null) return;
+		
+		long now = Calendar.getInstance().getTimeInMillis();
+		long diff = now - lastCall;
+		if (diff < minMillisBetweenCalls) {
+			try {
+				Thread.sleep(minMillisBetweenCalls-diff);
+				logger.debug("Rate-limit sleep for " + (minMillisBetweenCalls-diff) + " ms");
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		
+	}
+	
+	/**
+	 * Calculates the call rate per minute for this client.
+	 * 
+	 * @return		The estimated calls per minute.
+	 */
+	public double calculateCallRate() {
+
+		if (firstCall==null) return 0;
+		
+		// Calculated milliseconds
+		long period = lastCall - firstCall;
+		long seconds = Math.round(period / 1000);
+		
+		if (seconds==0) return (double)totalCalls;
+		
+		logger.info("{} calls in {} seconds.", totalCalls, seconds);
+		
+		return ((double)totalCalls / (seconds/60.0) );
 		
 	}
 	
