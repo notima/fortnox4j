@@ -2297,10 +2297,11 @@ public class FortnoxClient3 {
 	
 	/**
 	 *	Default value currently is 250 ms.
+	 *  See https://developer.fortnox.se/general/regarding-fortnox-api-rate-limits/
 	 *
-	 * @see 	https://developer.fortnox.se/general/regarding-fortnox-api-rate-limits/
-	 * 
 	 * @return	The minimum time that has to pass between each call to the Fortnox API.
+	 * 
+	 * 
 	 */
 	public long getMinMillisBetweenCalls() {
 		return minMillisBetweenCalls;
