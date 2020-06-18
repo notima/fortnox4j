@@ -31,30 +31,40 @@ public class FortnoxFile {
 	public void setComments(String comments) {
 		this.comments = comments;
 	}
+	
+	@XmlElement(name="Id")
 	public String getId() {
 		return id;
 	}
 	public void setId(String id) {
 		this.id = id;
 	}
+	
+	@XmlElement(name="ArchiveFileId")
 	public String getArchiveFileId() {
 		return archiveFileId;
 	}
 	public void setArchiveFileId(String archiveFileId) {
 		this.archiveFileId = archiveFileId;
 	}
+	
+	@XmlElement(name="Name")
 	public String getName() {
 		return name;
 	}
 	public void setName(String name) {
 		this.name = name;
 	}
+	
+	@XmlElement(name="Path")
 	public String getPath() {
 		return path;
 	}
 	public void setPath(String path) {
 		this.path = path;
 	}
+	
+	@XmlElement(name="Size")
 	public long getSize() {
 		return size;
 	}

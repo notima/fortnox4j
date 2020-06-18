@@ -1713,11 +1713,11 @@ public class FortnoxClient3 {
 	 * @param fileId			The id of the uploaded file.
 	 * @param voucherNo			The voucher number to attach to.
 	 * @param voucherSeries		The voucher series of the number to attach to.
-	 * @param financialYearId	The financial year of the voucher number. If null, current year is used.
+	 * @param financialYearDate	The financial year of the voucher number. If null, current year is used.
 	 * @return		If successful, a voucher file connection.
 	 * @throws Exception 		If something goes wrong
 	 */
-	public VoucherFileConnection setVoucherFileConnection(String fileId, String voucherNo, String voucherSeries, Integer financialYearId) throws Exception {
+	public VoucherFileConnection setVoucherFileConnection(String fileId, String voucherNo, String voucherSeries, Date financialYearDate) throws Exception {
 		
 		VoucherFileConnection req = new VoucherFileConnection();
 		
@@ -1725,16 +1725,15 @@ public class FortnoxClient3 {
 		req.setVoucherNumber(voucherNo);
 		req.setVoucherSeries(voucherSeries);
 		
-		if (financialYearId==null) {
-			FinancialYearSubset fys = this.getFinancialYear(null);
-			financialYearId = fys.getId();
-		}
-		
 		StringWriter reqstr = new StringWriter();
+
+		if (financialYearDate==null) {
+			financialYearDate = Calendar.getInstance().getTime();
+		}
 		
 		JAXB.marshal(req, reqstr);
 		
-        StringBuffer output = callFortnox("/voucherfileconnections?financialyeardate=" + financialYearId, 
+        StringBuffer output = callFortnox("/voucherfileconnections?financialyeardate=" + FortnoxClient3.s_dfmt.format(financialYearDate), 
         		null, 
         		reqstr.getBuffer(),
         		null, // Headers

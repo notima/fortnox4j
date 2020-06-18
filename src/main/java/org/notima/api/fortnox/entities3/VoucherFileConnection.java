@@ -1,6 +1,7 @@
 package org.notima.api.fortnox.entities3;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * 
@@ -9,6 +10,7 @@ import javax.xml.bind.annotation.XmlElement;
  * @author Daniel Tamm
  *
  */
+@XmlRootElement(name="VoucherFileConnection")
 public class VoucherFileConnection {
 
 	private String	fileId;
