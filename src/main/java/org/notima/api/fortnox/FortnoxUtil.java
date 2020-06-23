@@ -1,6 +1,7 @@
 package org.notima.api.fortnox;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.net.URL;
 import java.util.Calendar;
@@ -89,9 +90,10 @@ public class FortnoxUtil {
 	 * 
 	 * @param fileName		The file to read. If path isn't given, the classpath is searched.
 	 * @return	The client list if successfully read
-	 * @throws JAXBException	If XML can't be parsed. 
+	 * @throws JAXBException	If XML can't be parsed.
+	 * @throws FileNotFoundException	If the file can't be found.
 	 */
-	public static FortnoxClientList readFortnoxClientListFromFile(String fileName) throws JAXBException {
+	public static FortnoxClientList readFortnoxClientListFromFile(String fileName) throws JAXBException, FileNotFoundException {
 		
 		FortnoxClientList result = null;
 
@@ -101,6 +103,9 @@ public class FortnoxUtil {
 			fileName = url.getFile();
 		}
 		File f = new File(fileName);
+		if (!f.exists()) {
+			throw new FileNotFoundException(fileName);
+		}
 		
 		result = JAXB.unmarshal(f, FortnoxClientList.class);
 		

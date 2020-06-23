@@ -3,7 +3,6 @@ package org.notima.api.fortnox.junit;
 import java.io.StringWriter;
 
 import javax.xml.bind.JAXB;
-import javax.xml.bind.JAXBException;
 
 import org.junit.After;
 import org.junit.Test;
@@ -34,7 +33,7 @@ public class TestReadFortnoxClientInfo extends FortnoxTest {
 				System.out.println(swr.toString());
 				log.debug(swr.toString());
 			
-			} catch (JAXBException e) {
+			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}

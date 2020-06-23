@@ -1,5 +1,6 @@
 package org.notima.api.fortnox.clients;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,8 +32,9 @@ public class FortnoxClientManager {
 	 * Instantiates this client manager by reading clients from given file.
 	 * 
 	 * @param fortnoxClientsFile	An XML-file containing client data
+	 * @throws FileNotFoundException	If the file is not found.
 	 */
-	public FortnoxClientManager(String fortnoxClientsFile) {
+	public FortnoxClientManager(String fortnoxClientsFile) throws FileNotFoundException {
 
 		readClientsFromFile(fortnoxClientsFile);
 		
@@ -86,8 +88,9 @@ public class FortnoxClientManager {
 	 * 
 	 * @param fortnoxClientsFile	Path to XML file. Can be in classpath.
 	 * @return	True if clients where read.
+	 * @throws FileNotFoundException	if the client's file is not found.
 	 */
-	public Boolean readClientsFromFile(String fortnoxClientsFile) {
+	public Boolean readClientsFromFile(String fortnoxClientsFile) throws FileNotFoundException {
 		
 		try {
 			clientList = FortnoxUtil.readFortnoxClientListFromFile(fortnoxClientsFile);
@@ -113,7 +116,7 @@ public class FortnoxClientManager {
 	/**
 	 * Sets the clients file property (doesn't read the file).
 	 * 
-	 * @param clientsFile
+	 * @param clientsFile		The client's file.
 	 */
 	public void setClientsFile(String clientsFile) {
 		this.clientsFile = clientsFile;
@@ -145,8 +148,8 @@ public class FortnoxClientManager {
 	 * Adds a new client info to the list.
 	 * No checking for duplicates is made here.
 	 * 
-	 * @param ci
-	 * @return
+	 * @param ci		The client info.
+	 * @return			The added client info.
 	 */
 	public FortnoxClientInfo addClient(FortnoxClientInfo ci) {
 		
@@ -179,7 +182,7 @@ public class FortnoxClientManager {
 	 * If client secret is supplied or can be derived from the list of Api Clients, the secret is also
 	 * returned.
 	 * 
-	 * @param orgNo
+	 * @param orgNo	The org number.
 	 * @return		A FortnoxClientInfo record.
 	 */
 	public FortnoxClientInfo getClientInfoByOrgNo(String orgNo) {
