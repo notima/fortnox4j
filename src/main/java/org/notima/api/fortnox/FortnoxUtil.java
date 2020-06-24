@@ -124,6 +124,12 @@ public class FortnoxUtil {
 	public static void writeFortnoxClientListToFile(FortnoxClientList list, String fileName) throws JAXBException {
 		
 		File f = new File(fileName);
+		// Get path and create directories if needed
+		File parent = f.getParentFile();
+		if (parent!=null && !parent.exists()) {
+			// Create parent
+			parent.mkdirs();
+		}
 		JAXB.marshal(list, f);
 		
 	}

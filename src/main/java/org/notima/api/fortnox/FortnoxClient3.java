@@ -294,7 +294,7 @@ public class FortnoxClient3 {
 	 * Create FortnoxClient using specified configuration file.
 	 * 
 	 * @param configFile		The configuration file to use.
-	 * @throws IOException 
+	 * @throws IOException		If something goes wrong when reading the file. 
 	 */
 	public FortnoxClient3(String configFile) throws IOException {
 		initFromFile(configFile);
