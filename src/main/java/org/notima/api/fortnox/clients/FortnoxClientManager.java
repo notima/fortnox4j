@@ -158,6 +158,7 @@ public class FortnoxClientManager {
 		ListOfClientInfo ll = clientList.getClients();
 		if (ll==null) {
 			ll = new ListOfClientInfo();
+			clientList.setClients(ll);
 		}
 		ll.setFortnoxClient(list);
 		return ci;
