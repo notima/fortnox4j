@@ -90,6 +90,8 @@ public class FortnoxClientList {
 	 * @return 	The FortnoxApiClient that belongs to the clientId. Null if not found.
 	 */
 	public FortnoxApiClient getApiClientById(String clientId) {
+		if (clientId==null)
+			return null;
 		generateApiMap(false);
 		return apiClientMap.get(clientId);
 	}

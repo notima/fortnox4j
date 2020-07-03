@@ -724,7 +724,19 @@ public class FortnoxClient3 {
 		}
 		
 	}
-	
+
+	/**
+	 * Bookkeeps an invoice if not already bookkeeped.
+	 * 
+	 * @param invoiceNo			The invoice to bookkeep.
+	 * @return					true if the action was successful.
+	 * @throws Exception		If something goes wrong.
+	 */
+	public String bookkeepInvoice(String invoiceNo) throws Exception {
+		
+		return performAction(true, "invoice", invoiceNo, FortnoxClient3.ACTION_INVOICE_BOOKKEEP);		
+		
+	}
 	
 	/**
 	 * Gets an invoice with specific invoice number
