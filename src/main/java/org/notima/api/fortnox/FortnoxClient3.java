@@ -49,6 +49,7 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.notima.api.fortnox.clients.FortnoxClientInfo;
 import org.notima.api.fortnox.clients.FortnoxClientList;
+import org.notima.api.fortnox.entities3.Account;
 import org.notima.api.fortnox.entities3.AccountSubset;
 import org.notima.api.fortnox.entities3.Accounts;
 import org.notima.api.fortnox.entities3.Authorization;
@@ -910,6 +911,38 @@ public class FortnoxClient3 {
 		}
 		
 	}
+	
+
+	/**
+	 * Reads a specific account.
+	 * 
+	 * @param yearId			The year for the chart of accounts.
+	 * @param accountNo			The account number
+	 * @return					An account record.
+	 * @throws Exception		If something goes wrong.
+	 */
+	public Account getAccount(int yearId, int accountNo) throws Exception {
+
+		Account result = null;
+		
+		String getStr = accountNo + (yearId!=0 ? "?financialyear=" + yearId : "");
+		StringBuffer out = callFortnox("/accounts/", getStr, null);
+		
+		ErrorInformation e = checkIfError(out);
+		
+		if (e==null) {
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(out.toString().getBytes()), "UTF-8"));
+	        result = (org.notima.api.fortnox.entities3.Account)JAXB.unmarshal(in, Account.class); //NOI18N
+	        return(result); 
+		} else {
+			throw new FortnoxException(e);
+		}
+		
+	}
+	
+	
+	
 
 	/**
 	 * Return preDefinedAccount with specific name.
