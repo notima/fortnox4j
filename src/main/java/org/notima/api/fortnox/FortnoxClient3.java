@@ -940,6 +940,37 @@ public class FortnoxClient3 {
 		}
 		
 	}
+
+	/**
+	 * Updates given account.
+	 * 
+	 * @param yearId			The year id to use for the chart of the accounts.
+	 * @param account			The account structure.
+	 * @return					The updated account structure.
+	 * @throws Exception		If something goes wrong.
+	 */
+	public Account updateAccount(int yearId, Account account) throws Exception {
+		
+		Account result = null;
+		
+		String putStr = account.getNumber() + (yearId!=0 ? "?financialyear=" + yearId : "");
+		
+		StringWriter xml = new StringWriter();
+        JAXB.marshal(account, xml);
+        
+		StringBuffer out = putFortnox("/accounts/" + putStr, xml.getBuffer());
+		ErrorInformation e = checkIfError(out);
+
+		if (e==null) {
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(out.toString().getBytes()), "UTF-8"));
+	        result = (org.notima.api.fortnox.entities3.Account)JAXB.unmarshal(in, Account.class); //NOI18N
+	        return(result); 
+		} else {
+			throw new FortnoxException(e);
+		}
+		
+	}
 	
 	
 	

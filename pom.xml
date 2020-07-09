@@ -158,6 +158,7 @@
 						<exclude>**/TestPostBankFile.java</exclude>
 						<exclude>**/TestCreateVoucher.java</exclude>
 						<exclude>**/TestUploadVoucherPDF.java</exclude>
+						<exclude>**/TestUpdateAccount.java</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
