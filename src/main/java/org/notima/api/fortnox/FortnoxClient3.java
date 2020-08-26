@@ -79,6 +79,7 @@ import org.notima.api.fortnox.entities3.SupplierSubset;
 import org.notima.api.fortnox.entities3.Suppliers;
 import org.notima.api.fortnox.entities3.Voucher;
 import org.notima.api.fortnox.entities3.VoucherFileConnection;
+import org.notima.api.fortnox.entities3.VoucherSeries;
 import org.notima.api.fortnox.entities3.VoucherSeriesCollection;
 import org.notima.api.fortnox.entities3.VoucherSeriesSubset;
 import org.slf4j.Logger;
@@ -212,6 +213,7 @@ public class FortnoxClient3 {
 	public static final String ERROR_NOT_AUTH_FOR_SCOPE = "2000663";
 	public static final String ERROR_INVALID_LOGIN = "2000310";
 	public static final String ERROR_ACCOUNT_NOT_ACTIVE = "2000550";
+	public static final String ERROR_ACCOUNT_NOT_FOUND = "2000423";
 	
 	/**
 	 * Inbox folders
@@ -936,7 +938,11 @@ public class FortnoxClient3 {
 	        result = (org.notima.api.fortnox.entities3.Account)JAXB.unmarshal(in, Account.class); //NOI18N
 	        return(result); 
 		} else {
-			throw new FortnoxException(e);
+			if (ERROR_ACCOUNT_NOT_FOUND.equals(e.getCode())) {
+				return null;
+			} else {
+				throw new FortnoxException(e);
+			}
 		}
 		
 	}
@@ -958,7 +964,13 @@ public class FortnoxClient3 {
 		StringWriter xml = new StringWriter();
         JAXB.marshal(account, xml);
         
-		StringBuffer out = putFortnox("/accounts/" + putStr, xml.getBuffer());
+		StringBuffer out = null;
+		
+		if (account.getUrl()!=null) {
+			out = putFortnox("/accounts/" + putStr, xml.getBuffer());
+		} else {
+			out = postFortnox("/accounts", xml.getBuffer());
+		}
 		ErrorInformation e = checkIfError(out);
 
 		if (e==null) {
@@ -1354,6 +1366,45 @@ public class FortnoxClient3 {
 	}
 
 	/**
+	 * Sets a mode of payment. Creates it if it doesn't exist.
+	 * 
+	 * @param mp			The mode of payment
+	 * @return				The created / updated mode of payment.
+	 * @throws Exception	If something goes wrong.
+	 */
+	public ModeOfPaymentSubset setModeOfPayment(ModeOfPaymentSubset mp) throws Exception {
+		
+		if (mp==null) return null;
+
+		boolean createNew = mp.getUrl()==null;
+		
+		StringWriter result = new StringWriter();
+		JAXB.marshal(mp, result);
+        
+        StringBuffer output = callFortnox("/modesofpayments" + 
+        		(!createNew ? "/" + mp.getCode() : "")
+        		, null,
+        		result.getBuffer(),
+        		null, // Headers
+        		(!createNew ? "put" : null));
+        
+        ErrorInformation e = checkIfError(output);
+
+        ModeOfPaymentSubset c = new ModeOfPaymentSubset();
+        
+		if (e==null) {
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(output.toString().getBytes()), "UTF-8"));
+	        c = JAXB.unmarshal(in, c.getClass());
+	        return(c); 
+		} else {
+			throw new FortnoxException(e);
+		}
+		
+	}
+	
+	
+	/**
 	 * Gets all modes of payments
 	 * 
 	 * @return		All modes of payments
@@ -1399,6 +1450,44 @@ public class FortnoxClient3 {
 		} else {
 			throw new FortnoxException(e);
 		}
+	}
+	
+	/**
+	 * Sets a voucher series. Creates it if it doesn't exist.
+	 * 
+	 * @param vs			The voucher series
+	 * @return				The created / updated voucher series.
+	 * @throws Exception	If something goes wrong.
+	 */
+	public VoucherSeries setVoucherSeries(VoucherSeriesSubset vs) throws Exception {
+		
+		if (vs==null) return null;
+
+		boolean createNew = vs.getUrl()==null;
+		
+		StringWriter result = new StringWriter();
+		JAXB.marshal(vs, result);
+        
+        StringBuffer output = callFortnox("/voucherseries" + 
+        		(!createNew ? "/" + vs.getCode() : "")
+        		, null,
+        		result.getBuffer(),
+        		null, // Headers
+        		(!createNew ? "put" : null));
+        
+        ErrorInformation e = checkIfError(output);
+
+        VoucherSeries c = new VoucherSeries();
+        
+		if (e==null) {
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(output.toString().getBytes()), "UTF-8"));
+	        c = JAXB.unmarshal(in, c.getClass());
+	        return(c); 
+		} else {
+			throw new FortnoxException(e);
+		}
+		
 	}
 	
 	/**
