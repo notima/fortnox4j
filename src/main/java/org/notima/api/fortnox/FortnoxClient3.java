@@ -67,6 +67,7 @@ import org.notima.api.fortnox.entities3.InvoiceRow;
 import org.notima.api.fortnox.entities3.InvoiceSubset;
 import org.notima.api.fortnox.entities3.Invoices;
 import org.notima.api.fortnox.entities3.LockedPeriod;
+import org.notima.api.fortnox.entities3.ModeOfPayment;
 import org.notima.api.fortnox.entities3.ModeOfPaymentSubset;
 import org.notima.api.fortnox.entities3.ModesOfPayments;
 import org.notima.api.fortnox.entities3.Order;
@@ -1372,7 +1373,7 @@ public class FortnoxClient3 {
 	 * @return				The created / updated mode of payment.
 	 * @throws Exception	If something goes wrong.
 	 */
-	public ModeOfPaymentSubset setModeOfPayment(ModeOfPaymentSubset mp) throws Exception {
+	public ModeOfPayment setModeOfPayment(ModeOfPayment mp) throws Exception {
 		
 		if (mp==null) return null;
 
@@ -1390,7 +1391,7 @@ public class FortnoxClient3 {
         
         ErrorInformation e = checkIfError(output);
 
-        ModeOfPaymentSubset c = new ModeOfPaymentSubset();
+        ModeOfPayment c = new ModeOfPayment();
         
 		if (e==null) {
 			// Convert returned result into UTF-8
