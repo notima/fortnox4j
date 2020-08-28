@@ -1492,6 +1492,45 @@ public class FortnoxClient3 {
 	}
 	
 	/**
+	 * Sets a voucher series. Creates it if it doesn't exist.
+	 * 
+	 * @param vs			The voucher series
+	 * @return				The created / updated voucher series.
+	 * @throws Exception	If something goes wrong.
+	 */
+	public VoucherSeries setVoucherSeries(VoucherSeries vs) throws Exception {
+		
+		if (vs==null) return null;
+
+		boolean createNew = vs.getUrl()==null;
+		
+		StringWriter result = new StringWriter();
+		JAXB.marshal(vs, result);
+        
+        StringBuffer output = callFortnox("/voucherseries" + 
+        		(!createNew ? "/" + vs.getCode() : "")
+        		, null,
+        		result.getBuffer(),
+        		null, // Headers
+        		(!createNew ? "put" : null));
+        
+        ErrorInformation e = checkIfError(output);
+
+        VoucherSeries c = new VoucherSeries();
+        
+		if (e==null) {
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(output.toString().getBytes()), "UTF-8"));
+	        c = JAXB.unmarshal(in, c.getClass());
+	        return(c); 
+		} else {
+			throw new FortnoxException(e);
+		}
+		
+	}
+	
+	
+	/**
 	 * Returns a specific voucher series
 	 * 
 	 * @param code		The string representation of the voucher series

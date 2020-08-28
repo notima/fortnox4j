@@ -8,6 +8,18 @@ public class VoucherSeries extends VoucherSeriesSubset {
 
 	private Integer nextVoucherNumber;
 
+	public VoucherSeries() {}
+	
+	public VoucherSeries(VoucherSeriesSubset vs) {
+		
+		this.setCode(vs.getCode());
+		this.setDescription(vs.getDescription());
+		this.setManual(vs.getManual());
+		this.setUrl(vs.getUrl());
+		this.setYear(vs.getYear());
+		
+	}
+	
 	@XmlElement(name="NextVoucherNumber")
 	public Integer getNextVoucherNumber() {
 		return nextVoucherNumber;
