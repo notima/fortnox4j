@@ -30,6 +30,25 @@ The credentials for accessing a Fortnox entity are normally put in an xml-file a
 
 See the file [FortnoxClientListSample.xml](https://github.com/notima/fortnox4j/blob/master/src/test/resources/FortnoxClientListSample.xml) for an example of the file structure.
 
+### Example
+
+When you have a FortnoxClient.xml file you can easily retrieve a Fortnox client with the orgNo as a parameter.
+
+```
+String orgNo = "SOMETHING";
+
+FortnoxClientInfo ci = null;
+FortnoxClientList clist = FortnoxUtil.readFortnoxClientListFromFile("fortnoxClients.xml");
+if (orgNo!=null) {
+	ci = clist.getClientInfoByOrgNo(orgNo);
+} else {
+	ci = clist.getFirstClient();
+}
+
+FortnoxClient3 fclient = new FortnoxClient3(ci.getAccessToken(), ci.getClientSecret());
+
+```
+
 ## Maven
 
 Releases are found in Maven-Central repository and can easliy be used by adding a dependency to your pom.xml.
