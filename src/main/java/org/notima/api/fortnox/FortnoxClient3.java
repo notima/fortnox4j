@@ -425,6 +425,15 @@ public class FortnoxClient3 {
 		
 	}
 
+	/**
+	 * Returns current access token.
+	 * 
+	 * @return	Current access token
+	 */
+	public String getAccessTokenCurrent() {
+		return m_accessToken;
+	}
+	
 	public StringBuffer postFortnox(String route, StringBuffer postContents) throws Exception {
 		return callFortnox(route, null, postContents, null, "POST");
 	}
