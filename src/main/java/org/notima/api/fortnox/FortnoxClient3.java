@@ -1986,6 +1986,10 @@ public class FortnoxClient3 {
 			// Convert returned result into UTF-8
 			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(output.toString().getBytes()), "UTF-8"));
 	        c = JAXB.unmarshal(in, c.getClass());
+	        
+	        // Reset customer map
+	        resetCustomerMap();
+	        
 	        return(c); 
 		} else {
 			if (ERROR_CANT_FIND_CUSTOMER.equals(e.getCode())) {
