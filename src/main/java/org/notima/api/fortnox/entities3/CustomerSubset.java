@@ -12,6 +12,24 @@ public class CustomerSubset {
 	private String phone;
 	private String zipCode;
 	
+	public CustomerSubset() {}
+	
+	/**
+	 * Create a customer subset from a customer
+	 * 
+	 * @param src
+	 */
+	public CustomerSubset(Customer src) {
+		if (src==null) return;
+		city = src.getCity();
+		customerNumber = src.getCustomerNumber();
+		email = src.getEmail();
+		name = src.getName();
+		organisationNumber = src.getOrganisationNumber();
+		phone = src.getPhone1();
+		zipCode = src.getZipCode();
+	}
+	
 	@XmlElement(name="City")
 	public String getCity() {
 		return city;

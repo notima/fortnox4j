@@ -1987,8 +1987,14 @@ public class FortnoxClient3 {
 			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(output.toString().getBytes()), "UTF-8"));
 	        c = JAXB.unmarshal(in, c.getClass());
 	        
-	        // Reset customer map
-	        resetCustomerMap();
+	        // If there's an existing customer map, add/put this customer to that map
+	        if (m_customerTaxIdLookupMap!=null) {
+	        	CustomerSubset cs = m_customerTaxIdLookupMap.get(c.getOrganisationNumber());
+	        	if (cs==null) {
+	        		cs = new CustomerSubset(c);
+	        		m_customerTaxIdLookupMap.put(c.getOrganisationNumber(), cs);
+	        	}
+	        }
 	        
 	        return(c); 
 		} else {
@@ -2091,7 +2097,7 @@ public class FortnoxClient3 {
 			return getCustomerByCustNo(contact.getCustomerNumber());
 		}
 	}
-
+	
 	/**
 	 * Resets the tax id / customer map
 	 * @deprecated 	Use resetCustomerMap instead.
