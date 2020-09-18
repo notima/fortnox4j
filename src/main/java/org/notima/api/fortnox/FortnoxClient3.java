@@ -772,6 +772,54 @@ public class FortnoxClient3 {
 		
 	}
 
+	
+	/**
+	 * Read all financial years
+	 * 
+	 * @return				All customers.
+	 * @throws Exception	If something goes wrong.
+	 */
+	public FinancialYears getFinancialYears() throws Exception {
+		
+		FinancialYears r = getFinancialYears(0);
+		
+		int currentPage = 1;
+		int totalPages = r.getTotalPages();
+		while (currentPage<totalPages) {
+			FinancialYears subset = getFinancialYears(currentPage+1);
+			r.getFinancialYearSubset().addAll(subset.getFinancialYearSubset());
+			currentPage = subset.getCurrentPage();
+		}
+
+		return r;
+		
+	}
+	
+	/**
+	 * A page of customers.
+	 * 
+	 * @param page			The page
+	 * @return				A page of customers.
+	 * @throws Exception	If something goes wrong.
+	 */
+	public FinancialYears getFinancialYears(int page) throws Exception {
+		// Create request
+		StringBuffer result = callFortnox("/financialyears/", (page>1 ? ("?page=" + page) : null), null);
+		ErrorInformation e = checkIfError(result);
+		FinancialYears r = new FinancialYears();
+		if (e==null) {
+
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(result.toString().getBytes()), "UTF-8"));
+	        r = JAXB.unmarshal(in,  r.getClass()); //NOI18N
+	        return(r);
+	        
+		} else {
+			throw new FortnoxException(e);
+		}
+	}
+	
+	
 	/**
 	 * Gets financial year for given date. 
 	 * 
@@ -970,7 +1018,7 @@ public class FortnoxClient3 {
 		if (account.getUrl()!=null) {
 			out = putFortnox("/accounts/" + putStr, xml.getBuffer());
 		} else {
-			out = postFortnox("/accounts", xml.getBuffer());
+			out = postFortnox("/accounts" + (yearId!=0 ? "?financialyear=" + yearId : ""), xml.getBuffer());
 		}
 		ErrorInformation e = checkIfError(out);
 
@@ -1304,8 +1352,6 @@ public class FortnoxClient3 {
 		int currentPage = 1;
 		int totalPages = r.getTotalPages();
 		while (currentPage<totalPages) {
-			// Pause not to exceed call limit
-			Thread.sleep(100);
 			Customers subset = getCustomers(currentPage+1);
 			r.getCustomerSubset().addAll(subset.getCustomerSubset());
 			currentPage = subset.getCurrentPage();
