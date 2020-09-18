@@ -1512,10 +1512,11 @@ public class FortnoxClient3 {
 	 * Sets a voucher series. Creates it if it doesn't exist.
 	 * 
 	 * @param vs			The voucher series
+	 * @param yearId		The yearId that the series should belong to. Null will be default year.
 	 * @return				The created / updated voucher series.
 	 * @throws Exception	If something goes wrong.
 	 */
-	public VoucherSeries setVoucherSeries(VoucherSeriesSubset vs) throws Exception {
+	public VoucherSeries setVoucherSeries(VoucherSeriesSubset vs, Integer yearId) throws Exception {
 		
 		if (vs==null) return null;
 
@@ -1525,7 +1526,7 @@ public class FortnoxClient3 {
 		JAXB.marshal(vs, result);
         
         StringBuffer output = callFortnox("/voucherseries" + 
-        		(!createNew ? "/" + vs.getCode() : "")
+        		(!createNew ? "/" + vs.getCode() : "") + (yearId!=null && yearId!=0 ? "?financialyear=" + yearId : "")
         		, null,
         		result.getBuffer(),
         		null, // Headers
@@ -1550,10 +1551,11 @@ public class FortnoxClient3 {
 	 * Sets a voucher series. Creates it if it doesn't exist.
 	 * 
 	 * @param vs			The voucher series
+	 * @param yearId		The yearId that the series should belong to. Null will be default year.
 	 * @return				The created / updated voucher series.
 	 * @throws Exception	If something goes wrong.
 	 */
-	public VoucherSeries setVoucherSeries(VoucherSeries vs) throws Exception {
+	public VoucherSeries setVoucherSeries(VoucherSeries vs, Integer yearId) throws Exception {
 		
 		if (vs==null) return null;
 
@@ -1563,7 +1565,7 @@ public class FortnoxClient3 {
 		JAXB.marshal(vs, result);
         
         StringBuffer output = callFortnox("/voucherseries" + 
-        		(!createNew ? "/" + vs.getCode() : "")
+        		(!createNew ? "/" + vs.getCode() : "") + (yearId!=null && yearId!=0 ? "?financialyear=" + yearId : "")
         		, null,
         		result.getBuffer(),
         		null, // Headers
@@ -1592,11 +1594,11 @@ public class FortnoxClient3 {
 	 * @return			A voucher series subset if it exists. Otherwise null
 	 * @throws Exception If something goes wrong.
 	 */
-	public VoucherSeriesSubset getVoucherSeries(String code) throws Exception {
+	public VoucherSeriesSubset getVoucherSeries(String code, Integer yearId) throws Exception {
 
 		if (code==null) return null;
 		
-		VoucherSeriesCollection series = getVoucherSeriesCollection();
+		VoucherSeriesCollection series = getVoucherSeriesCollection(yearId);
 		if (series==null || series.getVoucherSeriesSubset()==null)
 			return null;
 		
@@ -1618,16 +1620,16 @@ public class FortnoxClient3 {
 	 * @return		All voucher series collections
 	 * @throws Exception
 	 */
-	public VoucherSeriesCollection getVoucherSeriesCollection() throws Exception {
+	public VoucherSeriesCollection getVoucherSeriesCollection(Integer yearId) throws Exception {
 
-		VoucherSeriesCollection r = getVoucherSeriesCollection(0);
+		VoucherSeriesCollection r = getVoucherSeriesCollection(yearId, 0);
 		
 		int currentPage = 1;
 		int totalPages = r.getTotalPages();
 		while (currentPage<totalPages) {
 			// Pause not to exceed call limit
 			Thread.sleep(100);
-			VoucherSeriesCollection subset = getVoucherSeriesCollection(currentPage+1);
+			VoucherSeriesCollection subset = getVoucherSeriesCollection(yearId, currentPage+1);
 			r.getVoucherSeriesSubset().addAll(subset.getVoucherSeriesSubset());
 			currentPage = subset.getCurrentPage();
 		}
@@ -1644,9 +1646,16 @@ public class FortnoxClient3 {
 	 * @return	A VoucherSeriesCollection struct containing a list of VoucherSeriesSubset
 	 * @throws Exception	if something fails
 	 */
-	public VoucherSeriesCollection getVoucherSeriesCollection(int page) throws Exception {
+	public VoucherSeriesCollection getVoucherSeriesCollection(Integer yearId, int page) throws Exception {
 		// Create request
-		StringBuffer result = callFortnox("/voucherseries/", (page>1 ? ("?page=" + page) : null), null);
+		String param = page > 1 ? "page=" + page : "";
+		if (yearId!=null && yearId!=0) {
+			if (param.length()>0) {
+				param += "&";
+			}
+			param += "financialyear=" + yearId;
+		}
+		StringBuffer result = callFortnox("/voucherseries/", (param.length()>0 ? "?" + param : null), null);
 		ErrorInformation e = checkIfError(result);
 		VoucherSeriesCollection r = new VoucherSeriesCollection();
 		if (e==null) {

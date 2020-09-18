@@ -9,13 +9,13 @@ public class TestGetVoucherSeries extends FortnoxTest {
 	
 	@Test
 	public void testGetVoucherSeries() throws Exception {
-
-		VoucherSeriesSubset s = client.getVoucherSeries(DEFAULT_VOUCHER_SERIES);
+		
+		VoucherSeriesSubset s = client.getVoucherSeries(DEFAULT_VOUCHER_SERIES, null);
 
 		if (s==null) {
 			log.warn("No voucher series: {}", DEFAULT_VOUCHER_SERIES);
 		} else {
-			log.info("Voucher series '{} : {}' retrieved", s.getCode(), s.getDescription());
+			log.info("Voucher series '{} : {} : {}' retrieved", s.getCode(), s.getDescription(), s.getYear());
 		}
 		
 	}
