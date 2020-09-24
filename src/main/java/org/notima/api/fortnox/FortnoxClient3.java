@@ -1834,13 +1834,16 @@ public class FortnoxClient3 {
         		);
 		
         InvoicePayment out = null;
-        if (output.toString().contains("ErrorInformation")) {
-        	System.err.println(output.toString());
-        	return null;
+        
+        ErrorInformation e = checkIfError(output);
+        
+        if (e!=null) {
+        	logger.error(result.toString() + " : " + e.getMessage());
+        	throw new FortnoxException(e);
         } else {
 	        StringReader reader = new StringReader(output.toString());
 	        if (output!=null && output.length()>0) {
-	        	// Try to create invoice
+	        	// Try to create invoice payment
 	        	out = JAXB.unmarshal(reader, InvoicePayment.class);
 	        }
 	        return out;
@@ -1885,9 +1888,12 @@ public class FortnoxClient3 {
         		);
 		
         Invoice out = null;
-        if (output.toString().contains("ErrorInformation")) {
-        	System.err.println(output.toString());
-        	return null;
+        
+        ErrorInformation e = checkIfError(output);
+        
+        if (e!=null) {
+        	logger.error(result.toString() + " : " + e.getMessage());
+        	throw new FortnoxException(e);
         } else {
 	        StringReader reader = new StringReader(output.toString());
 	        if (output!=null && output.length()>0) {
