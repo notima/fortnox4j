@@ -52,6 +52,8 @@ import org.notima.api.fortnox.clients.FortnoxClientList;
 import org.notima.api.fortnox.entities3.Account;
 import org.notima.api.fortnox.entities3.AccountSubset;
 import org.notima.api.fortnox.entities3.Accounts;
+import org.notima.api.fortnox.entities3.Article;
+import org.notima.api.fortnox.entities3.Articles;
 import org.notima.api.fortnox.entities3.Authorization;
 import org.notima.api.fortnox.entities3.CompanySetting;
 import org.notima.api.fortnox.entities3.Customer;
@@ -215,6 +217,7 @@ public class FortnoxClient3 {
 	public static final String ERROR_INVALID_LOGIN = "2000310";
 	public static final String ERROR_ACCOUNT_NOT_ACTIVE = "2000550";
 	public static final String ERROR_ACCOUNT_NOT_FOUND = "2000423";
+	public static final String ERROR_ARTICLE_NOT_FOUND = "2000428";
 	
 	/**
 	 * Inbox folders
@@ -2130,6 +2133,85 @@ public class FortnoxClient3 {
 		}
 	}
 	
+	/**
+	 * Read all articles.
+	 *
+	 * @return				All articles.
+	 * @throws Exception	If something goes wrong.
+	 */
+	public Articles getArticles() throws Exception {
+
+		Articles r = getArticles(0);
+
+		int currentPage = 1;
+		int totalPages = r.getTotalPages();
+		while (currentPage<totalPages) {
+			Articles subset = getArticles(currentPage+1);
+			r.getArticleSubset().addAll(subset.getArticleSubset());
+			currentPage = subset.getCurrentPage();
+		}
+
+		return r;
+	}
+
+	/**
+	 * A page of articles.
+	 *
+	 * @param page			The page.
+	 * @return				A page of articles.
+	 * @throws Exception	If something goes wrong.
+	 */
+	public Articles getArticles(int page) throws Exception {
+		// Create request
+		StringBuffer result = callFortnox("/articles/", (page>1 ? ("?page=" + page) : null), null);
+		ErrorInformation e = checkIfError(result);
+		Articles r = new Articles();
+		if (e==null) {
+
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(result.toString().getBytes()), "UTF-8"));
+			r = JAXB.unmarshal(in,  r.getClass()); //NOI18N
+			return(r);
+
+		} else {
+			throw new FortnoxException(e);
+		}
+	}
+
+	/**
+	 * Reads an article from database using articleNo.
+	 * If article doesn't exist, null is returned.
+	 *
+	 * @param articleNo			The article's article number (in Fortnox).
+	 * @return					The article.
+	 * @throws Exception		If something goes wrong.
+	 */
+	public Article getArticleByArticleNo(String articleNo) throws Exception {
+
+		if (articleNo==null)
+			return null;
+
+		Article c = new Article();
+		// Create request
+		String getStr = URLEncoder.encode(articleNo, "UTF-8");
+		StringBuffer result = callFortnox("/articles/", getStr, null);
+
+		ErrorInformation e = checkIfError(result);
+		if (e==null) {
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(result.toString().getBytes()), "UTF-8"));
+			c = JAXB.unmarshal(in, c.getClass());
+			return(c);
+		} else {
+			if (ERROR_ARTICLE_NOT_FOUND.equals(e.getCode())) {
+				return null;
+			} else {
+				throw new FortnoxException(e);
+			}
+		}
+
+	}
+
 	/**
 	 * Resets the tax id / customer map
 	 * @deprecated 	Use resetCustomerMap instead.
