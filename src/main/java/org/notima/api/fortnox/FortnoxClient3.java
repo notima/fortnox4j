@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.math.BigDecimal;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.ByteBuffer;
@@ -52,6 +53,8 @@ import org.notima.api.fortnox.clients.FortnoxClientList;
 import org.notima.api.fortnox.entities3.Account;
 import org.notima.api.fortnox.entities3.AccountSubset;
 import org.notima.api.fortnox.entities3.Accounts;
+import org.notima.api.fortnox.entities3.Article;
+import org.notima.api.fortnox.entities3.Articles;
 import org.notima.api.fortnox.entities3.Authorization;
 import org.notima.api.fortnox.entities3.CompanySetting;
 import org.notima.api.fortnox.entities3.Customer;
@@ -75,9 +78,17 @@ import org.notima.api.fortnox.entities3.Orders;
 import org.notima.api.fortnox.entities3.PreDefinedAccount;
 import org.notima.api.fortnox.entities3.PreDefinedAccountSubset;
 import org.notima.api.fortnox.entities3.PreDefinedAccounts;
+import org.notima.api.fortnox.entities3.Price;
+import org.notima.api.fortnox.entities3.PriceList;
+import org.notima.api.fortnox.entities3.PriceLists;
+import org.notima.api.fortnox.entities3.Prices;
 import org.notima.api.fortnox.entities3.Supplier;
 import org.notima.api.fortnox.entities3.SupplierSubset;
 import org.notima.api.fortnox.entities3.Suppliers;
+import org.notima.api.fortnox.entities3.TermsOfDelivery;
+import org.notima.api.fortnox.entities3.TermsOfDeliveries;
+import org.notima.api.fortnox.entities3.TermsOfPayment;
+import org.notima.api.fortnox.entities3.TermsOfPayments;
 import org.notima.api.fortnox.entities3.Voucher;
 import org.notima.api.fortnox.entities3.VoucherFileConnection;
 import org.notima.api.fortnox.entities3.VoucherSeries;
@@ -215,6 +226,11 @@ public class FortnoxClient3 {
 	public static final String ERROR_INVALID_LOGIN = "2000310";
 	public static final String ERROR_ACCOUNT_NOT_ACTIVE = "2000550";
 	public static final String ERROR_ACCOUNT_NOT_FOUND = "2000423";
+	public static final String ERROR_ARTICLE_NOT_FOUND = "2000428";
+	public static final String ERROR_TERMS_OF_PAYMENT_FOUND = "2000429";
+	public static final String ERROR_PRICE_NOT_FOUND = "2000430";
+	public static final String ERROR_PRICE_LIST_NOT_FOUND = "2000431";
+	public static final String ERROR_TERMS_OF_DELIVERY_NOT_FOUND = "2000435";
 	
 	/**
 	 * Inbox folders
@@ -2130,6 +2146,384 @@ public class FortnoxClient3 {
 		}
 	}
 	
+	/**
+	 * Read all articles.
+	 *
+	 * @return				All articles.
+	 * @throws Exception	If something goes wrong.
+	 */
+	public Articles getArticles() throws Exception {
+
+		Articles r = getArticles(0);
+
+		int currentPage = 1;
+		int totalPages = r.getTotalPages();
+		while (currentPage<totalPages) {
+			Articles subset = getArticles(currentPage+1);
+			r.getArticleSubset().addAll(subset.getArticleSubset());
+			currentPage = subset.getCurrentPage();
+		}
+
+		return r;
+	}
+
+	/**
+	 * A page of articles.
+	 *
+	 * @param page			The page.
+	 * @return				A page of articles.
+	 * @throws Exception	If something goes wrong.
+	 */
+	public Articles getArticles(int page) throws Exception {
+		// Create request
+		StringBuffer result = callFortnox("/articles/", (page>1 ? ("?page=" + page) : null), null);
+		ErrorInformation e = checkIfError(result);
+		Articles r = new Articles();
+		if (e==null) {
+
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(result.toString().getBytes()), "UTF-8"));
+			r = JAXB.unmarshal(in,  r.getClass()); //NOI18N
+			return(r);
+
+		} else {
+			throw new FortnoxException(e);
+		}
+	}
+
+	/**
+	 * Reads an article from database using articleNo.
+	 * If article doesn't exist, null is returned.
+	 *
+	 * @param articleNo			The article's article number (in Fortnox).
+	 * @return					The article.
+	 * @throws Exception		If something goes wrong.
+	 */
+	public Article getArticleByArticleNo(String articleNo) throws Exception {
+
+		if (articleNo==null)
+			return null;
+
+		Article c = new Article();
+		// Create request
+		String getStr = URLEncoder.encode(articleNo, "UTF-8");
+		StringBuffer result = callFortnox("/articles/", getStr, null);
+
+		ErrorInformation e = checkIfError(result);
+		if (e==null) {
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(result.toString().getBytes()), "UTF-8"));
+			c = JAXB.unmarshal(in, c.getClass());
+			return(c);
+		} else {
+			if (ERROR_ARTICLE_NOT_FOUND.equals(e.getCode())) {
+				return null;
+			} else {
+				throw new FortnoxException(e);
+			}
+		}
+
+	}
+
+	/**
+	 * Read all price lists.
+	 *
+	 * @return				All price lists.
+	 * @throws Exception	If something goes wrong.
+	 */
+	public PriceLists getPriceLists() throws Exception {
+
+		PriceLists r = getPriceLists(0);
+
+		int currentPage = 1;
+		int totalPages = r.getTotalPages();
+		while (currentPage<totalPages) {
+			PriceLists subset = getPriceLists(currentPage+1);
+			r.getPriceListSubset().addAll(subset.getPriceListSubset());
+			currentPage = subset.getCurrentPage();
+		}
+
+		return r;
+	}
+
+	/**
+	 * A page of price lists.
+	 *
+	 * @param page			The page.
+	 * @return				A page of price lists.
+	 * @throws Exception	If something goes wrong.
+	 */
+	public PriceLists getPriceLists(int page) throws Exception {
+		// Create request
+		StringBuffer result = callFortnox("/pricelists/", (page>1 ? ("?page=" + page) : null), null);
+		ErrorInformation e = checkIfError(result);
+		PriceLists r = new PriceLists();
+		if (e==null) {
+
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(result.toString().getBytes()), "UTF-8"));
+			r = JAXB.unmarshal(in,  r.getClass()); //NOI18N
+			return(r);
+
+		} else {
+			throw new FortnoxException(e);
+		}
+	}
+
+	/**
+	 * Reads a price list from database using priceListCode.
+	 * If price list doesn't exist, null is returned.
+	 *
+	 * @param code				The price list's code (in Fortnox).
+	 * @return					The price list.
+	 * @throws Exception		If something goes wrong.
+	 */
+	public PriceList getPriceListByCode(String code) throws Exception {
+
+		if (code==null)
+			return null;
+
+		PriceList c = new PriceList();
+		// Create request
+		String getStr = URLEncoder.encode(code, "UTF-8");
+		StringBuffer result = callFortnox("/pricelists/", getStr, null);
+
+		ErrorInformation e = checkIfError(result);
+		if (e==null) {
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(result.toString().getBytes()), "UTF-8"));
+			c = JAXB.unmarshal(in, c.getClass());
+			return(c);
+		} else {
+			if (ERROR_PRICE_LIST_NOT_FOUND.equals(e.getCode())) {
+				return null;
+			} else {
+				throw new FortnoxException(e);
+			}
+		}
+
+	}
+
+	/**
+	 * Read all prices in a price list.
+	 *
+	 * @param priceListCode	The price list code.
+	 * @return				All prices in price list.
+	 * @throws Exception	If something goes wrong.
+	 */
+	public Prices getPrices(String priceListCode) throws Exception {
+
+		Prices r = getPrices(priceListCode, 0);
+
+		int currentPage = 1;
+		int totalPages = r.getTotalPages();
+		while (currentPage<totalPages) {
+			Prices subset = getPrices(priceListCode, currentPage+1);
+			r.getPriceSubset().addAll(subset.getPriceSubset());
+			currentPage = subset.getCurrentPage();
+		}
+
+		return r;
+	}
+
+	/**
+	 * A page of prices in a price list.
+	 *
+	 * @param priceListCode	The price list code.
+	 * @param page			The page.
+	 * @return				A page of prices.
+	 * @throws Exception	If something goes wrong.
+	 */
+	public Prices getPrices(String priceListCode, int page) throws Exception {
+		// Create request
+		String getStr = URLEncoder.encode(priceListCode,"UTF-8") + "/" + (page>1 ? ("&page=" + page) : "");
+		StringBuffer result = callFortnox("/prices/sublist/", getStr, null);
+		ErrorInformation e = checkIfError(result);
+		Prices r = new Prices();
+		if (e==null) {
+
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(result.toString().getBytes()), "UTF-8"));
+			r = JAXB.unmarshal(in,  r.getClass()); //NOI18N
+			return(r);
+
+		} else {
+			throw new FortnoxException(e);
+		}
+	}
+
+	/**
+	 * Reads a price from database using priceListCode, articleNumber and optionally fromQuantity.
+	 * If price doesn't exist, null is returned.
+	 *
+	 * @param priceListCode		The price list's code (in Fortnox).
+	 * @param articleNumber		The article's article number (in Fortnox).
+	 * @param fromQuantity		Optional quantity from where the price is applicable.
+	 * @return					The price.
+	 * @throws Exception		If something goes wrong.
+	 */
+	public Price getPrice(String priceListCode, String articleNumber, BigDecimal fromQuantity) throws Exception {
+
+		if (priceListCode==null || articleNumber==null)
+			return null;
+
+		Price c = new Price();
+		// Create request
+		String getStr = URLEncoder.encode(priceListCode, "UTF-8") + "/" + URLEncoder.encode(articleNumber, "UTF-8") + "/" + (fromQuantity != null ? fromQuantity.toString() : "");
+		StringBuffer result = callFortnox("/prices/", getStr, null);
+
+		ErrorInformation e = checkIfError(result);
+		if (e==null) {
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(result.toString().getBytes()), "UTF-8"));
+			c = JAXB.unmarshal(in, c.getClass());
+			return(c);
+		} else {
+			if (ERROR_PRICE_NOT_FOUND.equals(e.getCode())) {
+				return null;
+			} else {
+				throw new FortnoxException(e);
+			}
+		}
+
+	}
+
+	/**
+	 * Read all terms of deliveries.
+	 *
+	 * @return				All terms of deliveries.
+	 * @throws Exception	If something goes wrong.
+	 */
+	public TermsOfDeliveries getTermsOfDeliveries() throws Exception {
+		// Create request
+		StringBuffer result = callFortnox("/termsofdeliveries", null, null);
+		ErrorInformation e = checkIfError(result);
+		TermsOfDeliveries r = new TermsOfDeliveries();
+		if (e==null) {
+
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(result.toString().getBytes()), "UTF-8"));
+			r = JAXB.unmarshal(in,  r.getClass()); //NOI18N
+			return(r);
+
+		} else {
+			throw new FortnoxException(e);
+		}
+	}
+
+	/**
+	 * Reads a term of delivery from database using code.
+	 * If term of delivery doesn't exist, null is returned.
+	 *
+	 * @param code			The term of delivery's code (in Fortnox).
+	 * @return				The term of delivery.
+	 * @throws Exception	If something goes wrong.
+	 */
+	public TermsOfDelivery getTermsOfDeliveryByCode(String code) throws Exception {
+
+		if (code==null)
+			return null;
+
+		TermsOfDelivery c = new TermsOfDelivery();
+		// Create request
+		String getStr = URLEncoder.encode(code, "UTF-8");
+		StringBuffer result = callFortnox("/termsofdeliveries/", getStr, null);
+
+		ErrorInformation e = checkIfError(result);
+		if (e==null) {
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(result.toString().getBytes()), "UTF-8"));
+			c = JAXB.unmarshal(in, c.getClass());
+			return(c);
+		} else {
+			if (ERROR_TERMS_OF_DELIVERY_NOT_FOUND.equals(e.getCode())) {
+				return null;
+			} else {
+				throw new FortnoxException(e);
+			}
+		}
+
+	}
+
+	/**
+	 * Read all terms of payments.
+	 *
+	 * @return				All terms of payments.
+	 * @throws Exception	If something goes wrong.
+	 */
+	public TermsOfPayments getTermsOfPayments() throws Exception {
+
+		TermsOfPayments r = getTermsOfPayments(0);
+
+		int currentPage = 1;
+		int totalPages = r.getTotalPages();
+		while (currentPage<totalPages) {
+			TermsOfPayments subset = getTermsOfPayments(currentPage+1);
+			r.getTermsOfPaymentSubset().addAll(subset.getTermsOfPaymentSubset());
+			currentPage = subset.getCurrentPage();
+		}
+
+		return r;
+	}
+
+	/**
+	 * A page of terms of payments.
+	 *
+	 * @param page			The page.
+	 * @return				A page of terms of payments.
+	 * @throws Exception	If something goes wrong.
+	 */
+	public TermsOfPayments getTermsOfPayments(int page) throws Exception {
+		// Create request
+		StringBuffer result = callFortnox("/termsofpayments/", (page>1 ? ("?page=" + page) : null), null);
+		ErrorInformation e = checkIfError(result);
+		TermsOfPayments r = new TermsOfPayments();
+		if (e==null) {
+
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(result.toString().getBytes()), "UTF-8"));
+			r = JAXB.unmarshal(in,  r.getClass()); //NOI18N
+			return(r);
+
+		} else {
+			throw new FortnoxException(e);
+		}
+	}
+
+	/**
+	 * Reads a term of payment from database using code.
+	 * If term of payment doesn't exist, null is returned.
+	 *
+	 * @param code			The term of payment's code (in Fortnox).
+	 * @return				The term of payment.
+	 * @throws Exception	If something goes wrong.
+	 */
+	public TermsOfPayment getTermsOfPaymentByCode(String code) throws Exception {
+
+		if (code==null)
+			return null;
+
+		TermsOfPayment c = new TermsOfPayment();
+		// Create request
+		String getStr = URLEncoder.encode(code, "UTF-8");
+		StringBuffer result = callFortnox("/termsofpayments/", getStr, null);
+
+		ErrorInformation e = checkIfError(result);
+		if (e==null) {
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(result.toString().getBytes()), "UTF-8"));
+			c = JAXB.unmarshal(in, c.getClass());
+			return(c);
+		} else {
+			if (ERROR_TERMS_OF_PAYMENT_FOUND.equals(e.getCode())) {
+				return null;
+			} else {
+				throw new FortnoxException(e);
+			}
+		}
+
+	}
+
 	/**
 	 * Resets the tax id / customer map
 	 * @deprecated 	Use resetCustomerMap instead.
