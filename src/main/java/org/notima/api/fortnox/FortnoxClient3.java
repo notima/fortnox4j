@@ -82,6 +82,8 @@ import org.notima.api.fortnox.entities3.Price;
 import org.notima.api.fortnox.entities3.PriceList;
 import org.notima.api.fortnox.entities3.PriceLists;
 import org.notima.api.fortnox.entities3.Prices;
+import org.notima.api.fortnox.entities3.Project;
+import org.notima.api.fortnox.entities3.Projects;
 import org.notima.api.fortnox.entities3.Supplier;
 import org.notima.api.fortnox.entities3.SupplierSubset;
 import org.notima.api.fortnox.entities3.Suppliers;
@@ -231,6 +233,7 @@ public class FortnoxClient3 {
 	public static final String ERROR_PRICE_NOT_FOUND = "2000430";
 	public static final String ERROR_PRICE_LIST_NOT_FOUND = "2000431";
 	public static final String ERROR_TERMS_OF_DELIVERY_NOT_FOUND = "2000435";
+	public static final String ERROR_PROJECT_NOT_FOUND = "2001161";
 	
 	/**
 	 * Inbox folders
@@ -2380,6 +2383,125 @@ public class FortnoxClient3 {
 			return(c);
 		} else {
 			if (ERROR_PRICE_NOT_FOUND.equals(e.getCode())) {
+				return null;
+			} else {
+				throw new FortnoxException(e);
+			}
+		}
+
+	}
+
+	/**
+	 * Read all projects.
+	 *
+	 * @return				All projects.
+	 * @throws Exception	If something goes wrong.
+	 */
+	public Projects getProjects() throws Exception {
+
+		Projects r = getProjects(0);
+
+		int currentPage = 1;
+		int totalPages = r.getTotalPages();
+		while (currentPage<totalPages) {
+			Projects subset = getProjects(currentPage+1);
+			r.getProjectSubset().addAll(subset.getProjectSubset());
+			currentPage = subset.getCurrentPage();
+		}
+
+		return r;
+	}
+
+	/**
+	 * A page of projects.
+	 *
+	 * @param page			The page.
+	 * @return				A page of projects.
+	 * @throws Exception	If something goes wrong.
+	 */
+	public Projects getProjects(int page) throws Exception {
+		// Create request
+		StringBuffer result = callFortnox("/projects/", (page>1 ? ("?page=" + page) : null), null);
+		ErrorInformation e = checkIfError(result);
+		Projects r = new Projects();
+		if (e==null) {
+
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(result.toString().getBytes()), "UTF-8"));
+			r = JAXB.unmarshal(in,  r.getClass()); //NOI18N
+			return(r);
+
+		} else {
+			throw new FortnoxException(e);
+		}
+	}
+
+	/**
+	 * Reads a project from database using projectNo.
+	 * If project doesn't exist, null is returned.
+	 *
+	 * @param projectNo			The project's project number (in Fortnox).
+	 * @return					The project.
+	 * @throws Exception		If something goes wrong.
+	 */
+	public Project getProjectByProjectNo(String projectNo) throws Exception {
+
+		if (projectNo==null)
+			return null;
+
+		Project c = new Project();
+		// Create request
+		String getStr = URLEncoder.encode(projectNo, "UTF-8");
+		StringBuffer result = callFortnox("/projects/", getStr, null);
+
+		ErrorInformation e = checkIfError(result);
+		if (e==null) {
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(result.toString().getBytes()), "UTF-8"));
+			c = JAXB.unmarshal(in, c.getClass());
+			return(c);
+		} else {
+			if (ERROR_PROJECT_NOT_FOUND.equals(e.getCode())) {
+				return null;
+			} else {
+				throw new FortnoxException(e);
+			}
+		}
+
+	}
+
+	/**
+	 * Creates or updates a project.
+	 *
+	 * @param project			The project to be created / updated.
+	 * @param createNew			True to create new. False to update existing.
+	 * @return 					The project created / updated.
+	 * @throws Exception		If something goes wrong.
+	 */
+	public Project setProject(Project project, boolean createNew) throws Exception {
+
+		StringWriter result = new StringWriter();
+		JAXB.marshal(project, result);
+
+		StringBuffer output = callFortnox("/projects" +
+				(!createNew ? "/" + project.getProjectNumber().trim() : ""),
+				null,
+				result.getBuffer(),
+				null, // Headers
+				(!createNew ? "put" : null) // method
+		);
+
+		ErrorInformation e = checkIfError(output);
+
+		Project c = new Project();
+
+		if (e==null) {
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(output.toString().getBytes()), "UTF-8"));
+			c = JAXB.unmarshal(in, c.getClass());
+			return(c);
+		} else {
+			if (ERROR_PROJECT_NOT_FOUND.equals(e.getCode())) {
 				return null;
 			} else {
 				throw new FortnoxException(e);
