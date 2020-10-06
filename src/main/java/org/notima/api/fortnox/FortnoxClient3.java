@@ -1368,19 +1368,30 @@ public class FortnoxClient3 {
 	}
 
 	/**
-	 * Read all customers
+	 * Read all customers.
 	 * 
 	 * @return				All customers.
 	 * @throws Exception	If something goes wrong.
 	 */
 	public Customers getCustomers() throws Exception {
+		return getCustomers(null);
+	}
+
+	/**
+	 * Read all customers with given filter(s) applied.
+	 *
+	 * @param filter		The filter.
+	 * @return				All customers.
+	 * @throws Exception	If something goes wrong.
+	 */
+	public Customers getCustomers(String filter) throws Exception {
 		
-		Customers r = getCustomers(0);
+		Customers r = getCustomers(filter, 0);
 		
 		int currentPage = 1;
 		int totalPages = r.getTotalPages();
 		while (currentPage<totalPages) {
-			Customers subset = getCustomers(currentPage+1);
+			Customers subset = getCustomers(filter, currentPage+1);
 			r.getCustomerSubset().addAll(subset.getCustomerSubset());
 			currentPage = subset.getCurrentPage();
 		}
@@ -1392,13 +1403,28 @@ public class FortnoxClient3 {
 	/**
 	 * A page of customers.
 	 * 
-	 * @param page			The page
+	 * @param page			The page.
 	 * @return				A page of customers.
 	 * @throws Exception	If something goes wrong.
 	 */
 	public Customers getCustomers(int page) throws Exception {
+		return getCustomers(null, page);
+	}
+
+	/**
+	 * A page of customers with given filter(s) applied.
+	 *
+	 * @param filter		The filter.
+	 * @param page			The page.
+	 * @return				A page of customers.
+	 * @throws Exception	If something goes wrong.
+	 */
+	public Customers getCustomers(String filter, int page) throws Exception {
+		// Include the filter word if the filter is not a global search (containing key/values)
+		String filterWord = filter!=null && filter.contains("=") ? "" : "filter=";
+
 		// Create request
-		StringBuffer result = callFortnox("/customers/", (page>1 ? ("?page=" + page) : null), null);
+		StringBuffer result = callFortnox("/customers/" + (filter!=null&&filter.trim().length()>0 ? "?" + filterWord + filter.trim() : "") , (page>1 ? ((filter!=null&&filter.trim().length()>0 ? "&" : "?") + "page=" + page) : null), null);
 		ErrorInformation e = checkIfError(result);
 		Customers r = new Customers();
 		if (e==null) {
