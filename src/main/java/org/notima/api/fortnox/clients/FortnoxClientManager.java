@@ -229,7 +229,7 @@ public class FortnoxClientManager {
 	
 
 	/**
-	 * Validates the connection. Gets an accessToken is an API-code is supplied. 
+	 * Validates the connection. Gets an accessToken if an API-code is supplied. 
 	 * 
 	 * @param 		ci		The FortnoxClientInfo for the client to be validated.
 	 * @return		True if the connection is validated.
@@ -303,17 +303,22 @@ public class FortnoxClientManager {
 			// If we're here we got a new access token. Try saving it first
 			updateAndSaveClientInfo(ci);
 			// Get company info to update the name
-			// Read settings
-			FortnoxClient3 cl3 = new FortnoxClient3(ci.getAccessToken(), ci.getClientSecret());
+			
+		} 
+
+		// Read settings
+		FortnoxClient3 cl3 = new FortnoxClient3(ci.getAccessToken(), ci.getClientSecret());
+		try {
 			CompanySetting cs = cl3.getCompanySetting();
 			ci.setCompanySetting(cs);
 			// Save the company name
 			if (ci.getOrgName()==null || ci.getOrgName().trim().length()==0) {
 				ci.setOrgName(cs.getName());
 			}
-			updateAndSaveClientInfo(ci);
-			
+		} catch (FortnoxException fe) {
+			log.warn(fe.toString());
 		}
+		updateAndSaveClientInfo(ci);
 		
 		return true;
 		
