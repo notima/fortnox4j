@@ -26,6 +26,9 @@ public class FortnoxClientManager {
 	// The path to the clients file
 	private String	clientsFile;
 
+	// The default client secret
+	private String	defaultClientSecret;
+	
 	public FortnoxClientManager() {}
 	
 	/**
@@ -175,6 +178,19 @@ public class FortnoxClientManager {
 
 	public void setClientList(FortnoxClientList clientList) {
 		this.clientList = clientList;
+	}
+	
+	/**
+	 * A place to store a default client secret for this manager.
+	 * 
+	 * @return		The default client secret (if any).
+	 */
+	public String getDefaultClientSecret() {
+		return defaultClientSecret;
+	}
+
+	public void setDefaultClientSecret(String defaultClientSecret) {
+		this.defaultClientSecret = defaultClientSecret;
 	}
 
 	/**
