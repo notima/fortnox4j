@@ -76,12 +76,9 @@ public class FortnoxClientManager {
 		if (cs!=null) {
 			dst.setOrgName(cs.getName());
 		}
-		
-		// Save to file if a file is specified
-		if (clientsFile!=null) {
-			FortnoxUtil.writeFortnoxClientListToFile(clientList, clientsFile);
-			log.info("{} file updated.", clientsFile);
-		} else {
+
+		boolean saved = saveClientInfo();
+		if (!saved) {
 			log.warn("No FortnoxClientsFile specified. Update of orgNo {} not persisted.", ci.getOrgNo());
 		}
 		
@@ -89,6 +86,26 @@ public class FortnoxClientManager {
 		
 	}
 
+	/**
+	 * Saves current client info to file.
+	 * 	
+	 * @return	True if it was saved to file. False if there was no file to save to.
+	 * 
+	 * @throws Exception	If something goes wrong.
+	 */
+	public boolean saveClientInfo() throws Exception {
+
+		// Save to file if a file is specified
+		if (clientsFile!=null) {
+			FortnoxUtil.writeFortnoxClientListToFile(clientList, clientsFile);
+			log.info("{} file updated.", clientsFile);
+			return true;
+		} else  {	
+			return false;
+		}
+		
+	}
+	
 	/**
 	 * Reads clients from xml-file and sets the clients file.
 	 * 
@@ -168,6 +185,39 @@ public class FortnoxClientManager {
 		}
 		ll.setFortnoxClient(list);
 		return ci;
+	}
+	
+	/**
+	 * Removes a client from the list.
+	 * Remember to 
+	 * 
+	 * @param ci		The client to be removed
+	 * @return			True if the client was removed. False if not found.
+	 */
+	public boolean removeClient(FortnoxClientInfo ci) {
+		
+		String orgNo = ci.getOrgNo();
+		if (orgNo==null) return false;
+		
+		ListOfClientInfo ll = clientList.getClients();
+		if (ll==null)
+			return false;
+		
+		List<FortnoxClientInfo> tmpList = ll.getFortnoxClient();
+		int removeIndex = -1;
+		for (int i = 0; i<tmpList.size(); i++) {
+			if (tmpList.get(i).getOrgNo().equalsIgnoreCase(orgNo)) {
+				removeIndex = i;
+				break;
+			}
+		}
+		
+		if (removeIndex>=0) {
+			tmpList.remove(removeIndex);
+			return true;
+		}
+		
+		return false;
 	}
 	
 	/**
