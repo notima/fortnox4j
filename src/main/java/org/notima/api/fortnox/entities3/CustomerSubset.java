@@ -17,7 +17,7 @@ public class CustomerSubset {
 	/**
 	 * Create a customer subset from a customer
 	 * 
-	 * @param src
+	 * @param src		The customer to convert to a subset.
 	 */
 	public CustomerSubset(Customer src) {
 		if (src==null) return;

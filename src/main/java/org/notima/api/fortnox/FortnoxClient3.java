@@ -1569,6 +1569,7 @@ public class FortnoxClient3 {
 	 * Returns a specific voucher series
 	 * 
 	 * @param code		The string representation of the voucher series
+	 * @param yearId	The year id to use for fetching the voucher series.
 	 * @return			A voucher series subset if it exists. Otherwise null
 	 * @throws Exception If something goes wrong.
 	 */
@@ -1595,8 +1596,9 @@ public class FortnoxClient3 {
 	/**
 	 * Gets all voucher series collection pages
 	 * 
+	 * @param 	yearId	The year id to use.	
 	 * @return		All voucher series collections
-	 * @throws Exception
+	 * @throws Exception	If something goes wrong.
 	 */
 	public VoucherSeriesCollection getVoucherSeriesCollection(Integer yearId) throws Exception {
 
@@ -1620,7 +1622,8 @@ public class FortnoxClient3 {
 	/**
 	 * Gets a page of VoucherSeriesCollection
 	 *  
-	 * @param page			The page to get
+	 * @param	yearId			The yearId to use.	
+	 * @param 	page			The page to get
 	 * @return	A VoucherSeriesCollection struct containing a list of VoucherSeriesSubset
 	 * @throws Exception	if something fails
 	 */
@@ -1703,6 +1706,7 @@ public class FortnoxClient3 {
 	 * Creates or updates a supplier
 	 * 
 	 * @param supplier		The supplier to persist.
+	 * @param createNew		True if the supplier should be created.
 	 * @return  			The supplier.
 	 * @throws Exception	If something goes wrong.
 	 */
@@ -2786,8 +2790,8 @@ public class FortnoxClient3 {
 	 * 							INBOX_DAILY_TAKINGS
 	 * 							INBOX_ASSET_REGISTER
 	 * 							INBOX_BANK_FILES
-	 * @return
-	 * @throws Exception 
+	 * @return	The FortnoxFile reference.
+	 * @throws Exception 		If something goes wrong.
 	 */
 	public FortnoxFile uploadFile(String file, String folderId) throws Exception {
 		
@@ -2843,9 +2847,10 @@ public class FortnoxClient3 {
 	/**
 	 * Returns a list of invoices with invoice date in given date.
 	 * 
-	 * @param fromDate
-	 * @param untilDate
+	 * @param fromDate			The from date to use.
+	 * @param untilDate			The until date to use.
 	 * @return		An Invoices struct.
+	 * @throws	Exception	if something goes wrong.
 	 */
 	public Invoices getAllCustomerInvoicesByDateRange(Date fromDate, Date untilDate) throws Exception {
 		
@@ -2892,7 +2897,7 @@ public class FortnoxClient3 {
 	/**
 	 * Compares the access token.
 	 * 
-	 * @param that
+	 * @param that		The client to compare
 	 * @return	True if the accessToken is equal.
 	 */
 	public boolean equals(FortnoxClient3 that) {
@@ -2908,7 +2913,7 @@ public class FortnoxClient3 {
 	 * If no lock exists, null is returned.
 	 * 
 	 * @return		Date until accounting is locked. If no lock, null.
-	 * @throws Exception
+	 * @throws Exception	If something goes wrong.
 	 */
 	public Date getLockedPeriodUntil() throws Exception {
 		
