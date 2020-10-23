@@ -57,6 +57,8 @@ import org.notima.api.fortnox.entities3.Article;
 import org.notima.api.fortnox.entities3.Articles;
 import org.notima.api.fortnox.entities3.Authorization;
 import org.notima.api.fortnox.entities3.CompanySetting;
+import org.notima.api.fortnox.entities3.CostCenter;
+import org.notima.api.fortnox.entities3.CostCenters;
 import org.notima.api.fortnox.entities3.Customer;
 import org.notima.api.fortnox.entities3.CustomerSubset;
 import org.notima.api.fortnox.entities3.Customers;
@@ -87,8 +89,8 @@ import org.notima.api.fortnox.entities3.Projects;
 import org.notima.api.fortnox.entities3.Supplier;
 import org.notima.api.fortnox.entities3.SupplierSubset;
 import org.notima.api.fortnox.entities3.Suppliers;
-import org.notima.api.fortnox.entities3.TermsOfDelivery;
 import org.notima.api.fortnox.entities3.TermsOfDeliveries;
+import org.notima.api.fortnox.entities3.TermsOfDelivery;
 import org.notima.api.fortnox.entities3.TermsOfPayment;
 import org.notima.api.fortnox.entities3.TermsOfPayments;
 import org.notima.api.fortnox.entities3.Voucher;
@@ -1477,6 +1479,94 @@ public class FortnoxClient3 {
 		}
 		
 	}
+
+	/**
+	 * Gets all cost-centers
+	 * 
+	 * @return		All Cost centers
+	 * @throws Exception	If something goes wrong.
+	 */
+	public CostCenters getCostCenters() throws Exception {
+
+		CostCenters r = getCostCenters(0);
+		
+		int currentPage = 1;
+		int totalPages = r.getTotalPages();
+		while (currentPage<totalPages) {
+			// Pause not to exceed call limit
+			Thread.sleep(100);
+			CostCenters subset = getCostCenters(currentPage+1);
+			r.getCostCenterSubset().addAll(subset.getCostCenterSubset());
+			currentPage = subset.getCurrentPage();
+		}
+
+		return r;
+		
+	}
+	
+	/**
+	 * Gets a page of cost centers
+	 *  
+	 * @param page			The page to get
+	 * @return	A CostCenters struct containing a list of CostCenterSubset
+	 * @throws Exception	if something fails
+	 */
+	public CostCenters getCostCenters(int page) throws Exception {
+		// Create request
+		StringBuffer result = callFortnox("/costcenters/", (page>1 ? ("?page=" + page) : null), null);
+		ErrorInformation e = checkIfError(result);
+		CostCenters r = new CostCenters();
+		if (e==null) {
+
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(result.toString().getBytes()), "UTF-8"));
+	        r = JAXB.unmarshal(in,  r.getClass()); //NOI18N
+	        return(r);
+	        
+		} else {
+			throw new FortnoxException(e);
+		}
+	}
+	
+
+	/**
+	 * Sets a cost center. Creates it if it doesn't exist.
+	 * 
+	 * @param cc			The cost center
+	 * @return				The created / updated cost center.
+	 * @throws Exception	If something goes wrong.
+	 */
+	public CostCenter setCostCenter(CostCenter cc) throws Exception {
+		
+		if (cc==null) return null;
+
+		boolean createNew = cc.getUrl()==null;
+		
+		StringWriter result = new StringWriter();
+		JAXB.marshal(cc, result);
+        
+        StringBuffer output = callFortnox("/costcenters" + 
+        		(!createNew ? "/" + cc.getCode() : "")
+        		, null,
+        		result.getBuffer(),
+        		null, // Headers
+        		(!createNew ? "put" : null));
+        
+        ErrorInformation e = checkIfError(output);
+
+        CostCenter c = new CostCenter();
+        
+		if (e==null) {
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(output.toString().getBytes()), "UTF-8"));
+	        c = JAXB.unmarshal(in, c.getClass());
+	        return(c); 
+		} else {
+			throw new FortnoxException(e);
+		}
+		
+	}
+	
 	
 	
 	/**
