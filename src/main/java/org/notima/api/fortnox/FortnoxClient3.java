@@ -15,6 +15,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -98,6 +99,7 @@ import org.notima.api.fortnox.entities3.VoucherFileConnection;
 import org.notima.api.fortnox.entities3.VoucherSeries;
 import org.notima.api.fortnox.entities3.VoucherSeriesCollection;
 import org.notima.api.fortnox.entities3.VoucherSeriesSubset;
+import org.notima.api.fortnox.entities3.WriteOffs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -769,6 +771,63 @@ public class FortnoxClient3 {
 	public String bookkeepInvoice(String invoiceNo) throws Exception {
 		
 		return performAction(true, "invoice", invoiceNo, FortnoxClient3.ACTION_INVOICE_BOOKKEEP);		
+		
+	}
+	
+	/**
+	 * Pays a customer invoice on date with given amount.
+	 * 
+	 * @param invoiceNo				The invoice number of the invoice to pay.
+	 * @param modeOfPayment			The mode of payment to use
+	 * @param payDate				The pay date
+	 * @param amount				The amount to pay in the same currency as the invoice currency
+	 * @param writeOffs				If there should be any writeoffs. Can be null.
+	 * @param bookkeepPayment		If the payment should be immediately bookkeeped.
+	 * @return						The invoice payment.
+	 * @throws Exception 			If something goes wrong.
+	 */	
+	public InvoicePayment payCustomerInvoice(
+			Integer invoiceNo, 
+			String modeOfPayment,
+			Date payDate,
+			Double amount,
+			WriteOffs writeOffs,
+			boolean bookkeepPayment) throws Exception {
+
+		InvoicePayment pmt = new InvoicePayment();
+		
+		// Lookup the invoice
+		Invoice invoice = getInvoice(invoiceNo.toString());
+		
+		pmt.setInvoiceNumber(invoiceNo);
+		
+		// Check invoice date. Set payment date to invoice date if payment
+		// has a date earlier than the invoice.
+		// If this behavior is unwanted, correct the accounting before calling payCustomerInvoice.
+		Date invoiceDate = FortnoxClient3.s_dfmt.parse(invoice.getInvoiceDate()); 
+		if (invoiceDate.after(payDate)) {
+			pmt.setPaymentDate(FortnoxClient3.s_dfmt.format(invoiceDate));
+		} else {
+			pmt.setPaymentDate(FortnoxClient3.s_dfmt.format(payDate));
+		}
+		
+		if (writeOffs!=null) {
+			pmt.setWriteOffs(writeOffs);
+		}
+		
+		// Set mode of payment
+		if (modeOfPayment!=null) {
+			pmt.setModeOfPayment(modeOfPayment);
+		}
+		
+		pmt = setCustomerPayment(pmt);
+		
+		// Book the payment directly if account and mode of payment is set.
+		if (bookkeepPayment && pmt!=null && pmt.getModeOfPayment()!=null && pmt.getModeOfPaymentAccount()!=null && pmt.getModeOfPaymentAccount()>0) {
+			performAction(true, "invoicepayment", Integer.toString(pmt.getNumber()), FortnoxClient3.ACTION_INVOICE_BOOKKEEP);
+		}
+		
+		return pmt;
 		
 	}
 	
