@@ -788,7 +788,7 @@ public class FortnoxClient3 {
 	 */	
 	public InvoicePayment payCustomerInvoice(
 			Integer invoiceNo, 
-			String modeOfPayment,
+			ModeOfPayment modeOfPayment,
 			Date payDate,
 			Double amount,
 			WriteOffs writeOffs,
@@ -817,8 +817,10 @@ public class FortnoxClient3 {
 		
 		// Set mode of payment
 		if (modeOfPayment!=null) {
-			pmt.setModeOfPayment(modeOfPayment);
+			pmt.setModeOfPayment(modeOfPayment.getCode());
+			pmt.setModeOfPaymentAccount(Integer.parseInt(modeOfPayment.getAccountNumber()));
 		}
+		pmt.setAmount(amount);
 		
 		pmt = setCustomerPayment(pmt);
 		
