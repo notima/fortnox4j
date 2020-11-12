@@ -4,38 +4,39 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name="InvoicePayment")
-public class InvoicePayment {
+public class InvoicePayment extends InvoicePaymentSubset {
 
-	private Double	amount;
 	private Double	amountCurrency;
-	private Boolean	booked;
-	private String	currency;
-	private Double	currencyRate;
-	private Double	currencyUnit;
 	private String	externalInvoiceReference1;
 	private String	externalInvoiceReference2;
 	private String	invoiceCustomerName;
 	private String	invoiceCustomerNumber;
-	private Integer	invoiceNumber;
 	private String	invoiceDueDate;
 	private	String	invoiceOCR;
 	private Double	invoiceTotal;
 	private String	modeOfPayment;
 	private Integer	modeOfPaymentAccount;
-	private Integer	number;
-	private String	paymentDate;
 	private Integer	voucherNumber;
 	private String	voucherSeries;
 	private Integer voucherYear;
-	private String	source;
 	private WriteOffs	writeOffs;
 
-	@XmlElement(name="Amount")
-	public Double getAmount() {
-		return amount;
-	}
-	public void setAmount(Double amount) {
-		this.amount = amount;
+	
+	public InvoicePayment() {}
+	
+	public InvoicePayment(InvoicePaymentSubset ps) {
+		
+		this.url = ps.url;
+		this.amount = ps.amount;
+		this.booked = ps.booked;
+		this.currency = ps.currency;
+		this.currencyRate = ps.currencyRate;
+		this.currencyUnit = ps.currencyUnit;
+		this.invoiceNumber = ps.invoiceNumber;
+		this.number = ps.number;
+		this.paymentDate = ps.paymentDate;
+		this.source = ps.source;
+		
 	}
 	
 	@XmlElement(name="AmountCurrency")
@@ -44,38 +45,6 @@ public class InvoicePayment {
 	}
 	public void setAmountCurrency(Double amountCurrency) {
 		this.amountCurrency = amountCurrency;
-	}
-	
-	@XmlElement(name="Booked")
-	public Boolean getBooked() {
-		return booked;
-	}
-	public void setBooked(Boolean booked) {
-		this.booked = booked;
-	}
-	
-	@XmlElement(name="Currency")
-	public String getCurrency() {
-		return currency;
-	}
-	public void setCurrency(String currency) {
-		this.currency = currency;
-	}
-	
-	@XmlElement(name="CurrencyRate")
-	public Double getCurrencyRate() {
-		return currencyRate;
-	}
-	public void setCurrencyRate(Double currencyRate) {
-		this.currencyRate = currencyRate;
-	}
-	
-	@XmlElement(name="CurrencyUnit")
-	public Double getCurrencyUnit() {
-		return currencyUnit;
-	}
-	public void setCurrencyUnit(Double currencyUnit) {
-		this.currencyUnit = currencyUnit;
 	}
 	
 	@XmlElement(name="ExternalInvoiceReference1")
@@ -108,14 +77,6 @@ public class InvoicePayment {
 	}
 	public void setInvoiceCustomerNumber(String invoiceCustomerNumber) {
 		this.invoiceCustomerNumber = invoiceCustomerNumber;
-	}
-	
-	@XmlElement(name="InvoiceNumber")
-	public Integer getInvoiceNumber() {
-		return invoiceNumber;
-	}
-	public void setInvoiceNumber(Integer invoiceNumber) {
-		this.invoiceNumber = invoiceNumber;
 	}
 	
 	@XmlElement(name="InvoiceDueDate")
@@ -157,21 +118,6 @@ public class InvoicePayment {
 	public void setModeOfPaymentAccount(Integer modeOfPaymentAccount) {
 		this.modeOfPaymentAccount = modeOfPaymentAccount;
 	}
-	@XmlElement(name="Number")
-	public Integer getNumber() {
-		return number;
-	}
-	public void setNumber(Integer number) {
-		this.number = number;
-	}
-	
-	@XmlElement(name="PaymentDate")
-	public String getPaymentDate() {
-		return paymentDate;
-	}
-	public void setPaymentDate(String paymentDate) {
-		this.paymentDate = paymentDate;
-	}
 	
 	@XmlElement(name="VoucherNumber")
 	public Integer getVoucherNumber() {
@@ -195,14 +141,6 @@ public class InvoicePayment {
 	}
 	public void setVoucherYear(Integer voucherYear) {
 		this.voucherYear = voucherYear;
-	}
-	@XmlElement(name="Source")
-	public String getSource() {
-		return source;
-	}
-	
-	public void setSource(String source) {
-		this.source = source;
 	}
 	
 	@XmlElement(name="WriteOffs")

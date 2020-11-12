@@ -15,7 +15,6 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -69,6 +68,7 @@ import org.notima.api.fortnox.entities3.FinancialYears;
 import org.notima.api.fortnox.entities3.FortnoxFile;
 import org.notima.api.fortnox.entities3.Invoice;
 import org.notima.api.fortnox.entities3.InvoicePayment;
+import org.notima.api.fortnox.entities3.InvoicePayments;
 import org.notima.api.fortnox.entities3.InvoiceRow;
 import org.notima.api.fortnox.entities3.InvoiceSubset;
 import org.notima.api.fortnox.entities3.Invoices;
@@ -656,9 +656,11 @@ public class FortnoxClient3 {
 			// If there are no xml content, just create a get/put request.
 			if (put)
 				request = new HttpPut(urlStr);
-			else
+			else if (delete) {
+				request = new HttpDelete(urlStr);
+			} else
 				request = new HttpGet(urlStr);
-			logger.debug((put ? "Putting" : "Getting url") + ": " + urlStr);
+			logger.debug((put ? "Putting" : (delete ? "Deleting " : "Getting url")) + ": " + urlStr);
 		}
 
 		// Add access token and client secret if not already there
@@ -682,15 +684,20 @@ public class FortnoxClient3 {
 		// Read response
 		HttpResponse response = httpClient.execute(request);
 		HttpEntity entity = response.getEntity();
-		BufferedReader rd = new BufferedReader(new InputStreamReader(entity.getContent()));
-		String line;
-		while ((line=rd.readLine())!=null) {
-			result.append(line + "\n");
+		if (entity!=null) { // No content (when deleting for instance)
+			
+			BufferedReader rd = new BufferedReader(new InputStreamReader(entity.getContent()));
+			String line;
+			while ((line=rd.readLine())!=null) {
+				result.append(line + "\n");
+			}
+			// Mark that the content is consumed.
+			EntityUtils.consume(entity);
+		
+			logger.debug("Received reply: \n" + result.toString());			
+		} else {
+			logger.debug("No content");
 		}
-		// Mark that the content is consumed.
-		EntityUtils.consume(entity);
-
-		logger.debug("Received reply: \n" + result.toString());
 		
 		// Max 3 requests per second.
 		registerCall();
@@ -1429,6 +1436,7 @@ public class FortnoxClient3 {
 			throw new FortnoxException(e);
 		}
 	}
+	
 
 	/**
 	 * Read all customers
@@ -1475,6 +1483,92 @@ public class FortnoxClient3 {
 			throw new FortnoxException(e);
 		}
 	}
+	
+	/**
+	 * Read all invoice payments (non-completed)
+	 * 
+	 * @return				All open payments
+	 * @throws Exception	If something goes wrong.
+	 */
+	public InvoicePayments getInvoicePayments() throws Exception {
+		
+		InvoicePayments r = getInvoicePayments(0);
+		
+		int currentPage = 1;
+		int totalPages = r.getTotalPages();
+		while (currentPage<totalPages) {
+			InvoicePayments subset = getInvoicePayments(currentPage+1);
+			r.getInvoicePaymentSubset().addAll(subset.getInvoicePaymentSubset());
+			currentPage = subset.getCurrentPage();
+		}
+
+		return r;
+		
+	}
+	
+	/**
+	 * A page of invoice payments.
+	 * 
+	 * @param page			The page
+	 * @return				A page of invoice payments.
+	 * @throws Exception	If something goes wrong.
+	 */
+	public InvoicePayments getInvoicePayments(int page) throws Exception {
+		// Create request
+		StringBuffer result = callFortnox("/invoicepayments/", (page>1 ? ("?page=" + page) : null), null);
+		ErrorInformation e = checkIfError(result);
+		InvoicePayments r = new InvoicePayments();
+		if (e==null) {
+
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(result.toString().getBytes()), "UTF-8"));
+	        r = JAXB.unmarshal(in,  r.getClass()); //NOI18N
+	        return(r);
+	        
+		} else {
+			throw new FortnoxException(e);
+		}
+	}
+
+	/**
+	 * Get an invoice payment
+	 * 
+	 * @param paymentNo			The invoice payment id
+	 * @return					The invoice payment
+	 * @throws Exception	If something goes wrong.
+	 */
+	public InvoicePayment getInvoicePayment(Integer paymentNo) throws Exception {
+		// Create request
+		StringBuffer result = callFortnox("/invoicepayments/" + paymentNo, null, null);
+		ErrorInformation e = checkIfError(result);
+		InvoicePayment r = new InvoicePayment();
+		if (e==null) {
+
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(result.toString().getBytes()), "UTF-8"));
+	        r = JAXB.unmarshal(in,  r.getClass()); //NOI18N
+	        return(r);
+	        
+		} else {
+			throw new FortnoxException(e);
+		}
+	}
+	
+	
+	/**
+	 * Deletes an invoice payment.
+	 * 
+	 * @param paymentNo			The payment to delete
+	 * @throws Exception		If something goes wrong.
+	 */
+	public void deleteInvoicePayment(Integer paymentNo) throws Exception {
+		
+		StringBuffer result = deleteFortnox("/invoicepayments/" + paymentNo.toString(), null);
+		logger.info("Payment " + paymentNo + " deleted: " + result!=null ? result.toString() : "");
+		
+	}
+	
+	
 	
 	/**
 	 * Returns a specific mode of payment.
