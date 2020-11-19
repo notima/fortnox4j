@@ -86,6 +86,24 @@ public class VoucherRow {
 		this.quantity = quantity;
 	}
 	
-	
+	/**
+	 * Creates a negated row 
+	 * 
+	 * @return 		A negated row 
+	 */
+	public VoucherRow negated() {
+		
+		VoucherRow vr = new VoucherRow();
+		vr.account = this.account;
+		vr.costCenter = this.costCenter;
+		vr.debit = this.credit;
+		vr.credit = this.debit;
+		vr.description = this.description;
+		vr.project = this.project;
+		vr.quantity = -this.quantity;
+		vr.transactionInformation = this.transactionInformation;
+
+		return vr;
+	}
 	
 }

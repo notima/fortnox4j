@@ -127,5 +127,37 @@ public class Voucher {
 		voucherRows.getVoucherRow().add(r);
 	}
 	
-	
+	/**
+	 * Create a reversed voucher from the given voucher. NOTE! Any existing lines are not cleared.
+	 * Note! Transaction date is not set.
+	 * 
+	 * @param toReverse		The voucher to reverse.
+	 * @param revTxt		The text that explains that this is a reversed voucher.
+	 * 
+	 * @return		This voucher with reversed lines from. 
+	 */
+	public Voucher reverse(Voucher toReverse, String revTxt) {
+		
+		if (toReverse!=null && toReverse.voucherRows!=null) {
+
+			if (description==null || description.trim().length()==0) {
+				// Copy description
+				description = (revTxt!=null ? (revTxt + " : ") : "") + toReverse.getVoucherSeries() + toReverse.getVoucherNumber() + " : " + toReverse.getDescription();
+			}
+
+			costCenter = toReverse.costCenter;
+			project = toReverse.project;
+			voucherSeries = toReverse.voucherSeries;
+			
+			// Iterate through the lines
+			VoucherRow negR = null;
+			for (VoucherRow vr : toReverse.voucherRows.getVoucherRow()) {
+				negR = vr.negated();
+				addVoucherRow(negR);
+			}
+			
+		}
+		
+		return this;
+	}
 }
