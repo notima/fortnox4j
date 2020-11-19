@@ -152,6 +152,9 @@ public class Voucher {
 			// Iterate through the lines
 			VoucherRow negR = null;
 			for (VoucherRow vr : toReverse.voucherRows.getVoucherRow()) {
+				if (vr.getRemoved()!=null && vr.getRemoved().equals(Boolean.TRUE)) {
+					continue;
+				}
 				negR = vr.negated();
 				addVoucherRow(negR);
 			}
