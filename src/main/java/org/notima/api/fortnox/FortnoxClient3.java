@@ -1568,6 +1568,22 @@ public class FortnoxClient3 {
 		
 	}
 	
+	/**
+	 * Deletes a voucher
+	 * 
+	 * @param yearId			The year id
+	 * @param series			The voucher series
+	 * @param voucherNo			The voucher number
+	 * @throws Exception		If something goes wrong.
+	 */
+	public void deleteVoucher(int yearId, String series, int voucherNo) throws Exception {
+		
+		String deleteStr = URLEncoder.encode(series,"UTF-8") + "/" + voucherNo + "?financialyear=" + yearId;
+		
+		StringBuffer result = deleteFortnox("/vouchers/" + deleteStr, null);
+		logger.info("Voucher " + series + voucherNo + " deleted: " + result!=null ? result.toString() : "");
+		
+	}
 	
 	
 	/**
