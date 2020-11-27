@@ -431,9 +431,14 @@ public class FortnoxClient3 {
 		headers.put("Authorization-Code", authCode);
 		headers.put("Client-Secret", clientSecret);
 		
-		StringBuffer result = callFortnox("", "", null, headers, null);
+		// Use any call to request the access token.
+		StringBuffer result = callFortnox("/customers", "", null, headers, null);
 		
 		StringReader strReader = new StringReader(result.toString());
+		// If auth code and client secret don't match, a 404 error is returned.
+		if (result.toString().startsWith("404")) {
+			throw new FortnoxException("404: Failed to retrieve access token for API-code " + authCode);
+		}
 		
 		ErrorInformation err = checkIfError(result);
 		if (err!=null) {

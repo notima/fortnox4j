@@ -24,7 +24,14 @@ public class FortnoxException extends Exception {
 	public FortnoxException(String xmlStr) {
 		
 		StringReader reader = new StringReader(xmlStr);
-		errorInformation = JAXB.unmarshal(reader, ErrorInformation.class);
+		try {
+			errorInformation = JAXB.unmarshal(reader, ErrorInformation.class);
+		} catch (Exception ee) {
+			errorInformation = new ErrorInformation();
+			errorInformation.setMessage(xmlStr);
+			errorInformation.setError("");
+			errorInformation.setCode("");
+		}
 		
 	}
 	
