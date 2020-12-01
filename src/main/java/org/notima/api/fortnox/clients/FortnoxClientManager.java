@@ -159,10 +159,12 @@ public class FortnoxClientManager {
 			return list;
 		List<FortnoxClientInfo> tmpList = ll.getFortnoxClient();
 		FortnoxClientInfo fi;
-		for (FortnoxClientInfo ii : tmpList) {
-			fi = getClientInfoByOrgNo(ii.getOrgNo());
-			if (fi!=null)
-				list.add(fi);
+		if(tmpList != null){
+			for (FortnoxClientInfo ii : tmpList) {
+				fi = getClientInfoByOrgNo(ii.getOrgNo());
+				if (fi!=null)
+					list.add(fi);
+			}
 		}
 		return list;
 	}
