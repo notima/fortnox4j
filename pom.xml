@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.notima.api</groupId>
 	<artifactId>fortnox4j</artifactId>
-	<version>1.8.10-SNAPSHOT</version>
+	<version>1.8.10</version>
 	<packaging>bundle</packaging>
 	<name>Fortnox Java API</name>
 
