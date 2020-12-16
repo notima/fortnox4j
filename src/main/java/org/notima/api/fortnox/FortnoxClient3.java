@@ -32,6 +32,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpDelete;
@@ -273,7 +274,7 @@ public class FortnoxClient3 {
 	protected Long		firstCall;
 	protected Long		lastCall;
 	protected long		totalCalls = 0;
-	protected long		minMillisBetweenCalls = 250;	// Max 4 calls / second
+	protected long		minMillisBetweenCalls = 310;	// Max 3,33 calls / second
 	
 	// Current client list
 	private FortnoxClientList	clientList;
@@ -688,8 +689,18 @@ public class FortnoxClient3 {
 		
 		// Read response
 		HttpResponse response = httpClient.execute(request);
+		
+		// Check for too many requests
+		StatusLine sl = response.getStatusLine();
+		if (sl.getStatusCode()==429) {
+			// Delay for 30 seconds
+			rateLimit(30);
+			response = httpClient.execute(request);
+		}
+		
 		HttpEntity entity = response.getEntity();
 		if (entity!=null) { // No content (when deleting for instance)
+
 			
 			BufferedReader rd = new BufferedReader(new InputStreamReader(entity.getContent()));
 			String line;
@@ -3361,11 +3372,31 @@ public class FortnoxClient3 {
 		totalCalls++;
 		
 	}
-	
+
 	/**
 	 * Waits if necessary to avoid hitting the rate limit.
 	 */
-	private synchronized void rateLimit() {
+	private void rateLimit() {
+		rateLimit(null);
+	}
+	
+	/**
+	 * Waits if necessary to avoid hitting the rate limit.
+	 * 
+	 * @param	seconds		If non null, wait for this many seconds regardless of other variables.
+	 */
+	private synchronized void rateLimit(Integer seconds) {
+		
+		if (seconds!=null && seconds.intValue()>0) {
+			try {
+				Thread.sleep(seconds.intValue() * 1000);
+				logger.warn("Forced rate-limit sleep for " + seconds + " seconds");
+				return;
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				return;
+			}
+		}
 		
 		if (lastCall==null) return;
 		
