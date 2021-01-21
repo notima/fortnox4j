@@ -2144,7 +2144,13 @@ public class FortnoxClient3 {
 	        StringReader reader = new StringReader(output.toString());
 	        if (output!=null && output.length()>0) {
 	        	// Try to create invoice payment
-	        	out = JAXB.unmarshal(reader, InvoicePayment.class);
+	        	try {
+	        		out = JAXB.unmarshal(reader, InvoicePayment.class);
+	        	} catch (Exception ee) {
+	        		// If the output can't be parsed some unexpected result occurred
+	        		logger.error("Unparsable XML: " + output.toString());
+	        		throw (ee);
+	        	}
 	        }
 	        return out;
         }
