@@ -100,6 +100,7 @@ import org.notima.api.fortnox.entities3.VoucherFileConnection;
 import org.notima.api.fortnox.entities3.VoucherSeries;
 import org.notima.api.fortnox.entities3.VoucherSeriesCollection;
 import org.notima.api.fortnox.entities3.VoucherSeriesSubset;
+import org.notima.api.fortnox.entities3.Vouchers;
 import org.notima.api.fortnox.entities3.WriteOffs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1000,6 +1001,66 @@ public class FortnoxClient3 {
 		}
 		
 	}
+	
+	
+	/**
+	 * Gets all voucher series collection pages
+	 * 
+	 * @param 	yearId	The year id to use.	
+	 * @return		All voucher series collections
+	 * @throws Exception	If something goes wrong.
+	 */
+	public Vouchers getVouchers(Integer yearId, String series) throws Exception {
+
+		Vouchers r = getVouchers(yearId, series, 0);
+		
+		int currentPage = 1;
+		int totalPages = r.getTotalPages();
+		while (currentPage<totalPages) {
+			// Pause not to exceed call limit
+			Thread.sleep(100);
+			Vouchers subset = getVouchers(yearId, series, currentPage+1);
+			r.getVoucherSubset().addAll(subset.getVoucherSubset());
+			currentPage = subset.getCurrentPage();
+		}
+
+		return r;
+		
+	}
+	
+	
+	/**
+	 * Gets a page of VoucherSeriesCollection
+	 *  
+	 * @param	yearId			The yearId to use.	
+	 * @param 	page			The page to get
+	 * @return	A VoucherSeriesCollection struct containing a list of VoucherSeriesSubset
+	 * @throws Exception	if something fails
+	 */
+	public Vouchers getVouchers(Integer yearId, String series, int page) throws Exception {
+		// Create request
+		String param = page > 1 ? "page=" + page : "";
+		if (yearId!=null && yearId!=0) {
+			if (param.length()>0) {
+				param += "&";
+			}
+			param += "financialyear=" + yearId;
+		}
+		StringBuffer result = callFortnox("/vouchers/" +(series!=null ? "sublist/" + series : "") , (param.length()>0 ? "?" + param : null), null);
+		ErrorInformation e = checkIfError(result);
+		Vouchers r = new Vouchers();
+		if (e==null) {
+
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(result.toString().getBytes()), "UTF-8"));
+	        r = JAXB.unmarshal(in,  r.getClass()); //NOI18N
+	        return(r);
+	        
+		} else {
+			throw new FortnoxException(e);
+		}
+	}
+	
 
 	/**
 	 * Returns an account map for a given date.
