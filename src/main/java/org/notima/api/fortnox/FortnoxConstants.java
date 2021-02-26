@@ -9,6 +9,16 @@ public class FortnoxConstants {
 	public static final String PREDEFACCT_CUSTCLAIM = "CUSTCLAIM";
 	public static final String PREDEFACCT_INVAT = "INVAT";
 
+	// Constants used to describe / adress fields on a customer invoice / order
+	public static final String EXTREF1 = "ExternalInvoiceReference1";
+	public static final String EXTREF2 = "ExternalInvoiceReference2";
+	public static final String INVOICEREF = "InvoiceReference";
+	public static final String OCR = "OCR";
+	public static final String ORDERREF = "OrderReference";
+	public static final String OURREF = "OurReference";
+	public static final String YOURORDERNUMBER = "YourOrderNumber";
+	public static final String YOURREF = "YourReference";
+
 	// TODO: Add more below
 	/*
 	2020-03-03 10:23:56,468 INFO  notima.api.fortnox.junit.TestGetPreDefinedAccounts -  - 2440 : SUPDEBT
