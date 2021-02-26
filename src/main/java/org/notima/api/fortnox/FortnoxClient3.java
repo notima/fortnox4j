@@ -3313,8 +3313,8 @@ public class FortnoxClient3 {
 			if (status >= 200 && status < 300) {
 				return entity !=null ? EntityUtils.toString(entity) : null;
 			} else {
-				System.out.println(EntityUtils.toString(entity));
-				throw new ClientProtocolException("Unexpected response status: " + status);
+				System.err.println(EntityUtils.toString(entity));
+				throw new ClientProtocolException("FolderId: " + folderId + ". Unexpected response status: " + status);
 			}
 		};
 
