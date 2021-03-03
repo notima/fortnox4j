@@ -22,6 +22,10 @@ public class FortnoxClientInfo {
 	
 	private String	orgNo;
 	private String	orgName;
+
+	private String	contactName;
+	private String 	contactEmail;
+	private String 	contactDeviationEmail;
 	
 	private String	settingsSupplierNo;
 	private Boolean sandbox;
@@ -118,6 +122,30 @@ public class FortnoxClientInfo {
 
 	public void setOrgName(String clientName) {
 		this.orgName = clientName;
+	}
+
+	public String getContactName(){
+		return contactName;
+	}
+
+	public void setContactName(String contactName){
+		this.contactName = contactName;
+	}
+
+	public String getContactEmail(){
+		return contactEmail;
+	}
+
+	public void setContactEmail(String contactEmail){
+		this.contactEmail = contactEmail;
+	}
+
+	public String getContactDeviationEmail(){
+		return contactDeviationEmail;
+	}
+
+	public void setContactDeviationEmail(String contactDeviationEmail){
+		this.contactDeviationEmail = contactDeviationEmail;
 	}
 	
 	public String getSettingsSupplierNo() {
