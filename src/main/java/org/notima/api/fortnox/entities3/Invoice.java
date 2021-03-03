@@ -3,6 +3,8 @@ package org.notima.api.fortnox.entities3;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.notima.api.fortnox.FortnoxConstants;
+
 @XmlRootElement(name = "Invoice")
 public class Invoice {
 
@@ -767,4 +769,35 @@ public class Invoice {
 		this.zipCode = zipCode;
 	}
 
+	/**
+	 * Gets the reference in given field name and returns the reference.
+	 * 
+	 * @param referenceField		Any valid fields in FortnoxConstants.
+	 * @return				The reference if any.
+	 */
+	public String fetchRefInfield(String referenceField) {
+		
+		String refInFortnox = null;
+		
+		if (FortnoxConstants.YOURORDERNUMBER.equalsIgnoreCase(referenceField)) {
+			refInFortnox = getYourOrderNumber();
+		} else if (FortnoxConstants.EXTREF1.equalsIgnoreCase(referenceField)) {
+			refInFortnox = getExternalInvoiceReference1();
+		} else if (FortnoxConstants.EXTREF2.equalsIgnoreCase(referenceField)) {
+			refInFortnox = getExternalInvoiceReference2();
+		} else if (FortnoxConstants.INVOICEREF.equalsIgnoreCase(referenceField)) {
+			refInFortnox = getInvoiceReference();
+		} else if (FortnoxConstants.OCR.equalsIgnoreCase(referenceField)) {
+			refInFortnox = getOCR();
+		} else if (FortnoxConstants.ORDERREF.equalsIgnoreCase(referenceField)) {
+			refInFortnox = getOrderReference();
+		} else if (FortnoxConstants.OURREF.equalsIgnoreCase(referenceField)) {
+			refInFortnox = getOurReference();
+		} else if (FortnoxConstants.YOURREF.equalsIgnoreCase(referenceField)) {
+			refInFortnox = getYourReference();
+		}
+		
+		return refInFortnox;
+	}
+	
 }

@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.notima.api</groupId>
 	<artifactId>fortnox4j</artifactId>
-	<version>1.8.10-SNAPSHOT</version>
+	<version>1.8.11-SNAPSHOT</version>
 	<packaging>bundle</packaging>
 	<name>Fortnox Java API</name>
 
@@ -99,6 +99,11 @@
 							org.notima.api.fortnox.clients,
 							org.notima.api.fortnox.entities3
 						</Export-Package>
+						<Import-Package>
+							javax.xml.bind.annotation;version="[2.2,3)",
+							javax.xml.bind;version="[2.2,3)",
+							*
+						</Import-Package>
 					</instructions>
 				</configuration>
 			</plugin>
@@ -111,7 +116,10 @@
 				<configuration>
 					<serverId>ossrh</serverId>
 					<nexusUrl>https://oss.sonatype.org/</nexusUrl>
-					<autoReleaseAfterClose>false</autoReleaseAfterClose>
+					<autoReleaseAfterClose>true</autoReleaseAfterClose>
+					<stagingProgressTimeoutMinutes>10</stagingProgressTimeoutMinutes>
+					<keepStagingRepositoryOnCloseRuleFailure>true</keepStagingRepositoryOnCloseRuleFailure>
+					<keepStagingRepositoryOnFailure>true</keepStagingRepositoryOnFailure>
 				</configuration>
 			</plugin>
 

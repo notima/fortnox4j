@@ -2,6 +2,8 @@ package org.notima.api.fortnox.entities3;
 
 import javax.xml.bind.annotation.XmlElement;
 
+import org.notima.api.fortnox.FortnoxConstants;
+
 public class InvoiceSubset {
 
 	private double balance;
@@ -214,6 +216,48 @@ public class InvoiceSubset {
 	public void setWayOfDelivery(String wayOfDelivery) {
 		this.wayOfDelivery = wayOfDelivery;
 	}
+	
+
+	/**
+	 * Method to check if the reference field is available in the invoice subset. If this returns false,
+	 * try to get the reference using Invoice.fetchRefInField(String);
+	 * 
+	 * 
+	 * @param referenceField		The reference field to test.
+	 * @return						True if the reference field is valid.
+	 */
+	public boolean isValidReference(String referenceField) {
+
+		boolean validReference = 
+			FortnoxConstants.EXTREF1.equalsIgnoreCase(referenceField) ||
+			FortnoxConstants.EXTREF2.equalsIgnoreCase(referenceField) ||
+			FortnoxConstants.OCR.equalsIgnoreCase(referenceField);
+		
+		return validReference;
+		
+	}
+	
+	/**
+	 * Gets the reference in given field name and returns the reference.
+	 * 
+	 * @param referenceField		Any of the fields FortnoxConstants.EXTREF1, EXTREF2 or OCR.
+	 * @return						The reference if any. An non valid reference field will return null,
+	 */
+	public String fetchRefInfield(String referenceField) {
+		
+		String refInFortnox = null;
+		
+		if (FortnoxConstants.EXTREF1.equalsIgnoreCase(referenceField)) {
+			refInFortnox = getExternalInvoiceReference1();
+		} else if (FortnoxConstants.EXTREF2.equalsIgnoreCase(referenceField)) {
+			refInFortnox = getExternalInvoiceReference2();
+		} else if (FortnoxConstants.OCR.equalsIgnoreCase(referenceField)) {
+			refInFortnox = getOCR();
+		}
+		
+		return refInFortnox;
+	}
+	
 	
 	
 }

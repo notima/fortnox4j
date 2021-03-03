@@ -32,6 +32,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpDelete;
@@ -99,6 +100,7 @@ import org.notima.api.fortnox.entities3.VoucherFileConnection;
 import org.notima.api.fortnox.entities3.VoucherSeries;
 import org.notima.api.fortnox.entities3.VoucherSeriesCollection;
 import org.notima.api.fortnox.entities3.VoucherSeriesSubset;
+import org.notima.api.fortnox.entities3.Vouchers;
 import org.notima.api.fortnox.entities3.WriteOffs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -273,7 +275,7 @@ public class FortnoxClient3 {
 	protected Long		firstCall;
 	protected Long		lastCall;
 	protected long		totalCalls = 0;
-	protected long		minMillisBetweenCalls = 250;	// Max 4 calls / second
+	protected long		minMillisBetweenCalls = 310;	// Max 3,33 calls / second
 	
 	// Current client list
 	private FortnoxClientList	clientList;
@@ -688,8 +690,18 @@ public class FortnoxClient3 {
 		
 		// Read response
 		HttpResponse response = httpClient.execute(request);
+		
+		// Check for too many requests
+		StatusLine sl = response.getStatusLine();
+		if (sl.getStatusCode()==429) {
+			// Delay for 30 seconds
+			rateLimit(30);
+			response = httpClient.execute(request);
+		}
+		
 		HttpEntity entity = response.getEntity();
 		if (entity!=null) { // No content (when deleting for instance)
+
 			
 			BufferedReader rd = new BufferedReader(new InputStreamReader(entity.getContent()));
 			String line;
@@ -989,6 +1001,66 @@ public class FortnoxClient3 {
 		}
 		
 	}
+	
+	
+	/**
+	 * Gets all voucher series collection pages
+	 * 
+	 * @param 	yearId	The year id to use.	
+	 * @return		All voucher series collections
+	 * @throws Exception	If something goes wrong.
+	 */
+	public Vouchers getVouchers(Integer yearId, String series) throws Exception {
+
+		Vouchers r = getVouchers(yearId, series, 0);
+		
+		int currentPage = 1;
+		int totalPages = r.getTotalPages();
+		while (currentPage<totalPages) {
+			// Pause not to exceed call limit
+			Thread.sleep(100);
+			Vouchers subset = getVouchers(yearId, series, currentPage+1);
+			r.getVoucherSubset().addAll(subset.getVoucherSubset());
+			currentPage = subset.getCurrentPage();
+		}
+
+		return r;
+		
+	}
+	
+	
+	/**
+	 * Gets a page of VoucherSeriesCollection
+	 *  
+	 * @param	yearId			The yearId to use.	
+	 * @param 	page			The page to get
+	 * @return	A VoucherSeriesCollection struct containing a list of VoucherSeriesSubset
+	 * @throws Exception	if something fails
+	 */
+	public Vouchers getVouchers(Integer yearId, String series, int page) throws Exception {
+		// Create request
+		String param = page > 1 ? "page=" + page : "";
+		if (yearId!=null && yearId!=0) {
+			if (param.length()>0) {
+				param += "&";
+			}
+			param += "financialyear=" + yearId;
+		}
+		StringBuffer result = callFortnox("/vouchers/" +(series!=null ? "sublist/" + series : "") , (param.length()>0 ? "?" + param : null), null);
+		ErrorInformation e = checkIfError(result);
+		Vouchers r = new Vouchers();
+		if (e==null) {
+
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(result.toString().getBytes()), "UTF-8"));
+	        r = JAXB.unmarshal(in,  r.getClass()); //NOI18N
+	        return(r);
+	        
+		} else {
+			throw new FortnoxException(e);
+		}
+	}
+	
 
 	/**
 	 * Returns an account map for a given date.
@@ -1444,19 +1516,30 @@ public class FortnoxClient3 {
 	
 
 	/**
-	 * Read all customers
+	 * Read all customers.
 	 * 
 	 * @return				All customers.
 	 * @throws Exception	If something goes wrong.
 	 */
 	public Customers getCustomers() throws Exception {
+		return getCustomers(null);
+	}
+
+	/**
+	 * Read all customers with given filter(s) applied.
+	 *
+	 * @param filter		The filter.
+	 * @return				All customers.
+	 * @throws Exception	If something goes wrong.
+	 */
+	public Customers getCustomers(String filter) throws Exception {
 		
-		Customers r = getCustomers(0);
+		Customers r = getCustomers(filter, 0);
 		
 		int currentPage = 1;
 		int totalPages = r.getTotalPages();
 		while (currentPage<totalPages) {
-			Customers subset = getCustomers(currentPage+1);
+			Customers subset = getCustomers(filter, currentPage+1);
 			r.getCustomerSubset().addAll(subset.getCustomerSubset());
 			currentPage = subset.getCurrentPage();
 		}
@@ -1468,13 +1551,28 @@ public class FortnoxClient3 {
 	/**
 	 * A page of customers.
 	 * 
-	 * @param page			The page
+	 * @param page			The page.
 	 * @return				A page of customers.
 	 * @throws Exception	If something goes wrong.
 	 */
 	public Customers getCustomers(int page) throws Exception {
+		return getCustomers(null, page);
+	}
+
+	/**
+	 * A page of customers with given filter(s) applied.
+	 *
+	 * @param filter		The filter.
+	 * @param page			The page.
+	 * @return				A page of customers.
+	 * @throws Exception	If something goes wrong.
+	 */
+	public Customers getCustomers(String filter, int page) throws Exception {
+		// Include the filter word if the filter is not a global search (containing key/values)
+		String filterWord = filter!=null && filter.contains("=") ? "" : "filter=";
+
 		// Create request
-		StringBuffer result = callFortnox("/customers/", (page>1 ? ("?page=" + page) : null), null);
+		StringBuffer result = callFortnox("/customers/" + (filter!=null&&filter.trim().length()>0 ? "?" + filterWord + filter.trim() : "") , (page>1 ? ((filter!=null&&filter.trim().length()>0 ? "&" : "?") + "page=" + page) : null), null);
 		ErrorInformation e = checkIfError(result);
 		Customers r = new Customers();
 		if (e==null) {
@@ -2133,7 +2231,13 @@ public class FortnoxClient3 {
 	        StringReader reader = new StringReader(output.toString());
 	        if (output!=null && output.length()>0) {
 	        	// Try to create invoice payment
-	        	out = JAXB.unmarshal(reader, InvoicePayment.class);
+	        	try {
+	        		out = JAXB.unmarshal(reader, InvoicePayment.class);
+	        	} catch (Exception ee) {
+	        		// If the output can't be parsed some unexpected result occurred
+	        		logger.error("Unparsable XML: " + output.toString());
+	        		throw (ee);
+	        	}
 	        }
 	        return out;
         }
@@ -3209,8 +3313,8 @@ public class FortnoxClient3 {
 			if (status >= 200 && status < 300) {
 				return entity !=null ? EntityUtils.toString(entity) : null;
 			} else {
-				System.out.println(EntityUtils.toString(entity));
-				throw new ClientProtocolException("Unexpected response status: " + status);
+				System.err.println(EntityUtils.toString(entity));
+				throw new ClientProtocolException("FolderId: " + folderId + ". Unexpected response status: " + status);
 			}
 		};
 
@@ -3361,11 +3465,31 @@ public class FortnoxClient3 {
 		totalCalls++;
 		
 	}
-	
+
 	/**
 	 * Waits if necessary to avoid hitting the rate limit.
 	 */
-	private synchronized void rateLimit() {
+	private void rateLimit() {
+		rateLimit(null);
+	}
+	
+	/**
+	 * Waits if necessary to avoid hitting the rate limit.
+	 * 
+	 * @param	seconds		If non null, wait for this many seconds regardless of other variables.
+	 */
+	private synchronized void rateLimit(Integer seconds) {
+		
+		if (seconds!=null && seconds.intValue()>0) {
+			try {
+				Thread.sleep(seconds.intValue() * 1000);
+				logger.warn("Forced rate-limit sleep for " + seconds + " seconds");
+				return;
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				return;
+			}
+		}
 		
 		if (lastCall==null) return;
 		
