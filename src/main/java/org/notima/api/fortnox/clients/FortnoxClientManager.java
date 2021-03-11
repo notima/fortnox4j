@@ -80,6 +80,8 @@ public class FortnoxClientManager {
 		boolean saved = saveClientInfo();
 		if (!saved) {
 			log.warn("No FortnoxClientsFile specified. Update of orgNo {} not persisted.", ci.getOrgNo());
+		}else{
+			readClientsFromFile(getClientsFile());
 		}
 		
 		return dst;
