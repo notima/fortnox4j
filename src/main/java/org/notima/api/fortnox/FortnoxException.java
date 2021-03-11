@@ -66,5 +66,9 @@ public class FortnoxException extends Exception {
 		else
 			return (errorInformation.getError() + " : " + errorInformation.getMessage() + " : " + errorInformation.getCode());
 	}
+
+	public String getMessage() {
+		return this.toString();
+	}
 	
 }
