@@ -804,10 +804,11 @@ public class FortnoxClient3 {
 	 * @param invoiceNo				The invoice number of the invoice to pay.
 	 * @param modeOfPayment			The mode of payment to use
 	 * @param payDate				The pay date
-	 * @param amount				The amount to pay in the same currency as the invoice currency
+	 * @param amount				The amount to pay in the same currency as the invoice currency. If amount is zero and there are no writeoffs
+	 * 								nothing will happen.
 	 * @param writeOffs				If there should be any writeoffs. Can be null.
 	 * @param bookkeepPayment		If the payment should be immediately bookkeeped.
-	 * @return						The invoice payment.
+	 * @return						The invoice payment. If no payment was created because it was zero, null is returned.
 	 * @throws Exception 			If something goes wrong.
 	 */	
 	public InvoicePayment payCustomerInvoice(
@@ -822,6 +823,9 @@ public class FortnoxClient3 {
 		
 		// Lookup the invoice
 		Invoice invoice = getInvoice(invoiceNo.toString());
+		if (invoice==null) {
+			throw new Exception("Can't pay invoice " + invoiceNo + " since it doesn't exist.");
+		}
 		
 		pmt.setInvoiceNumber(invoiceNo);
 		
@@ -845,6 +849,11 @@ public class FortnoxClient3 {
 			pmt.setModeOfPaymentAccount(Integer.parseInt(modeOfPayment.getAccountNumber()));
 		}
 		pmt.setAmount(amount);
+		// Make sure the payment isn't empty / zero
+		if (amount==0d && (writeOffs==null || writeOffs.getWriteOff()==null || writeOffs.getWriteOff().isEmpty())) {
+			logger.info("Payment for invoice " + invoice.getDocumentNumber() + " : " + invoice.getCustomerName() + " was empty.");
+			return null;
+		}
 		
 		pmt = setCustomerPayment(pmt);
 		
