@@ -226,6 +226,18 @@ public class FortnoxClient3 {
 	};
 	
 	/**
+	 * VAT codes
+	 */
+	public static final String VAT_MP0 = "MP0";
+	public static final String VAT_MP1 = "MP1";
+	public static final String VAT_MP2 = "MP2";
+	public static final String VAT_MP3 = "MP3";
+	
+	public static String[] VAT_DOMESTIC_SWEDEN = new String[] {
+			VAT_MP0, VAT_MP1, VAT_MP2, VAT_MP3
+	};
+	
+	/**
 	 * Error Codes
 	 */
 	public static final String ERROR_CANT_FIND_CUSTOMER = "2000433";
