@@ -80,6 +80,7 @@ public class Invoice {
 	private String voucherNumber;
 	private String voucherSeries;
 	private String voucherYear;
+	private Boolean warehouseReady;
 	private String wayOfDelivery;
 	private String yourOrderNumber;
 	private String yourReference;
@@ -740,6 +741,15 @@ public class Invoice {
 
 	public void setWayOfDelivery(String wayOfDelivery) {
 		this.wayOfDelivery = wayOfDelivery;
+	}
+	
+	@XmlElement(name="WarehouseReady")
+	public Boolean getWarehouseReady() {
+		return warehouseReady;
+	}
+
+	public void setWarehouseReady(Boolean warehouseReady) {
+		this.warehouseReady = warehouseReady;
 	}
 
 	@XmlElement(name="YourOrderNumber")	
