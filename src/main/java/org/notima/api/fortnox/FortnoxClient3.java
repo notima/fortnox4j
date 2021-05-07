@@ -30,6 +30,8 @@ import javax.xml.bind.JAXB;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import com.google.gson.Gson;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -101,6 +103,7 @@ import org.notima.api.fortnox.entities3.VoucherSeries;
 import org.notima.api.fortnox.entities3.VoucherSeriesCollection;
 import org.notima.api.fortnox.entities3.VoucherSeriesSubset;
 import org.notima.api.fortnox.entities3.Vouchers;
+import org.notima.api.fortnox.entities3.WareHouseTenant;
 import org.notima.api.fortnox.entities3.WriteOffs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -272,7 +275,7 @@ public class FortnoxClient3 {
 	private String 		m_clientSecret;
 	private String		m_authCode;
 	private String		m_accessToken;
-	private String		m_baseUrl = "https://api.fortnox.se/3";
+	private String		m_baseUrl = "https://api.fortnox.se";
 	
 	public static DateFormat	s_dfmt = new SimpleDateFormat("yyyy-MM-dd");
 	
@@ -611,8 +614,29 @@ public class FortnoxClient3 {
 		// Return response
 		return(result);
 	}
-		
 	
+
+	/**
+	 * Method for calling Fortnox web interface.
+	 * call will be made to api.fortnox.se/3
+	 * NOTE! To call this method, the token and database must be set first.
+	 * 
+	 * @param cmd				The command. For instance: set_contact.
+	 * @param getStr			If the command is a "get" command. I e fetch information
+	 * 							from Fortnox, only get-parameters are necessary.
+	 * @param postContents		If an xml-struct must be posted, the xml struct is
+	 * 							placed here.
+	 * @param headers			Headers
+	 * @return					The reply from the web server.
+	 * @throws Exception
+	 * 
+	 * @see		setToken(String)
+	 * @see		setDatabase(String)
+	 */
+	private StringBuffer callFortnox(String cmd, String getStr, StringBuffer postContents, Map<String,String> headers, String method) throws Exception {
+		return callFortnox("/3", cmd, getStr, postContents, headers, method);
+	}
+
 	/**
 	 * Method for calling Fortnox web interface.
 	 * NOTE! To call this method, the token and database must be set first.
@@ -629,7 +653,7 @@ public class FortnoxClient3 {
 	 * @see		setToken(String)
 	 * @see		setDatabase(String)
 	 */
-	private StringBuffer callFortnox(String cmd, String getStr, StringBuffer postContents, Map<String,String> headers, String method) throws Exception {
+	private StringBuffer callFortnox(String apiPath, String cmd, String getStr, StringBuffer postContents, Map<String,String> headers, String method) throws Exception {
 		StringBuffer result = new StringBuffer();
 		
 		rateLimit();
@@ -637,14 +661,14 @@ public class FortnoxClient3 {
 		CloseableHttpClient httpClient = HttpClients.createDefault();
 		
 		// Create url
-		String urlStr = m_baseUrl;
+		String urlStr = m_baseUrl + apiPath;
 		if (cmd!=null)
 			urlStr += cmd;
 		// If we have a get command, append it to the URL.
 		if (getStr!=null)
 			urlStr = urlStr + getStr;
 		HttpUriRequest request;
-		
+
 		// Create a headers map if it wasn't supplied
 		if (headers==null) {
 			headers = new TreeMap<String, String>();
@@ -3451,6 +3475,13 @@ public class FortnoxClient3 {
 			throw new FortnoxException(e);
 		}
 		
+	}
+
+	public WareHouseTenant getWareHouseTenant() throws Exception{
+		Gson gson = new Gson();
+		StringBuffer result = callFortnox("/api", "/warehouse/tenants-v3", null, null, null, null);
+		WareHouseTenant tenant = gson.fromJson(result.toString(), WareHouseTenant.class);
+		return tenant;
 	}
 	
 	
