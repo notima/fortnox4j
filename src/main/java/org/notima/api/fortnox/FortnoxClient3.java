@@ -244,6 +244,7 @@ public class FortnoxClient3 {
 	public static final String ERROR_CANT_FIND_INVOICE = "2000434";
 	public static final String ERROR_NOT_AUTH_FOR_SCOPE = "2000663";
 	public static final String ERROR_INVALID_LOGIN = "2000310";
+	public static final String ERROR_MISSING_CREDENTIALS = "2000311";
 	public static final String ERROR_ACCOUNT_NOT_ACTIVE = "2000550";
 	public static final String ERROR_ACCOUNT_NOT_FOUND = "2000423";
 	public static final String ERROR_ARTICLE_NOT_FOUND = "2000428";
