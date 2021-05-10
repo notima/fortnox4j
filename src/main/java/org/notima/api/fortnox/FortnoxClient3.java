@@ -145,6 +145,8 @@ public class FortnoxClient3 {
 	public static final String	FILTER_EXPIRED = "expired";
 	public static final String FILTER_INVOICECREATED = "invoicecreated";
 	public static final String	FILTER_INVOICENOTCREATED = "invoicenotcreated";
+	public static final String FILTER_ACTIVE = "active";
+	public static final String FILTER_INACTIVE = "inactive";
 	
 	/**
 	 * Invoice actions
