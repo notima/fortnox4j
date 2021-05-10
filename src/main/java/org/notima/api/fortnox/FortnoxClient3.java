@@ -159,6 +159,7 @@ public class FortnoxClient3 {
 	public static final String ACTION_INVOICE_PRINTREMINDER = "printreminder";
 	public static final String ACTION_INVOICE_EXTERNALPRINT = "externalprint";
 	public static final String ACTION_INVOICE_PREVIEW = "preview";
+	public static final String ACTION_WAREHOUSE_READY = "warehouseready";
 	
 	/**
 	 * Order actions
@@ -836,6 +837,20 @@ public class FortnoxClient3 {
 		return performAction(true, "invoice", invoiceNo, FortnoxClient3.ACTION_INVOICE_BOOKKEEP);		
 		
 	}
+
+	/**
+	 * Sets an invoice to warehouse ready
+	 * 
+	 * @param invoiceNo			The invoice to mark as warehouse ready
+	 * @return					True if the action was successful.
+	 * @throws Exception		If something goes wrong.
+	 */
+	public String warehouseReadyInvoice(String invoiceNo) throws Exception {
+		
+		return performAction(true, "invoice", invoiceNo, FortnoxClient3.ACTION_WAREHOUSE_READY);		
+		
+	}
+	
 	
 	/**
 	 * Pays a customer invoice on date with given amount.
