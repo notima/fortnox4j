@@ -845,9 +845,25 @@ public class FortnoxClient3 {
 	 * @return					True if the action was successful.
 	 * @throws Exception		If something goes wrong.
 	 */
-	public String warehouseReadyInvoice(String invoiceNo) throws Exception {
+	public Invoice warehouseReadyInvoice(String invoiceNo) throws Exception {
 		
-		return performAction(true, "invoice", invoiceNo, FortnoxClient3.ACTION_WAREHOUSE_READY);		
+		String invoiceXml = performAction(true, "invoice", invoiceNo, FortnoxClient3.ACTION_WAREHOUSE_READY);
+		StringBuffer result = new StringBuffer(invoiceXml);
+		
+		ErrorInformation e = checkIfError(result);
+		Invoice c;
+		
+		if (e==null) {
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(result.toString().getBytes()), "UTF-8"));
+	        c = (org.notima.api.fortnox.entities3.Invoice)JAXB.unmarshal(in, Invoice.class); //NOI18N
+	        return(c); 
+		} else {
+			if (FortnoxClient3.ERROR_CANT_FIND_INVOICE.equals(e.getCode())) {
+				return null;
+			}
+			throw new FortnoxException(e);
+		}
 		
 	}
 	
