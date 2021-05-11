@@ -528,7 +528,7 @@ public class FortnoxClient3 {
 		CloseableHttpClient httpClient = HttpClients.createDefault();
 		
 		// Create url
-		String urlStr = m_baseUrl;
+		String urlStr = m_baseUrl + "/3";
 		if (cmd!=null)
 			urlStr += cmd;
 		// If we have a get command, append it to the URL.
@@ -3363,7 +3363,7 @@ public class FortnoxClient3 {
 		
 		// Build http request and assign multipart upload data
 		HttpUriRequest request = RequestBuilder
-				.post(m_baseUrl + "/inbox?folderid=" + folderId)
+				.post(m_baseUrl + "/3/inbox?folderid=" + folderId)
 				.setHeader("Access-Token", m_accessToken)
 				.setHeader("Client-Secret", m_clientSecret)
 				.setHeader("Accept", "application/xml")
