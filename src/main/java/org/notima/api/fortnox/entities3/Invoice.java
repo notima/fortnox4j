@@ -780,6 +780,35 @@ public class Invoice {
 	}
 
 	/**
+	 * Makes sure that lines are valid and adjust if necessary.
+	 * 
+	 * Current validation check are only if description is missing. If description is missing, the
+	 * description is set to a period ".".
+	 * 
+	 * A missing description means that there's quantity but no article or description text.
+	 * 
+	 * @return		The number of lines fixed
+	 */
+	public int fixInvoiceLines() {
+		
+		if (invoiceRows==null || invoiceRows.getInvoiceRow()==null || invoiceRows.getInvoiceRow().size()==0) {
+			return 0;
+		}
+		
+		int fixCount = 0;
+		
+		for (InvoiceRow ir : invoiceRows.getInvoiceRow()) {
+			if (!ir.hasDescription()) {
+				ir.setDescription("."); // Set empty line
+				fixCount++;
+			}
+		}
+		
+		return fixCount;
+		
+	}
+	
+	/**
 	 * Gets the reference in given field name and returns the reference.
 	 * 
 	 * @param referenceField		Any valid fields in FortnoxConstants.

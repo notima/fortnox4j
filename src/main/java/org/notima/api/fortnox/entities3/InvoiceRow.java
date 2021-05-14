@@ -125,7 +125,19 @@ public class InvoiceRow {
 	public void setVAT(Double vAT) {
 		this.vat = vAT;
 	}
-    
-    
+
+	/**
+	 * 
+	 * @return		True if this line has an appropriate description.
+	 */
+	public boolean hasDescription() {
+		if ((articleNumber==null || articleNumber.trim().length()==0) &&
+			(description==null || description.trim().length()==0) &&
+			deliveredQuantity!=0D) {
+			return false;
+		} else {
+			return true;
+		}
+	}
 	
 }
