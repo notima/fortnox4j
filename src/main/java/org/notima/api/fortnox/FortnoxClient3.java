@@ -1086,6 +1086,7 @@ public class FortnoxClient3 {
 	 * Gets all voucher series collection pages
 	 * 
 	 * @param 	yearId	The year id to use.	
+	 * @param	series	The series to return.
 	 * @return		All voucher series collections
 	 * @throws Exception	If something goes wrong.
 	 */
@@ -1112,6 +1113,7 @@ public class FortnoxClient3 {
 	 * Gets a page of VoucherSeriesCollection
 	 *  
 	 * @param	yearId			The yearId to use.	
+	 * @param	series	The series to return. 
 	 * @param 	page			The page to get
 	 * @return	A VoucherSeriesCollection struct containing a list of VoucherSeriesSubset
 	 * @throws Exception	if something fails
