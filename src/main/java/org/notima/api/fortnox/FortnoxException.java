@@ -60,6 +60,28 @@ public class FortnoxException extends Exception {
 		this.errorInformation = errorInformation;
 	}
 
+	public boolean isInvalidLoginException() {
+		
+		// There seems to be more than one code in Fortnox that implies invalid credentials
+		if (errorInformation!=null && errorInformation.getCode()!=null) {
+			String errCodeString = errorInformation.getCode().toString();
+			if (errCodeString.equals(FortnoxClient3.ERROR_INVALID_LOGIN) || 
+					errCodeString.equals(FortnoxClient3.ERROR_INVALID_LOGIN_V2)) {
+				return true;
+			}
+		}
+		// TODO The below error-struct might be deprecated from Fortnox's side.
+		if (error!=null && error.getCode()!=null) {
+			String errCodeString = error.getCode().toString();
+			if (errCodeString.equals(FortnoxClient3.ERROR_INVALID_LOGIN) || 
+					errCodeString.equals(FortnoxClient3.ERROR_INVALID_LOGIN_V2)) {
+				return true;
+			}
+		}
+		return false;
+		
+	}
+	
 	public String toString() {
 		if (error!=null)
 			return(error.getCode() + " : " + error.getMessage());
