@@ -65,21 +65,22 @@ public class FortnoxException extends Exception {
 		// There seems to be more than one code in Fortnox that implies invalid credentials
 		if (errorInformation!=null && errorInformation.getCode()!=null) {
 			String errCodeString = errorInformation.getCode().toString();
-			if (errCodeString.equals(FortnoxClient3.ERROR_INVALID_LOGIN) || 
-					errCodeString.equals(FortnoxClient3.ERROR_INVALID_LOGIN_V2)) {
-				return true;
-			}
+			return isInvalidLoginCode(errCodeString);
 		}
 		// TODO The below error-struct might be deprecated from Fortnox's side.
 		if (error!=null && error.getCode()!=null) {
 			String errCodeString = error.getCode().toString();
-			if (errCodeString.equals(FortnoxClient3.ERROR_INVALID_LOGIN) || 
-					errCodeString.equals(FortnoxClient3.ERROR_INVALID_LOGIN_V2)) {
-				return true;
-			}
+			return isInvalidLoginCode(errCodeString);
 		}
 		return false;
 		
+	}
+	
+	private boolean isInvalidLoginCode(String code) {
+		if (code==null) return false;
+		return (code.equals(FortnoxClient3.ERROR_INVALID_LOGIN) || 
+				code.equals(FortnoxClient3.ERROR_INVALID_LOGIN_V2) ||
+				code.equals(FortnoxClient3.ERROR_MISSING_CREDENTIALS));
 	}
 	
 	public String toString() {
