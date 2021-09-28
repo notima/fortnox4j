@@ -58,7 +58,7 @@ import org.notima.api.fortnox.entities3.AccountSubset;
 import org.notima.api.fortnox.entities3.Accounts;
 import org.notima.api.fortnox.entities3.Article;
 import org.notima.api.fortnox.entities3.Articles;
-import org.notima.api.fortnox.entities3.Authorization;
+import org.notima.api.fortnox.entities3.LegacyAuthorization;
 import org.notima.api.fortnox.entities3.CompanySetting;
 import org.notima.api.fortnox.entities3.CostCenter;
 import org.notima.api.fortnox.entities3.CostCenters;
@@ -105,6 +105,8 @@ import org.notima.api.fortnox.entities3.VoucherSeriesSubset;
 import org.notima.api.fortnox.entities3.Vouchers;
 import org.notima.api.fortnox.entities3.WareHouseTenant;
 import org.notima.api.fortnox.entities3.WriteOffs;
+import org.notima.api.fortnox.oauth.FortnoxOauthClient;
+import org.notima.api.fortnox.oauth.OauthResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -276,9 +278,11 @@ public class FortnoxClient3 {
 	public static final String DFortnox4JFile = "Fortnox4JFile";
 	public static final String ENV_CONFIG_FILE = DFortnox4JFile.toUpperCase();
 	
+	private String		m_clientId;
 	private String 		m_clientSecret;
 	private String		m_authCode;
-	private String		m_accessToken;
+	private String		m_legacyAccessToken;
+	private String 		m_accessToken;
 	private String		m_baseUrl = "https://api.fortnox.se";
 	
 	public static DateFormat	s_dfmt = new SimpleDateFormat("yyyy-MM-dd");
@@ -317,8 +321,9 @@ public class FortnoxClient3 {
 	 * export FORTNOX4JFILE=//file
 	 * 
 	 * NOTE: If the above environment variables are set and valid they will be used if this constructor 
-	 * 		 is called. If you want to specify accessToken and clientSecret programmatically, 
-	 * 		 use {@link FortnoxClient3#FortnoxClient3(String, String)}
+	 * 		 is called. If you want to specify credentials programmatically, 
+	 * 		 use {@link FortnoxClient3#FortnoxClient3(String, String, String)}
+	 * 		 (or {@link FortnoxClient3#FortnoxClient3(String, String)} if using legacy authentication)
 	 * 
 	 */
 	public FortnoxClient3() {
@@ -328,15 +333,27 @@ public class FortnoxClient3 {
 			logger.error(e.getMessage());
 		}
 	}
+
+	/**
+	 * Create a FortnoxClient with a fresh access token.
+	 * 
+	 * @param clientId			The client id
+	 * @param clientSecret		The client secret
+	 * @param refreshToken		The refresh token for retrieving an access token
+	 * @throws Exception
+	 */
+	public FortnoxClient3(String clientId, String clientSecret, String refreshToken) throws Exception {
+		refreshAccessToken(clientId, clientSecret, refreshToken);
+	}
 	
 	/**
-	 * Create FortnoxClient using specified accessToken and clientSecret.
+	 * Create FortnoxClient with legacy authentication using specified accessToken and clientSecret.
 	 * 
 	 * @param accessToken			The accessToken to use.
-	 * @param clientSecret			The clientSecret.
+	 * @param clientSecret			The clientSecret.		
 	 */
 	public FortnoxClient3(String accessToken, String clientSecret) {
-		setAccessToken(accessToken, clientSecret);
+		setLegacyAccessToken(accessToken, clientSecret);
 	}
 	
 	/**
@@ -345,30 +362,45 @@ public class FortnoxClient3 {
 	 * @param configFile		The configuration file to use.
 	 * @throws IOException		If something goes wrong when reading the file. 
 	 */
-	public FortnoxClient3(String configFile) throws IOException {
+	public FortnoxClient3(String configFile) throws Exception {
 		initFromFile(configFile);
 	}
 
+	public boolean hasOauthCredentials() {
+		if(m_accessToken != null && m_accessToken.trim().length() > 0 &&
+				m_clientId != null && m_clientId.trim().length() > 0 &&
+				m_clientSecret != null && m_clientSecret.trim().length() > 0) {
+			return true;
+		}
+		return false;
+	}
+
 	/**
-	 * 
-	 * 
-	 * @return	True if this client has been initialized with credentials.
+	 * @return	True if this client has been initialized with legacy credentials.
 	 */
-	public boolean hasCredentials() {
-		if (m_accessToken!=null && m_accessToken.trim().length()>0 && 
+	public boolean hasLegacyCredentials() {
+		if (m_legacyAccessToken!=null && m_legacyAccessToken.trim().length()>0 && 
 				m_clientSecret!=null && m_clientSecret.trim().length()>0) {
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * @deprecated in favor of {@link #hasLegacyCredentials()}
+	 * @return {@link #hasLegacyCredentials()}
+	 */
+	public boolean hasCredentials() {
+		return hasLegacyCredentials();
 	}
 	
 	/**
 	 * Read client parameters from file (if found).
 	 * 
 	 * @param configFile
-	 * @throws IOException 
+	 * @throws Exception
 	 */
-	private void initFromFile(String configFile) throws IOException {
+	private void initFromFile(String configFile) throws Exception {
 		
 		if (configFile==null || configFile.trim().length()==0) {
 			// Try system properties
@@ -415,21 +447,45 @@ public class FortnoxClient3 {
 
 		FortnoxClientInfo fc = clientList.getFirstClient();
 		
+		String clientId = fc.getClientId();
 		String clientSecret = fc.getClientSecret();
 		String accessToken = fc.getAccessToken();
+		String refreshToken = fc.getRefreshToken();
 		
-		setAccessToken(accessToken, clientSecret);
-		
-		
+		if(refreshToken != null) {
+			refreshAccessToken(clientId, clientSecret, refreshToken);
+		}
+		else if(accessToken != null) {
+			setLegacyAccessToken(accessToken, clientSecret);
+		}
 	}
-	
+
 	/**
+	 * Refreshes the access token for the client and stores it for later use until it expires.
+	 * Each refresh token can only be used once so the new refresh token returned by this method
+	 * must be stored in order to refresh again later.
 	 * 
+	 * @param clientId			The client id
+	 * @param clientSecret		The client secret
+	 * @param refreshToken		The refresh token
+	 * @return 					The new refresh token
+	 * @throws Exception
+	 */
+	public String refreshAccessToken(String clientId, String clientSecret, String refreshToken) throws Exception {
+		OauthResponse response = FortnoxOauthClient.refreshAccessToken(clientId, clientSecret, refreshToken);
+		m_accessToken = response.getAccessToken();
+		m_clientId = clientId;
+		m_clientSecret = clientSecret;
+		return response.getRefreshToken();
+	}
+
+	/**
+	 * Used for legacy authentication
 	 * @param accessToken		The access token
 	 * @param clientSecret		The client secret
 	 */
-	public void setAccessToken(String accessToken, String clientSecret) {
-		m_accessToken = accessToken;
+	public void setLegacyAccessToken(String accessToken, String clientSecret) {
+		m_legacyAccessToken = accessToken;
 		m_clientSecret = clientSecret;
 		if (accessToken==null || accessToken.trim().length()==0) {
 			logger.warn("Empty accessToken");
@@ -440,12 +496,23 @@ public class FortnoxClient3 {
 	}
 	
 	/**
+	 * Used for legacy authentication
+	 * @param accessToken		The access token
+	 * @param clientSecret		The client secret
+	 * @deprecated				Same as {@link #setLegacyAccessToken(String, String)}.
+	 */
+	public void setAccessToken(String accessToken, String clientSecret) {
+		setLegacyAccessToken(accessToken, clientSecret);
+	}
+	
+	/**
 	 * Gets access token from an auth code (API-code) and client secret.
 	 * 
 	 * @param authCode			The auth code supplied by the Fortnox client.
 	 * @param clientSecret		The secret to access the API.
 	 * @return					The access token if successful.
 	 * @throws Exception		If something goes wrong.
+	 * @deprecated				Use {@link org.notima.api.fortnox.oauth.FortnoxOauthClient#authenticate(String, String, String)} instead.
 	 */
 	public String getAccessToken(String authCode, String clientSecret) throws Exception {
 		
@@ -467,11 +534,11 @@ public class FortnoxClient3 {
 			throw new FortnoxException(err);
 		}
 		
-		Authorization auth = JAXB.unmarshal(strReader, Authorization.class);
+		LegacyAuthorization auth = JAXB.unmarshal(strReader, LegacyAuthorization.class);
 		
-		m_accessToken = auth.getAccessToken();
+		m_legacyAccessToken = auth.getAccessToken();
 		
-		return m_accessToken;
+		return m_legacyAccessToken;
 		
 	}
 
@@ -481,7 +548,13 @@ public class FortnoxClient3 {
 	 * @return	Current access token
 	 */
 	public String getAccessTokenCurrent() {
-		return m_accessToken;
+		if(hasOauthCredentials()){
+			return m_accessToken;
+		}
+		else if(hasLegacyCredentials()) {
+			return m_legacyAccessToken;
+		}
+		return null;
 	}
 	
 	public StringBuffer postFortnox(String route, StringBuffer postContents) throws Exception {
@@ -573,13 +646,8 @@ public class FortnoxClient3 {
 			logger.debug((put ? "Putting" : "Getting url") + ": " + urlStr);
 		}
 
-		// Add access token and client secret if not already there
-		if (m_accessToken!=null && !headers.containsKey("Access-Token")) {
-			headers.put("Access-Token", m_accessToken);
-		}
-		if (m_clientSecret!=null && !headers.containsKey("Client-Secret")) {
-			headers.put("Client-Secret", m_clientSecret);
-		}
+		// Add credentials if not already there
+		addCredentialsHeaders(headers);
 
 		// Set headers
 		if (headers!=null) {
@@ -619,6 +687,18 @@ public class FortnoxClient3 {
 		return(result);
 	}
 	
+
+	private void addCredentialsHeaders(Map<String, String> headers) {
+		if (hasLegacyCredentials() && !headers.containsKey("Access-Token")) {
+			headers.put("Access-Token", m_legacyAccessToken);
+		}
+		if (hasLegacyCredentials() && !headers.containsKey("Client-Secret")) {
+			headers.put("Client-Secret", m_clientSecret);
+		}
+		if (hasOauthCredentials() && !headers.containsKey("Authorization")) {
+			headers.put("Authorization", "Bearer " + m_accessToken);
+		}
+	}
 
 	/**
 	 * Method for calling Fortnox web interface.
@@ -712,12 +792,7 @@ public class FortnoxClient3 {
 		}
 
 		// Add access token and client secret if not already there
-		if (m_accessToken!=null && !headers.containsKey("Access-Token")) {
-			headers.put("Access-Token", m_accessToken);
-		}
-		if (m_clientSecret!=null && !headers.containsKey("Client-Secret")) {
-			headers.put("Client-Secret", m_clientSecret);
-		}
+		addCredentialsHeaders(headers);
 
 		// Set headers
 		if (headers!=null) {
@@ -3383,8 +3458,6 @@ public class FortnoxClient3 {
 		// Build http request and assign multipart upload data
 		HttpUriRequest request = RequestBuilder
 				.post(m_baseUrl + "/3/inbox?folderid=" + folderId)
-				.setHeader("Access-Token", m_accessToken)
-				.setHeader("Client-Secret", m_clientSecret)
 				.setHeader("Accept", "application/xml")
 				.setEntity(data)
 				.build();
@@ -3475,11 +3548,13 @@ public class FortnoxClient3 {
 	 * @return	True if the accessToken is equal.
 	 */
 	public boolean equals(FortnoxClient3 that) {
-		if (m_accessToken==null && that.m_accessToken==null)
-			return true;
-		if (m_accessToken==null)
-			return false;
-		return (m_accessToken.equals(that.m_accessToken));
+		if(this.hasLegacyCredentials() && that.hasLegacyCredentials()){
+			return (m_legacyAccessToken.equals(that.m_legacyAccessToken));
+		}
+		if(this.hasOauthCredentials() && that.hasOauthCredentials()){
+			return (m_accessToken.equals(that.m_accessToken));
+		}
+		return true;
 	}
 	
 	/**

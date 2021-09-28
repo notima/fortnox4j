@@ -9,9 +9,9 @@ import javax.xml.bind.JAXB;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.notima.api.fortnox.entities3.Authorization;
+import org.notima.api.fortnox.entities3.LegacyAuthorization;
 
-public class TestGetAccessToken {
+public class TestGetLegacyAccessToken {
 
 	@Before
 	public void setUp() throws Exception {
@@ -25,7 +25,7 @@ public class TestGetAccessToken {
 	public void test() {
 		
 		URL url = ClassLoader.getSystemResource("Authorization.xml");
-		Authorization obj = JAXB.unmarshal(url, Authorization.class);
+		LegacyAuthorization obj = JAXB.unmarshal(url, LegacyAuthorization.class);
 		assertEquals("Can't read access token", "TEST", obj.getAccessToken());
 		
 	}
