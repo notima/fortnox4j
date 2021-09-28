@@ -29,7 +29,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({ 
 		TestGetCompanySettings.class,
-		TestGetOrderInvoiceCustomers.class, TestGetAccessToken.class,
+		TestGetOrderInvoiceCustomers.class, TestGetLegacyAccessToken.class,
 		TestGetAccounts.class, TestGetErrorInformation.class,
 		TestGetPreDefinedAccounts.class, TestGetRevenueAccountMap.class,
 		TestGetVoucher.class, TestRemoveNonAllowedCharacters.class,
