@@ -18,6 +18,7 @@ public class FortnoxClientInfo {
 	private String	clientId;
 	private String	apiCode;
 	private String	accessToken;
+	private String	refreshToken;
 	private String	clientSecret;
 	
 	private String	orgNo;
@@ -69,7 +70,9 @@ public class FortnoxClientInfo {
 
 	/**
 	 * The Access Token is used together with the Client Secret to gain access
-	 * to a particular Fortnox organization.
+	 * to a particular Fortnox organization. This will only be set when using 
+	 * legacy authentication. Otherwise, {@link #getRefreshToken() refreshToken}
+	 * will be used to get an access token from the api.
 	 * 
 	 * @return		The access token if set.
 	 */
@@ -79,6 +82,19 @@ public class FortnoxClientInfo {
 	
 	public void setAccessToken(String accessToken) {
 		this.accessToken = accessToken;
+	}
+
+	/**
+	 * Long-lived token used to generate a new Access Token once the old one has expired.
+	 * 
+	 * @return		The refresh token if set.
+	 */
+	public String getRefreshToken() {
+		return refreshToken;
+	}
+	
+	public void setRefreshToken(String refreshToken) {
+		this.refreshToken = refreshToken;
 	}
 	
 	/**

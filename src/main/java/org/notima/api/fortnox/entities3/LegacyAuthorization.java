@@ -4,7 +4,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "Authorization")
-public class Authorization {
+public class LegacyAuthorization {
 
 	@XmlElement(name="AccessToken")
 	private String	AccessToken;
