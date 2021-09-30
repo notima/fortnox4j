@@ -512,7 +512,7 @@ public class FortnoxClient3 {
 	 * @param clientSecret		The secret to access the API.
 	 * @return					The access token if successful.
 	 * @throws Exception		If something goes wrong.
-	 * @deprecated				Use {@link org.notima.api.fortnox.oauth.FortnoxOauthClient#authenticate(String, String, String)} instead.
+	 * @deprecated				Use {@link org.notima.api.fortnox.oauth.FortnoxOauthClient#getAccessToken(String, String, String)} instead.
 	 */
 	public String getAccessToken(String authCode, String clientSecret) throws Exception {
 		
