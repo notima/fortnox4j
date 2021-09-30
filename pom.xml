@@ -108,7 +108,8 @@
 						<Export-Package>
 							org.notima.api.fortnox,
 							org.notima.api.fortnox.clients,
-							org.notima.api.fortnox.entities3
+							org.notima.api.fortnox.entities3,
+							org.notima.api.fortnox.oauth
 						</Export-Package>
 						<Import-Package>
 							javax.xml.bind.annotation;version="[2.2,3)",
