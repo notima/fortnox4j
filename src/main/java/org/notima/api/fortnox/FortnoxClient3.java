@@ -105,8 +105,8 @@ import org.notima.api.fortnox.entities3.VoucherSeriesSubset;
 import org.notima.api.fortnox.entities3.Vouchers;
 import org.notima.api.fortnox.entities3.WareHouseTenant;
 import org.notima.api.fortnox.entities3.WriteOffs;
-import org.notima.api.fortnox.oauth.FortnoxOauthClient;
-import org.notima.api.fortnox.oauth.OauthResponse;
+import org.notima.api.fortnox.oauth.FortnoxOAuthClient;
+import org.notima.api.fortnox.oauth.OAuthResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -472,7 +472,7 @@ public class FortnoxClient3 {
 	 * @throws Exception
 	 */
 	public String refreshAccessToken(String clientId, String clientSecret, String refreshToken) throws Exception {
-		OauthResponse response = FortnoxOauthClient.refreshAccessToken(clientId, clientSecret, refreshToken);
+		OAuthResponse response = FortnoxOAuthClient.refreshAccessToken(clientId, clientSecret, refreshToken);
 		m_accessToken = response.getAccessToken();
 		m_clientId = clientId;
 		m_clientSecret = clientSecret;
@@ -512,7 +512,7 @@ public class FortnoxClient3 {
 	 * @param clientSecret		The secret to access the API.
 	 * @return					The access token if successful.
 	 * @throws Exception		If something goes wrong.
-	 * @deprecated				Use {@link org.notima.api.fortnox.oauth.FortnoxOauthClient#getAccessToken(String, String, String)} instead.
+	 * @deprecated				Use {@link org.notima.api.fortnox.oauth.FortnoxOAuthClient#getAccessToken(String, String, String)} instead.
 	 */
 	public String getAccessToken(String authCode, String clientSecret) throws Exception {
 		

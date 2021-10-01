@@ -18,7 +18,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
-public class FortnoxOauthClient {
+public class FortnoxOAuthClient {
 
     private static Gson gson = new GsonBuilder().create();
 
@@ -32,12 +32,12 @@ public class FortnoxOauthClient {
     private static final String GRANT_TYPE_AUTH = "authorization_code";
     private static final String GRANT_TYPE_REFRESH = "refresh_token";
 
-    public static OauthResponse getAccessToken(String clientId, String clientSecret, String authorizationCode) throws Exception {
+    public static OAuthResponse getAccessToken(String clientId, String clientSecret, String authorizationCode) throws Exception {
         Map<String, String> body = new HashMap<String, String>();
         body.put(KEY_GRANT_TYPE, GRANT_TYPE_AUTH);
         body.put(KEY_AUTH_CODE, authorizationCode);
 
-        OauthRequest request = new OauthRequest();
+        OAuthRequest request = new OAuthRequest();
         request.setUrl(TOKEN_URL);
         request.setClientId(clientId);
         request.setClientSecret(clientSecret);
@@ -46,12 +46,12 @@ public class FortnoxOauthClient {
         return callApi(request);
     }
 
-    public static OauthResponse refreshAccessToken(String clientId, String clientSecret, String refreshToken) throws Exception {
+    public static OAuthResponse refreshAccessToken(String clientId, String clientSecret, String refreshToken) throws Exception {
         Map<String, String> body = new HashMap<String, String>();
         body.put(KEY_GRANT_TYPE, GRANT_TYPE_REFRESH);
         body.put(KEY_REFRESH_TOKEN, refreshToken);
 
-        OauthRequest request = new OauthRequest();
+        OAuthRequest request = new OAuthRequest();
         request.setUrl(TOKEN_URL);
         request.setClientId(clientId);
         request.setClientSecret(clientSecret);
@@ -65,7 +65,7 @@ public class FortnoxOauthClient {
         return false;
     }*/
 
-    private static OauthResponse callApi(OauthRequest request) throws Exception {
+    private static OAuthResponse callApi(OAuthRequest request) throws Exception {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         String credentials = getBasicAuthCredentials(request.getClientId(), request.getClientSecret());
         HttpPost post = new HttpPost(BASE_URL + request.getUrl());
@@ -76,7 +76,7 @@ public class FortnoxOauthClient {
         String entity = EntityUtils.toString(response.getEntity());
         int statusCode = response.getStatusLine().getStatusCode();
         if(statusCode == 200) {
-            return gson.fromJson(entity, OauthResponse.class);
+            return gson.fromJson(entity, OAuthResponse.class);
         } else {
             throw new Exception(String.format(
                 "%s responded with %d %s\n%s", 

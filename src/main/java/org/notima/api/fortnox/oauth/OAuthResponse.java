@@ -2,7 +2,7 @@ package org.notima.api.fortnox.oauth;
 
 import com.google.gson.annotations.SerializedName;
 
-public class OauthResponse {
+public class OAuthResponse {
 
     @SerializedName("access_token")
     private String accessToken;

@@ -7,18 +7,18 @@ public class TestApplication {
             return;
         }
 
-        OauthResponse response;
+        OAuthResponse response;
 
         System.out.println("Getting access token...");
-        response = FortnoxOauthClient.getAccessToken(args[0], args[1], args[2]);
+        response = FortnoxOAuthClient.getAccessToken(args[0], args[1], args[2]);
         showResponse(response);
 
         System.out.println("Refreshing access token...");
-        response = FortnoxOauthClient.refreshAccessToken(args[0], args[1], response.getRefreshToken());
+        response = FortnoxOAuthClient.refreshAccessToken(args[0], args[1], response.getRefreshToken());
         showResponse(response);
     }
 
-    static void showResponse(OauthResponse response) {
+    static void showResponse(OAuthResponse response) {
         System.out.printf("access-token: %s\nrefresh_token: %s\nscope: %s\nexpires_in: %s\ntoken_type: %s\n\n",
                 response.getAccessToken(),
                 response.getRefreshToken(),

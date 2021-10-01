@@ -1,6 +1,6 @@
 package org.notima.api.fortnox.oauth;
 
-class OauthRequest {
+class OAuthRequest {
     private String url;
     private String clientId;
     private String clientSecret;
