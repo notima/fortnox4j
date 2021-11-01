@@ -333,18 +333,6 @@ public class FortnoxClient3 {
 			logger.error(e.getMessage());
 		}
 	}
-
-	/**
-	 * Create a FortnoxClient with a fresh access token.
-	 * 
-	 * @param clientId			The client id
-	 * @param clientSecret		The client secret
-	 * @param refreshToken		The refresh token for retrieving an access token
-	 * @throws Exception
-	 */
-	public FortnoxClient3(String clientId, String clientSecret, String refreshToken) throws Exception {
-		refreshAccessToken(clientId, clientSecret, refreshToken);
-	}
 	
 	/**
 	 * Create FortnoxClient with legacy authentication using specified accessToken and clientSecret.
