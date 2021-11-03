@@ -10,7 +10,6 @@ import org.notima.api.fortnox.FortnoxClient3;
 import org.notima.api.fortnox.FortnoxException;
 import org.notima.api.fortnox.FortnoxUtil;
 import org.notima.api.fortnox.entities3.CompanySetting;
-import org.notima.api.fortnox.entities3.PreDefinedAccount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +68,8 @@ public class FortnoxClientManager {
 			dst = addClient(ci);
 		} else {
 			// Update existing
-			dst.setAccessToken(ci.getAccessToken());
+			dst.setApiKey(ci.getApiKey());
+			dst.setClientId(ci.getClientId());
 			dst.setClientSecret(ci.getClientSecret());
 		}
 		CompanySetting cs = ci.getCompanySetting();
@@ -289,90 +289,8 @@ public class FortnoxClientManager {
 	 * @return		True if the connection is validated.
 	 * @throws Exception	If something goes wrong.
 	 */
+	@Deprecated
 	public boolean validateConnection(FortnoxClientInfo ci) throws Exception {
-		
-		// Check if we have a situation where the access token must be renewed.
-		// API code is submitted and the current credentials don't work
-		if (ci.getAccessToken()!=null && ci.getAccessToken().trim().length()>0 
-			&& ci.getApiCode()!=null && ci.getApiCode().trim().length()>0) {
-			
-			FortnoxClient3 cl3 = new FortnoxClient3(ci.getAccessToken(), ci.getClientSecret());
-			// Try an access call
-			try {
-				PreDefinedAccount pda = cl3.getPreDefinedAccount("INVAT");
-				if (pda!=null) {
-					// Clear the api code since the login is working.
-					ci.setApiCode(null);
-				}
-			} catch (FortnoxException ee) {
-				if (FortnoxClient3.ERROR_INVALID_LOGIN.equals(ee.getErrorInformation().getCode())) {
-					// Clear the access token so we can request a new access token.
-					ci.setAccessToken(null);
-					log.info("Invalid login. Clearing previous access token to request a new token for {}.", ci.getOrgNo());
-				}
-			}
-			
-		}
-
-		// Check for no Access Token (ie we must get an access token using the API code)
-		if (ci.getAccessToken()==null || ci.getAccessToken().trim().length()==0) {
-			
-			// Check for API-code to request access token
-			if (ci.getApiCode()==null || ci.getApiCode().trim().length()==0) {
-				log.info("Missing API-code. Can't request access token.");
-				
-				return false;
-				
-			}
-			
-			// Check for client secret and API-code
-			if (ci.getClientSecret()==null || ci.getClientSecret().trim().length()==0) {
-				if (defaultClientSecret==null) {
-					throw new Exception("Missing client secret. Can't request access token.");
-				} else {
-					log.info("Using default client secret for access token request.");
-					ci.setClientSecret(defaultClientSecret);
-				}
-			}
-			
-			log.info("Requesting Access Token for orgNo: " + ci.getOrgNo());
-
-			String accessToken = null; 
-			try {
-				
-				FortnoxClient3 client = new FortnoxClient3();
-				accessToken = client.getAccessToken(ci.getApiCode(), ci.getClientSecret());
-				
-				if (accessToken==null) {
-						log.error("Empty access token returned for orgNo: {}", ci.getOrgNo());
-						throw new Exception("Empty access token returned for orgNo " + ci.getOrgNo());
-				}
-				
-				ci.setAccessToken(accessToken);
-			} catch (FortnoxException ee) {
-				log.error("Can't retrieve accesstoken for orgNo: {}. Reason: {}", ci.getOrgNo(), ee.getErrorInformation().getMessage());
-				throw ee;
-			}
-			
-			// If we're here we got a new access token. Try saving it first
-			updateAndSaveClientInfo(ci);
-			// Get company info to update the name
-			
-		} 
-
-		// Read settings
-		FortnoxClient3 cl3 = new FortnoxClient3(ci.getAccessToken(), ci.getClientSecret());
-		try {
-			CompanySetting cs = cl3.getCompanySetting();
-			ci.setCompanySetting(cs);
-			// Save the company name
-			if (ci.getOrgName()==null || ci.getOrgName().trim().length()==0) {
-				ci.setOrgName(cs.getName());
-			}
-		} catch (FortnoxException fe) {
-			log.warn(fe.toString());
-		}
-		updateAndSaveClientInfo(ci);
 		
 		return true;
 		
