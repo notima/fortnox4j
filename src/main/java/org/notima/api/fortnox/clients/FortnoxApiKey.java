@@ -1,7 +1,5 @@
 package org.notima.api.fortnox.clients;
 
-import java.util.Date;
-
 import com.google.gson.annotations.SerializedName;
 
 public class FortnoxApiKey {
@@ -25,7 +23,7 @@ public class FortnoxApiKey {
     @SerializedName("token_type")
     private String tokenType;
 
-    private Date lastRefresh;
+    private long lastRefresh;
     
     private String legacyToken;
 
@@ -85,11 +83,11 @@ public class FortnoxApiKey {
         this.tokenType = tokenType;
     }
 
-    public Date getLastRefresh() {
+    public long getLastRefresh() {
         return lastRefresh;
     }
 
-    public void setLastRefresh(Date lastRefresh) {
+    public void setLastRefresh(long lastRefresh) {
         this.lastRefresh = lastRefresh;
     }
 
