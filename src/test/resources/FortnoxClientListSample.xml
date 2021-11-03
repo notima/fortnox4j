@@ -34,7 +34,10 @@
     	 -->
     
         <FortnoxClientInfo>
-            <accessToken>TestAccessToken</accessToken>
+			<apiKey>
+				<accessToken>TestAccessToken</accessToken>
+				<refreshToken>TestRefreshToken</refreshToken>
+			</apiKey>
             <!-- 
             	This clientId must normally exist in a FortnoxApiClient record
             	since the clientSecret is derived using the entry in 
@@ -58,4 +61,3 @@
         </FortnoxClientInfo>
     </FortnoxClients>
 </ns2:FortnoxClientList>
-
