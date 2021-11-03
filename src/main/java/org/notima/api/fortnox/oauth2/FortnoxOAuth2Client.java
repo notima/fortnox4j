@@ -46,7 +46,7 @@ public class FortnoxOAuth2Client {
         request.setBody(xWWWFormURLEncode(body));
         
         FortnoxApiKey key = callApi(request, FortnoxApiKey.class);
-        key.setLastRefresh(new Date());
+        key.setLastRefresh(new Date().getTime());
         return key;
     }
 
@@ -62,7 +62,7 @@ public class FortnoxOAuth2Client {
         request.setBody(xWWWFormURLEncode(body));
 
         FortnoxApiKey key = callApi(request, FortnoxApiKey.class);
-        key.setLastRefresh(new Date());
+        key.setLastRefresh(new Date().getTime());
         return key;
     }
 
