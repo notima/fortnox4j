@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
@@ -51,6 +52,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
+import org.notima.api.fortnox.clients.FortnoxApiKey;
 import org.notima.api.fortnox.clients.FortnoxClientInfo;
 import org.notima.api.fortnox.clients.FortnoxClientList;
 import org.notima.api.fortnox.entities3.Account;
@@ -58,7 +60,6 @@ import org.notima.api.fortnox.entities3.AccountSubset;
 import org.notima.api.fortnox.entities3.Accounts;
 import org.notima.api.fortnox.entities3.Article;
 import org.notima.api.fortnox.entities3.Articles;
-import org.notima.api.fortnox.entities3.Authorization;
 import org.notima.api.fortnox.entities3.CompanySetting;
 import org.notima.api.fortnox.entities3.CostCenter;
 import org.notima.api.fortnox.entities3.CostCenters;
@@ -105,6 +106,7 @@ import org.notima.api.fortnox.entities3.VoucherSeriesSubset;
 import org.notima.api.fortnox.entities3.Vouchers;
 import org.notima.api.fortnox.entities3.WareHouseTenant;
 import org.notima.api.fortnox.entities3.WriteOffs;
+import org.notima.api.fortnox.oauth2.FortnoxOAuth2Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -276,10 +278,10 @@ public class FortnoxClient3 {
 	public static final String DFortnox4JFile = "Fortnox4JFile";
 	public static final String ENV_CONFIG_FILE = DFortnox4JFile.toUpperCase();
 	
+	private String 		m_clientId;
 	private String 		m_clientSecret;
-	private String		m_authCode;
-	private String		m_accessToken;
 	private String		m_baseUrl = "https://api.fortnox.se";
+	private FortnoxKeyProvider keyProvider;
 	
 	public static DateFormat	s_dfmt = new SimpleDateFormat("yyyy-MM-dd");
 	
@@ -320,8 +322,10 @@ public class FortnoxClient3 {
 	 * 		 is called. If you want to specify accessToken and clientSecret programmatically, 
 	 * 		 use {@link FortnoxClient3#FortnoxClient3(String, String)}
 	 * 
+	 * @param keyProvider			The key provider that will be used to retrieve the access token
 	 */
-	public FortnoxClient3() {
+	public FortnoxClient3(FortnoxKeyProvider keyProvider) {
+		this.keyProvider = keyProvider;
 		try {
 			initFromFile(null);
 		} catch (Exception e) {
@@ -334,30 +338,38 @@ public class FortnoxClient3 {
 	 * 
 	 * @param accessToken			The accessToken to use.
 	 * @param clientSecret			The clientSecret.
+	 * @param keyProvider			The key provider that will be used to retrieve the access token
 	 */
-	public FortnoxClient3(String accessToken, String clientSecret) {
-		setAccessToken(accessToken, clientSecret);
+	public FortnoxClient3(String clientId, String clientSecret, FortnoxKeyProvider keyProvider) {
+		m_clientId = clientId;
+		m_clientSecret = clientSecret;
+		this.keyProvider = keyProvider;
 	}
 	
 	/**
 	 * Create FortnoxClient using specified configuration file.
 	 * 
 	 * @param configFile		The configuration file to use.
+	 * @param keyProvider			The key provider that will be used to retrieve the access token
 	 * @throws IOException		If something goes wrong when reading the file. 
 	 */
-	public FortnoxClient3(String configFile) throws IOException {
+	public FortnoxClient3(String configFile, FortnoxKeyProvider keyProvider) throws IOException {
+		this.keyProvider = keyProvider;
 		initFromFile(configFile);
 	}
 
 	/**
-	 * 
-	 * 
-	 * @return	True if this client has been initialized with credentials.
+	 * @return	True if a key can be retrieved from the key provider
 	 */
 	public boolean hasCredentials() {
-		if (m_accessToken!=null && m_accessToken.trim().length()>0 && 
-				m_clientSecret!=null && m_clientSecret.trim().length()>0) {
-			return true;
+		FortnoxApiKey key;
+		try {
+			key = keyProvider.getKey();
+			if(key != null) {
+				if(key.getAccessToken() != null || key.getLegacyToken() != null)
+					return true;
+			}
+		} catch (Exception e) {
 		}
 		return false;
 	}
@@ -415,73 +427,10 @@ public class FortnoxClient3 {
 
 		FortnoxClientInfo fc = clientList.getFirstClient();
 		
-		String clientSecret = fc.getClientSecret();
-		String accessToken = fc.getAccessToken();
-		
-		setAccessToken(accessToken, clientSecret);
+		m_clientId = fc.getClientId();
+		m_clientSecret = fc.getClientSecret();
 		
 		
-	}
-	
-	/**
-	 * 
-	 * @param accessToken		The access token
-	 * @param clientSecret		The client secret
-	 */
-	public void setAccessToken(String accessToken, String clientSecret) {
-		m_accessToken = accessToken;
-		m_clientSecret = clientSecret;
-		if (accessToken==null || accessToken.trim().length()==0) {
-			logger.warn("Empty accessToken");
-		}
-		if (clientSecret==null || clientSecret.trim().length()==0) {
-			logger.warn("Empty clientSecret");
-		}
-	}
-	
-	/**
-	 * Gets access token from an auth code (API-code) and client secret.
-	 * 
-	 * @param authCode			The auth code supplied by the Fortnox client.
-	 * @param clientSecret		The secret to access the API.
-	 * @return					The access token if successful.
-	 * @throws Exception		If something goes wrong.
-	 */
-	public String getAccessToken(String authCode, String clientSecret) throws Exception {
-		
-		Map<String,String> headers = new TreeMap<String,String>();
-		headers.put("Authorization-Code", authCode);
-		headers.put("Client-Secret", clientSecret);
-		
-		// Use any call to request the access token.
-		StringBuffer result = callFortnox("/customers", "", null, headers, null);
-		
-		StringReader strReader = new StringReader(result.toString());
-		// If auth code and client secret don't match, a 404 error is returned.
-		if (result.toString().startsWith("404")) {
-			throw new FortnoxException("404: Failed to retrieve access token for API-code " + authCode);
-		}
-		
-		ErrorInformation err = checkIfError(result);
-		if (err!=null) {
-			throw new FortnoxException(err);
-		}
-		
-		Authorization auth = JAXB.unmarshal(strReader, Authorization.class);
-		
-		m_accessToken = auth.getAccessToken();
-		
-		return m_accessToken;
-		
-	}
-
-	/**
-	 * Returns current access token.
-	 * 
-	 * @return	Current access token
-	 */
-	public String getAccessTokenCurrent() {
-		return m_accessToken;
 	}
 	
 	public StringBuffer postFortnox(String route, StringBuffer postContents) throws Exception {
@@ -573,13 +522,7 @@ public class FortnoxClient3 {
 			logger.debug((put ? "Putting" : "Getting url") + ": " + urlStr);
 		}
 
-		// Add access token and client secret if not already there
-		if (m_accessToken!=null && !headers.containsKey("Access-Token")) {
-			headers.put("Access-Token", m_accessToken);
-		}
-		if (m_clientSecret!=null && !headers.containsKey("Client-Secret")) {
-			headers.put("Client-Secret", m_clientSecret);
-		}
+		headers.putAll(getAuthorizationHeaders());		
 
 		// Set headers
 		if (headers!=null) {
@@ -618,7 +561,6 @@ public class FortnoxClient3 {
 		// Return response
 		return(result);
 	}
-	
 
 	/**
 	 * Method for calling Fortnox web interface.
@@ -711,13 +653,7 @@ public class FortnoxClient3 {
 			logger.debug((put ? "Putting" : (delete ? "Deleting " : "Getting url")) + ": " + urlStr);
 		}
 
-		// Add access token and client secret if not already there
-		if (m_accessToken!=null && !headers.containsKey("Access-Token")) {
-			headers.put("Access-Token", m_accessToken);
-		}
-		if (m_clientSecret!=null && !headers.containsKey("Client-Secret")) {
-			headers.put("Client-Secret", m_clientSecret);
-		}
+		headers.putAll(getAuthorizationHeaders());
 
 		// Set headers
 		if (headers!=null) {
@@ -764,6 +700,44 @@ public class FortnoxClient3 {
 		// Thread.sleep(100);
 		// Return response
 		return(result);
+	}
+
+	private Map<? extends String, ? extends String> getAuthorizationHeaders() throws Exception {
+		FortnoxApiKey key = keyProvider.getKey();
+		if(key.getAuthorizationCode() != null) {
+			key = FortnoxOAuth2Client.getAccessToken(m_clientId, m_clientSecret, key.getAuthorizationCode());
+			keyProvider.setKey(key);
+		}
+
+		if(key.getLegacyToken() != null) {
+			return getLegacyAuthorizationHeaders(key.getLegacyToken());
+		} 
+		else if(key.getAccessToken() != null) {
+			key = updateKey(key);
+			return getBearerTokenHeader(key);
+		}
+		return null;
+	}
+
+	private FortnoxApiKey updateKey(FortnoxApiKey key) throws Exception {
+		if(key.getLastRefresh() + (key.getExpiresIn() * 1000) < new Date().getTime()) {
+			key = FortnoxOAuth2Client.refreshAccessToken(m_clientId, m_clientSecret, key.getRefreshToken());
+			keyProvider.setKey(key);
+		}
+		return key;
+	}
+
+	private Map<? extends String, ? extends String> getBearerTokenHeader(FortnoxApiKey key) {
+		Map<String, String> headers = new HashMap<String, String>();
+		headers.put("Authorization", "Bearer " + key.getAccessToken());
+		return headers;
+	}
+
+	private Map<? extends String, ? extends String> getLegacyAuthorizationHeaders(String accessToken) {
+		Map<String, String> headers = new HashMap<String, String>();
+		headers.put("Access-Token", accessToken);
+		headers.put("Client-Secret", m_clientSecret);
+		return headers;
 	}
 	
 	public org.notima.api.fortnox.entities3.Order getOrder(String orderNo) throws Exception {
@@ -3163,22 +3137,6 @@ public class FortnoxClient3 {
 		}
 		return(e);
 	}
-	
-	public String getToken() {
-		return m_clientSecret;
-	}
-
-	public void setToken(String token) {
-		this.m_clientSecret = token;
-	}
-
-	public String getDatabase() {
-		return m_authCode;
-	}
-
-	public void setDatabase(String database) {
-		this.m_authCode = database;
-	}
 
 	public String getBaseUrl() {
 		return m_baseUrl;
@@ -3254,12 +3212,14 @@ public class FortnoxClient3 {
 				FortnoxClientInfo fc = clientList.getFirstClient();
 				
 				String clientSecret = fc.getClientSecret();
+				String clientId = fc.getClientId();
 				String authCode = fc.getApiCode();
 
-				FortnoxClient3 client = new FortnoxClient3();
-				String accessToken = client.getAccessToken(authCode, clientSecret);
+				FortnoxApiKey key = FortnoxOAuth2Client.getAccessToken(clientId, clientSecret, authCode);
 				System.out.println("Got access token:");
-				System.out.println(accessToken);
+				System.out.println(key.getAccessToken());
+				System.out.println("Refresh token:");
+				System.out.println(key.getRefreshToken());
 				
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -3383,8 +3343,6 @@ public class FortnoxClient3 {
 		// Build http request and assign multipart upload data
 		HttpUriRequest request = RequestBuilder
 				.post(m_baseUrl + "/3/inbox?folderid=" + folderId)
-				.setHeader("Access-Token", m_accessToken)
-				.setHeader("Client-Secret", m_clientSecret)
 				.setHeader("Accept", "application/xml")
 				.setEntity(data)
 				.build();
@@ -3469,17 +3427,17 @@ public class FortnoxClient3 {
 	}
 	
 	/**
-	 * Compares the access token.
+	 * Compares the key provider.
 	 * 
 	 * @param that		The client to compare
 	 * @return	True if the accessToken is equal.
 	 */
 	public boolean equals(FortnoxClient3 that) {
-		if (m_accessToken==null && that.m_accessToken==null)
+		if (keyProvider==null && that.keyProvider==null)
 			return true;
-		if (m_accessToken==null)
+		if (keyProvider==null)
 			return false;
-		return (m_accessToken.equals(that.m_accessToken));
+		return (keyProvider.equals(that.keyProvider));
 	}
 	
 	/**
