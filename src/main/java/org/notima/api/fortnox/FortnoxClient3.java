@@ -3188,51 +3188,6 @@ public class FortnoxClient3 {
 		return true;
 	}
 
-	public static void main(String[] args) {
-		
-		if (args==null || args.length!=2) {
-			System.out.println("Usage: FortnoxClient3 configfile command");
-			System.out.println("");
-			System.out.println("Possible commands are: getAccessToken");
-			System.exit(1);
-		}
-		
-		File configFile = new File(args[0]);
-		if (!configFile.exists() || configFile.isDirectory()) {
-			System.out.println(args[0] + " is not a configuration file.");
-			System.exit(1);
-		}
-		
-		if ("getAccessToken".equalsIgnoreCase(args[1])) {
-			
-			try {
-			
-				FortnoxClientList clientList = FortnoxUtil.readFortnoxClientListFromFile(configFile.getCanonicalPath());				
-
-				FortnoxClientInfo fc = clientList.getFirstClient();
-				
-				String clientSecret = fc.getClientSecret();
-				String clientId = fc.getClientId();
-				String authCode = fc.getApiCode();
-
-				FortnoxApiKey key = FortnoxOAuth2Client.getAccessToken(clientId, clientSecret, authCode);
-				System.out.println("Got access token:");
-				System.out.println(key.getAccessToken());
-				System.out.println("Refresh token:");
-				System.out.println(key.getRefreshToken());
-				
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-
-			
-		} else {
-			System.out.println(args[1] + ": unknown command.");
-			System.exit(1);
-		}
-		
-	}
-
 	/**
 	 * Search document and field.
 	 * 
