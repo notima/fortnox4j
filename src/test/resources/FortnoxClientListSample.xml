@@ -34,8 +34,25 @@
     	 -->
     
         <FortnoxClientInfo>
+			<!-- 
+				The api key contains the access token used for authenticating the client
+				and a refresh token for refreshing the access token once it expires.
+			-->
 			<apiKey>
+				<!-- 
+					The authorization code is the authentication code used to retrieve an 
+					access token and a refresh token. It is optional and can only be used 
+					once.
+				-->
+				<authorizationCode>TestApiCode</authorizationCode>
+				<!-- 
+					The access token that will be used to access the fortnox api on
+					behalf of the client.
+				-->
 				<accessToken>TestAccessToken</accessToken>
+				<!-- 
+					The refresh token is used to refresh the access token once it expires
+				-->
 				<refreshToken>TestRefreshToken</refreshToken>
 			</apiKey>
             <!-- 
