@@ -359,6 +359,15 @@ public class FortnoxClient3 {
 	}
 
 	/**
+	 * Set a new key provider for the client
+	 * 
+	 * @param keyProvider	The new key provider
+	 */
+	public void setKeyProvider(FortnoxKeyProvider keyProvider) {
+		this.keyProvider = keyProvider;
+	}
+
+	/**
 	 * @return	True if a key can be retrieved from the key provider
 	 */
 	public boolean hasCredentials() {
