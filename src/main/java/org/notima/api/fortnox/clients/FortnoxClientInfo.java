@@ -17,7 +17,6 @@ public class FortnoxClientInfo {
 
 	private String	clientId;
 	private String	apiCode;
-	private String	accessToken;
 	private String	clientSecret;
 	private FortnoxApiKey apiKey;
 	
@@ -79,12 +78,16 @@ public class FortnoxClientInfo {
 	 */
 	@Deprecated
 	public String getAccessToken() {
-		return accessToken;
+		if(apiKey == null)
+			return null;
+		return apiKey.getLegacyToken();
 	}
 	
 	@Deprecated
 	public void setAccessToken(String accessToken) {
-		this.accessToken = accessToken;
+		if(apiKey == null)
+			apiKey = new FortnoxApiKey();
+		apiKey.setLegacyToken(accessToken);
 	}
 
 	/**
