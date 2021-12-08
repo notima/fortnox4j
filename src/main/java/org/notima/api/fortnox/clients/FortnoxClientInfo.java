@@ -17,8 +17,8 @@ public class FortnoxClientInfo {
 
 	private String	clientId;
 	private String	apiCode;
-	private String	accessToken;
 	private String	clientSecret;
+	private FortnoxApiKey apiKey;
 	
 	private String	orgNo;
 	private String	orgName;
@@ -59,10 +59,12 @@ public class FortnoxClientInfo {
 	 * 
 	 * @return	The API code if set.
 	 */
+	@Deprecated
 	public String getApiCode() {
 		return apiCode;
 	}
 
+	@Deprecated
 	public void setApiCode(String apiCode) {
 		this.apiCode = apiCode;
 	}
@@ -72,13 +74,33 @@ public class FortnoxClientInfo {
 	 * to a particular Fortnox organization.
 	 * 
 	 * @return		The access token if set.
+	 * @deprecated 	use {@link #getApiKey()}
 	 */
+	@Deprecated
 	public String getAccessToken() {
-		return accessToken;
+		if(apiKey == null)
+			return null;
+		return apiKey.getLegacyToken();
 	}
 	
+	@Deprecated
 	public void setAccessToken(String accessToken) {
-		this.accessToken = accessToken;
+		if(apiKey == null)
+			apiKey = new FortnoxApiKey();
+		apiKey.setLegacyToken(accessToken);
+	}
+
+	/**
+	 * The key used to authenticate this client
+	 * 
+	 * @return		The api key object
+	 */
+	public FortnoxApiKey getApiKey() {
+		return apiKey;
+	}
+
+	public void setApiKey(FortnoxApiKey apiKey) {
+		this.apiKey = apiKey;
 	}
 	
 	/**
