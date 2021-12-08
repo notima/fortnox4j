@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.notima.api.fortnox.FortnoxConstants;
 
 @XmlRootElement(name = "Invoice")
-public class Invoice {
+public class Invoice implements InvoiceInterface {
 
 	private Double administrationFee;
 	private Double administrationFeeVAT;
