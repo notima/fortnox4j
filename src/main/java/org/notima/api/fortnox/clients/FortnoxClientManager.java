@@ -6,8 +6,6 @@ import java.util.List;
 
 import javax.xml.bind.JAXBException;
 
-import org.notima.api.fortnox.FortnoxClient3;
-import org.notima.api.fortnox.FortnoxException;
 import org.notima.api.fortnox.FortnoxUtil;
 import org.notima.api.fortnox.entities3.CompanySetting;
 import org.slf4j.Logger;
