@@ -18,7 +18,7 @@ public class FortnoxClientInfo {
 	private String	clientId;
 	private String	apiCode;
 	private String	clientSecret;
-	private FortnoxApiKey apiKey;
+	private FortnoxCredentials credentials;
 	
 	private String	orgNo;
 	private String	orgName;
@@ -74,20 +74,20 @@ public class FortnoxClientInfo {
 	 * to a particular Fortnox organization.
 	 * 
 	 * @return		The access token if set.
-	 * @deprecated 	use {@link #getApiKey()}
+	 * @deprecated 	use {@link #getCredentials()}
 	 */
 	@Deprecated
 	public String getAccessToken() {
-		if(apiKey == null)
+		if(credentials == null)
 			return null;
-		return apiKey.getLegacyToken();
+		return credentials.getLegacyToken();
 	}
 	
 	@Deprecated
 	public void setAccessToken(String accessToken) {
-		if(apiKey == null)
-			apiKey = new FortnoxApiKey();
-		apiKey.setLegacyToken(accessToken);
+		if(credentials == null)
+			credentials = new FortnoxCredentials();
+		credentials.setLegacyToken(accessToken);
 	}
 
 	/**
@@ -95,12 +95,12 @@ public class FortnoxClientInfo {
 	 * 
 	 * @return		The api key object
 	 */
-	public FortnoxApiKey getApiKey() {
-		return apiKey;
+	public FortnoxCredentials getCredentials() {
+		return credentials;
 	}
 
-	public void setApiKey(FortnoxApiKey apiKey) {
-		this.apiKey = apiKey;
+	public void setCredentials(FortnoxCredentials credentials) {
+		this.credentials = credentials;
 	}
 	
 	/**
@@ -109,7 +109,7 @@ public class FortnoxClientInfo {
 	 * The client secret can also be supplied in the FortnoxApiClient if this
 	 * class is part of a FortnoxClientList. 
 	 * 
-	 * @see			FortnoxApiClient#getClientSecret()
+	 * @see			FortnoxCredentialsProvider#getClientSecret()
 	 * @see			FortnoxClientList
 	 * 	
 	 * @return		The client secret if set.

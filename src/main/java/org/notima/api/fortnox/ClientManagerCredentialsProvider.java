@@ -1,27 +1,28 @@
 package org.notima.api.fortnox;
 
-import org.notima.api.fortnox.clients.FortnoxApiKey;
+import org.notima.api.fortnox.clients.FortnoxCredentials;
 import org.notima.api.fortnox.clients.FortnoxClientInfo;
 import org.notima.api.fortnox.clients.FortnoxClientManager;
 
-public class ClientManagerKeyProvider extends FortnoxKeyProvider {
+public class ClientManagerCredentialsProvider extends FortnoxCredentialsProvider {
 
     private FortnoxClientManager clientManager;
 
-    public ClientManagerKeyProvider(String orgNo, FortnoxClientManager clientManager) {
+    public ClientManagerCredentialsProvider(String orgNo, FortnoxClientManager clientManager) {
         super(orgNo);
         this.clientManager = clientManager;
     }
 
     @Override
-    public FortnoxApiKey getKey() throws Exception {
-        return getClientInfo(orgNo).getApiKey();
+    public FortnoxCredentials getCredentials() throws Exception {
+        clientManager.readClientsFromFile(clientManager.getClientsFile());
+        return getClientInfo(orgNo).getCredentials();
     }
 
     @Override
-    public void setKey(FortnoxApiKey key) throws Exception {
+    public void setCredentials(FortnoxCredentials key) throws Exception {
         FortnoxClientInfo clientInfo = getClientInfo(orgNo);
-        clientInfo.setApiKey(key);
+        clientInfo.setCredentials(key);
         clientManager.updateAndSaveClientInfo(clientInfo);
     }
 

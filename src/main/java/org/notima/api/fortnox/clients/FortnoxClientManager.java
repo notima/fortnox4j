@@ -66,7 +66,7 @@ public class FortnoxClientManager {
 			dst = addClient(ci);
 		} else {
 			// Update existing
-			dst.setApiKey(ci.getApiKey());
+			dst.setCredentials(ci.getCredentials());
 			dst.setClientId(ci.getClientId());
 			dst.setClientSecret(ci.getClientSecret());
 		}

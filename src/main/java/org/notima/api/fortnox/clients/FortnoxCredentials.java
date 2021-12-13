@@ -2,7 +2,7 @@ package org.notima.api.fortnox.clients;
 
 import com.google.gson.annotations.SerializedName;
 
-public class FortnoxApiKey {
+public class FortnoxCredentials {
 
     private String orgNo;
 

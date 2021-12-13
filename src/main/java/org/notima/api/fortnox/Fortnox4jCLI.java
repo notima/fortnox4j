@@ -7,7 +7,7 @@ import java.net.InetSocketAddress;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.notima.api.fortnox.clients.FortnoxApiKey;
+import org.notima.api.fortnox.clients.FortnoxCredentials;
 import org.notima.api.fortnox.clients.FortnoxClientInfo;
 import org.notima.api.fortnox.clients.FortnoxClientList;
 import org.notima.api.fortnox.oauth2.FortnoxOAuth2Client;
@@ -52,7 +52,7 @@ public class Fortnox4jCLI {
 				
 				String clientSecret = fc.getClientSecret();
 				String clientId = fc.getClientId();
-				String authCode = fc.getApiKey().getAuthorizationCode();
+				String authCode = fc.getCredentials().getAuthorizationCode();
 
 				getAccessToken(clientId, clientSecret, authCode);
 				
@@ -131,7 +131,7 @@ public class Fortnox4jCLI {
 
 	private static void getAccessToken(String clientId, String clientSecret, String authCode) {
 		try {
-			FortnoxApiKey key = FortnoxOAuth2Client.getAccessToken(clientId, clientSecret, authCode);
+			FortnoxCredentials key = FortnoxOAuth2Client.getAccessToken(clientId, clientSecret, authCode);
 			System.out.println("Access Token:");
 			System.out.println(key.getAccessToken() + "\n");
 			System.out.println("Refresh Token:");
