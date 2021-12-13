@@ -107,6 +107,7 @@
 					<instructions>
 						<Export-Package>
 							org.notima.api.fortnox,
+							org.notima.api.fortnox.oauth2,
 							org.notima.api.fortnox.clients,
 							org.notima.api.fortnox.entities3
 						</Export-Package>
