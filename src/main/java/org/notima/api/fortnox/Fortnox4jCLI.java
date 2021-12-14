@@ -20,7 +20,7 @@ public class Fortnox4jCLI {
     public static void main(String[] args) {
 		
 		if (args==null || args.length < 2) {
-			System.out.println("Usage: Fortnox4jCLI configfile command orgNo");
+			System.out.println("Usage: Fortnox4jCLI configfile command orgNo extra");
 			System.out.println("");
 			System.out.println("Possible commands are: getAuthenticationCode, getAccessToken");
 			System.exit(1);
@@ -47,12 +47,17 @@ public class Fortnox4jCLI {
 		}
 		
 		if ("getAccessToken".equalsIgnoreCase(args[1])) {
+
+			if(args.length < 4) {
+				System.out.println("Usage: Fortnox4jCLI configfile getAccessToken orgNo authCode");
+				System.exit(1);
+			}
 			
 			try {
 				
 				String clientSecret = fc.getClientSecret();
 				String clientId = fc.getClientId();
-				String authCode = fc.getCredentials().getAuthorizationCode();
+				String authCode = args[3];
 
 				getAccessToken(clientId, clientSecret, authCode);
 				
