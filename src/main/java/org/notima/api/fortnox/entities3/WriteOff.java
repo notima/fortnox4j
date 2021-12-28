@@ -1,6 +1,9 @@
 package org.notima.api.fortnox.entities3;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
+
+import org.notima.api.fortnox.FortnoxClient3;
 
 public class WriteOff {
 
@@ -66,6 +69,11 @@ public class WriteOff {
 	}
 	public void setProject(String project) {
 		this.project = project;
+	}
+	
+	@XmlTransient
+	public boolean isDefaultAccountingCurrency() {
+		return currency==null || FortnoxClient3.DEFAULT_ACCOUNTING_CURRENCY.equalsIgnoreCase(currency);
 	}
 	
 }
