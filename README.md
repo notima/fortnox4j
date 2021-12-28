@@ -65,3 +65,8 @@ Or karaf
 	install -s mvn:org.apache.httpcomponents/httpclient-osgi/4.5.10
 	install -s mvn:org.notima.piggyback-tools/0.0.2
 	install -s mvn:org.notima.api/fortnox4j
+
+	
+## Debug / logging
+
+To see what's going on change the logger level to "DEBUG" in src/test/resources/log4j.xml
