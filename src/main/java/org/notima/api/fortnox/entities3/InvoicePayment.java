@@ -238,24 +238,10 @@ public class InvoicePayment extends InvoicePaymentSubset {
 			if (!this.getCurrency().equalsIgnoreCase(wo.getCurrency())) {
 				throw new FortnoxException("Can't convert write-off with currency " + wo.getCurrency() + " when payment has currency " + getCurrency());
 			}
-			wo.appendTransactionInformation(currencyRateToString(wo.getAmount(), getCurrencyRate(), wo.getCurrency()));
+			wo.appendTransactionInformation(Currency.currencyRateToString(wo.getAmount(), getCurrencyRate(), wo.getCurrency()));
 			wo.setAmount(wo.getAmount() * this.getCurrencyRate());
 			wo.setCurrency(null);
 		}
-	}
-	
-	/**
-	 * We could possible use › instead of => if the gt sign causes problems.
-	 * 
-	 * @param amount
-	 * @param rate
-	 * @param currency
-	 * @return
-	 */
-	private String currencyRateToString(double amount, double rate, String currency) {
-		
-		return NumberUtils.roundToPrecision(amount, FortnoxClient3.DEFAULT_ROUNDING_PRECISION) + " " + currency + "=>" + FortnoxClient3.DEFAULT_ACCOUNTING_CURRENCY + "@" + rate;
-		
 	}
 	
 	

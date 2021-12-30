@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
 import org.notima.api.fortnox.FortnoxClient3;
+import org.notima.util.NumberUtils;
 
 public class Currency {
 
@@ -24,6 +25,26 @@ public class Currency {
 	private int		unit;
 
 	public static DateFormat	s_dfmt = new SimpleDateFormat(FortnoxClient3.s_dfmtStr);	
+	
+	public Currency() {};
+	
+	public Currency(String srcCurrency) {
+		code = srcCurrency;
+	}
+
+	/**
+	 * We could possible use › instead of =&gt; if the gt sign causes problems.
+	 * 
+	 * @param amount
+	 * @param rate
+	 * @param currency
+	 * @return
+	 */
+	public static String currencyRateToString(double amount, double rate, String currency) {
+		
+		return NumberUtils.roundToPrecision(amount, FortnoxClient3.DEFAULT_ROUNDING_PRECISION) + " " + currency + "=>" + FortnoxClient3.DEFAULT_ACCOUNTING_CURRENCY + "@" + rate;
+		
+	}
 	
 	
 	@XmlAttribute(name="url")	

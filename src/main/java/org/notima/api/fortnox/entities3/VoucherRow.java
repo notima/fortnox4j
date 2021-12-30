@@ -1,5 +1,7 @@
 package org.notima.api.fortnox.entities3;
 
+import java.beans.Transient;
+
 import javax.xml.bind.annotation.XmlElement;
 
 public class VoucherRow {
@@ -46,6 +48,12 @@ public class VoucherRow {
 		this.debit = debit;
 	}
 	
+	@Transient
+	public double getAbsoluteAmount() {
+		double result = Math.abs(debit.doubleValue() - credit.doubleValue());
+		return result;
+	}
+	
 	@XmlElement(name="Description")
 	public String getDescription() {
 		return description;
@@ -76,6 +84,14 @@ public class VoucherRow {
 	}
 	public void setTransactionInformation(String transactionInformation) {
 		this.transactionInformation = transactionInformation;
+	}
+	
+	public void appendTransactionInformation(String appendTrxInfo) {
+		if (transactionInformation==null || transactionInformation.trim().length()==0) {
+			setTransactionInformation(appendTrxInfo);
+		} else {
+			transactionInformation += ", " + appendTrxInfo;
+		}
 	}
 	
 	@XmlElement(name="Quantity")
