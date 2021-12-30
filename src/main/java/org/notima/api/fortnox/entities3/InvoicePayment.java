@@ -6,6 +6,7 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import org.notima.api.fortnox.FortnoxClient3;
 import org.notima.api.fortnox.FortnoxException;
+import org.notima.util.NumberUtils;
 
 @XmlRootElement(name="InvoicePayment")
 public class InvoicePayment extends InvoicePaymentSubset {
@@ -237,9 +238,24 @@ public class InvoicePayment extends InvoicePaymentSubset {
 			if (!this.getCurrency().equalsIgnoreCase(wo.getCurrency())) {
 				throw new FortnoxException("Can't convert write-off with currency " + wo.getCurrency() + " when payment has currency " + getCurrency());
 			}
+			wo.appendTransactionInformation(currencyRateToString(wo.getAmount(), getCurrencyRate(), wo.getCurrency()));
 			wo.setAmount(wo.getAmount() * this.getCurrencyRate());
 			wo.setCurrency(null);
 		}
+	}
+	
+	/**
+	 * We could possible use › instead of => if the gt sign causes problems.
+	 * 
+	 * @param amount
+	 * @param rate
+	 * @param currency
+	 * @return
+	 */
+	private String currencyRateToString(double amount, double rate, String currency) {
+		
+		return NumberUtils.roundToPrecision(amount, FortnoxClient3.DEFAULT_ROUNDING_PRECISION) + " " + currency + "=>" + FortnoxClient3.DEFAULT_ACCOUNTING_CURRENCY + "@" + rate;
+		
 	}
 	
 	

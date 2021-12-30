@@ -132,6 +132,7 @@ import org.slf4j.LoggerFactory;
 public class FortnoxClient3 {
 
 	public static final String DEFAULT_ACCOUNTING_CURRENCY = "SEK";
+	public static final int	   DEFAULT_ROUNDING_PRECISION = 2;
 	
 	/**
 	 * Filters

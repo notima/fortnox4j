@@ -63,6 +63,14 @@ public class WriteOff {
 		this.transactionInformation = transactionInformation;
 	}
 	
+	public void appendTransactionInformation(String appendTrxInfo) {
+		if (transactionInformation==null || transactionInformation.trim().length()==0) {
+			setTransactionInformation(appendTrxInfo);
+		} else {
+			transactionInformation += ", " + appendTrxInfo;
+		}
+	}
+	
 	@XmlElement(name="Project")
 	public String getProject() {
 		return project;
