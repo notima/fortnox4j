@@ -4,9 +4,9 @@ import javax.xml.bind.annotation.XmlElement;
 
 import org.notima.api.fortnox.FortnoxConstants;
 
-public class InvoiceSubset {
+public class InvoiceSubset implements InvoiceInterface {
 
-	private double balance;
+	private Double balance;
 	private boolean booked;
 	private boolean cancelled;
 	private String currency;
@@ -29,11 +29,11 @@ public class InvoiceSubset {
 	private String wayOfDelivery;
 
 	@XmlElement(name="Balance")
-	public double getBalance() {
+	public Double getBalance() {
 		return balance;
 	}
 
-	public void setBalance(double balance) {
+	public void setBalance(Double balance) {
 		this.balance = balance;
 	}
 	

@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.notima.api.fortnox.FortnoxClient3;
+import org.notima.util.NumberUtils;
+
 @XmlRootElement(name="Voucher")
 public class Voucher extends VoucherSubset {
 
@@ -84,4 +87,41 @@ public class Voucher extends VoucherSubset {
 		
 		return this;
 	}
+	
+	/**
+	 * Converts the amounts in the voucher to accounting currency, but keeping the 
+	 * original currency and conversion rate in the transaction information. 
+	 * 	
+	 * @param sourceCurrency
+	 * @return
+	 */
+	public Voucher currencyConvert(Currency sourceCurrency) {
+
+		if (sourceCurrency==null) return this;
+		if (sourceCurrency.getCode().equalsIgnoreCase(FortnoxClient3.DEFAULT_ACCOUNTING_CURRENCY)) {
+			return this;
+		}
+		
+		if (voucherRows==null || voucherRows.getVoucherRow()==null) return this;
+		
+		for (VoucherRow vr : voucherRows.getVoucherRow()) {
+
+			currencyConvertRow(sourceCurrency, vr);
+			
+		}
+		
+		return this;
+		
+	}
+	
+	private void currencyConvertRow(Currency srcCurrency, VoucherRow vr) {
+
+		double rate = srcCurrency.getBuyRate();
+		
+		vr.appendTransactionInformation(Currency.currencyRateToString(vr.getAbsoluteAmount(), rate, srcCurrency.getCode()));
+		vr.setCredit(NumberUtils.roundToPrecision(vr.getCredit() * rate, FortnoxClient3.DEFAULT_ROUNDING_PRECISION));
+		vr.setDebit(NumberUtils.roundToPrecision(vr.getDebit() * rate, FortnoxClient3.DEFAULT_ROUNDING_PRECISION));
+		
+	}
+	
 }

@@ -112,3 +112,7 @@ Example:
 				<refreshToken>fa1b1541cd9c024704c24b0c8b51...
 			</apiKey>
 			...
+	
+## Debug / logging
+
+To see what's going on change the logger level to "DEBUG" in src/test/resources/log4j.xml

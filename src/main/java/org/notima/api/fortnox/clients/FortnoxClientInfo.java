@@ -109,7 +109,7 @@ public class FortnoxClientInfo {
 	 * The client secret can also be supplied in the FortnoxApiClient if this
 	 * class is part of a FortnoxClientList. 
 	 * 
-	 * @see			FortnoxApiClient#getClientSecret()
+	 * @see			FortnoxCredentialsProvider#getClientSecret()
 	 * @see			FortnoxClientList
 	 * 	
 	 * @return		The client secret if set.
