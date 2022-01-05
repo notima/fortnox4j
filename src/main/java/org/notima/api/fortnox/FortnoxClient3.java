@@ -323,7 +323,7 @@ public class FortnoxClient3 {
 	 * 
 	 * NOTE: If the above environment variables are set and valid they will be used if this constructor 
 	 * 		 is called. If you want to specify accessToken and clientSecret programmatically, 
-	 * 		 use {@link FortnoxClient3#FortnoxClient3(String, String)}
+	 * 		 use {@link FortnoxClient3#FortnoxClient3(String, String, FortnoxCredentialsProvider)}
 	 * 
 	 * @param credentialsProvider			The key provider that will be used to retrieve the access token
 	 */
@@ -339,7 +339,7 @@ public class FortnoxClient3 {
 	/**
 	 * Create FortnoxClient using specified accessToken and clientSecret.
 	 * 
-	 * @param accessToken			The accessToken to use.
+	 * @param clientId				The clientId
 	 * @param clientSecret			The clientSecret.
 	 * @param credentialsProvider			The key provider that will be used to retrieve the access token
 	 */
