@@ -8,14 +8,13 @@ import java.util.Random;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.notima.api.fortnox.ClientManagerKeyProvider;
-import org.notima.api.fortnox.FortnoxKeyProvider;
-import org.notima.api.fortnox.clients.FortnoxApiKey;
+import org.notima.api.fortnox.FortnoxCredentialsProvider;
 import org.notima.api.fortnox.clients.FortnoxClientManager;
+import org.notima.api.fortnox.clients.FortnoxCredentials;
 
 public class TestClientManagerKeyProvider {
 
-    private FortnoxKeyProvider keyProvider;
+    private FortnoxCredentialsProvider keyProvider;
 
     @Before
     public void setup() throws FileNotFoundException {
@@ -24,7 +23,7 @@ public class TestClientManagerKeyProvider {
     
     @Test
     public void testGetAndUpdateKey() throws Exception {
-        FortnoxApiKey key = keyProvider.getKey();
+        FortnoxCredentials key = keyProvider.getCredentials();
         assertNotNull(key);
         System.out.printf("AccessToken: %s\nRefreshToken: %s\nScope: %s\nExpiresIn: %s\nTokenType: %s\nLastRefresh: %s\n",
             key.getAccessToken(),
@@ -37,8 +36,8 @@ public class TestClientManagerKeyProvider {
 
         String randomString = randomString();
         key.setTokenType(randomString);
-        keyProvider.setKey(key);
-        key = keyProvider.getKey();
+        keyProvider.setCredentials(key);
+        key = keyProvider.getCredentials();
         assertEquals(randomString, key.getTokenType());
     }
 

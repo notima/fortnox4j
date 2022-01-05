@@ -18,7 +18,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.notima.api.fortnox.clients.FortnoxApiKey;
+import org.notima.api.fortnox.clients.FortnoxCredentials;
 
 public class FortnoxOAuth2Client {
 
@@ -34,7 +34,7 @@ public class FortnoxOAuth2Client {
     private static final String GRANT_TYPE_AUTH = "authorization_code";
     private static final String GRANT_TYPE_REFRESH = "refresh_token";
 
-    public static FortnoxApiKey getAccessToken(String clientId, String clientSecret, String authorizationCode) throws Exception {
+    public static FortnoxCredentials getAccessToken(String clientId, String clientSecret, String authorizationCode) throws Exception {
         Map<String, String> body = new HashMap<String, String>();
         body.put(KEY_GRANT_TYPE, GRANT_TYPE_AUTH);
         body.put(KEY_AUTH_CODE, authorizationCode);
@@ -45,12 +45,12 @@ public class FortnoxOAuth2Client {
         request.setClientSecret(clientSecret);
         request.setBody(xWWWFormURLEncode(body));
         
-        FortnoxApiKey key = callApi(request, FortnoxApiKey.class);
-        key.setLastRefresh(new Date().getTime());
-        return key;
+        FortnoxCredentials credentials = callApi(request, FortnoxCredentials.class);
+        credentials.setLastRefresh(new Date().getTime());
+        return credentials;
     }
 
-    public static FortnoxApiKey refreshAccessToken(String clientId, String clientSecret, String refreshToken) throws Exception {
+    public static FortnoxCredentials refreshAccessToken(String clientId, String clientSecret, String refreshToken) throws Exception {
         Map<String, String> body = new HashMap<String, String>();
         body.put(KEY_GRANT_TYPE, GRANT_TYPE_REFRESH);
         body.put(KEY_REFRESH_TOKEN, refreshToken);
@@ -61,9 +61,9 @@ public class FortnoxOAuth2Client {
         request.setClientSecret(clientSecret);
         request.setBody(xWWWFormURLEncode(body));
 
-        FortnoxApiKey key = callApi(request, FortnoxApiKey.class);
-        key.setLastRefresh(new Date().getTime());
-        return key;
+        FortnoxCredentials credentials = callApi(request, FortnoxCredentials.class);
+        credentials.setLastRefresh(new Date().getTime());
+        return credentials;
     }
 
     // TODO: Implement!
