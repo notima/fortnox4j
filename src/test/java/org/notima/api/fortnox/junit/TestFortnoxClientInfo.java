@@ -10,9 +10,9 @@ import javax.xml.bind.JAXB;
 import org.junit.After;
 import org.junit.Test;
 import org.notima.api.fortnox.clients.FortnoxApiClient;
-import org.notima.api.fortnox.clients.FortnoxApiKey;
 import org.notima.api.fortnox.clients.FortnoxClientInfo;
 import org.notima.api.fortnox.clients.FortnoxClientList;
+import org.notima.api.fortnox.clients.FortnoxCredentials;
 import org.notima.api.fortnox.clients.ListOfApiClient;
 import org.notima.api.fortnox.clients.ListOfClientInfo;
 
@@ -39,18 +39,18 @@ public class TestFortnoxClientInfo extends FortnoxTest {
 		lia.setApiClient(apiClients);
 		list.setApiClients(lia);
 
-		FortnoxApiKey apiKey = new FortnoxApiKey();
-		apiKey.setAccessToken("test-access-token");
-		apiKey.setRefreshToken("test-refresh-token");
-		apiKey.setScope("settings");
-		apiKey.setExpiresIn(3600);
-		apiKey.setTokenType("bearer");
-		apiKey.setLastRefresh(new Date().getTime());
+		FortnoxCredentials credentials = new FortnoxCredentials();
+		credentials.setAccessToken("test-access-token");
+		credentials.setRefreshToken("test-refresh-token");
+		credentials.setScope("settings");
+		credentials.setExpiresIn(3600);
+		credentials.setTokenType("bearer");
+		credentials.setLastRefresh(new Date().getTime());
 		
 		List<FortnoxClientInfo> clientList = new ArrayList<FortnoxClientInfo>();
 		FortnoxClientInfo fortnoxClient = new FortnoxClientInfo();
 		fortnoxClient.setOrgNo("555555-5555");
-		fortnoxClient.setApiKey(apiKey);
+		fortnoxClient.setApiKey(credentials);
 		fortnoxClient.setClientId(apiClient.getClientId());
 		fortnoxClient.setOrgName("TestOrgName");
 		fortnoxClient.setSettingsSupplierNo("1000");

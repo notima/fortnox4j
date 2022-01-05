@@ -52,9 +52,10 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
-import org.notima.api.fortnox.clients.FortnoxApiKey;
+import org.notima.api.fortnox.clients.FortnoxCredentials;
 import org.notima.api.fortnox.clients.FortnoxClientInfo;
 import org.notima.api.fortnox.clients.FortnoxClientList;
+import org.notima.api.fortnox.clients.FortnoxCredentials;
 import org.notima.api.fortnox.entities3.Account;
 import org.notima.api.fortnox.entities3.AccountSubset;
 import org.notima.api.fortnox.entities3.Accounts;
@@ -282,7 +283,7 @@ public class FortnoxClient3 {
 	private String 		m_clientId;
 	private String 		m_clientSecret;
 	private String		m_baseUrl = "https://api.fortnox.se";
-	private FortnoxKeyProvider keyProvider;
+	private FortnoxCredentialsProvider credentialsProvider;
 	
 	public static String		s_dfmtStr = "yyyy-MM-dd";
 	public static DateFormat	s_dfmt = new SimpleDateFormat(s_dfmtStr);
@@ -324,10 +325,10 @@ public class FortnoxClient3 {
 	 * 		 is called. If you want to specify accessToken and clientSecret programmatically, 
 	 * 		 use {@link FortnoxClient3#FortnoxClient3(String, String)}
 	 * 
-	 * @param keyProvider			The key provider that will be used to retrieve the access token
+	 * @param credentialsProvider			The key provider that will be used to retrieve the access token
 	 */
-	public FortnoxClient3(FortnoxKeyProvider keyProvider) {
-		this.keyProvider = keyProvider;
+	public FortnoxClient3(FortnoxCredentialsProvider credentialsProvider) {
+		this.credentialsProvider = credentialsProvider;
 		try {
 			initFromFile(null);
 		} catch (Exception e) {
@@ -340,44 +341,44 @@ public class FortnoxClient3 {
 	 * 
 	 * @param accessToken			The accessToken to use.
 	 * @param clientSecret			The clientSecret.
-	 * @param keyProvider			The key provider that will be used to retrieve the access token
+	 * @param credentialsProvider			The key provider that will be used to retrieve the access token
 	 */
-	public FortnoxClient3(String clientId, String clientSecret, FortnoxKeyProvider keyProvider) {
+	public FortnoxClient3(String clientId, String clientSecret, FortnoxCredentialsProvider credentialsProvider) {
 		m_clientId = clientId;
 		m_clientSecret = clientSecret;
-		this.keyProvider = keyProvider;
+		this.credentialsProvider = credentialsProvider;
 	}
 	
 	/**
 	 * Create FortnoxClient using specified configuration file.
 	 * 
 	 * @param configFile		The configuration file to use.
-	 * @param keyProvider			The key provider that will be used to retrieve the access token
+	 * @param credentialsProvider			The key provider that will be used to retrieve the access token
 	 * @throws IOException		If something goes wrong when reading the file. 
 	 */
-	public FortnoxClient3(String configFile, FortnoxKeyProvider keyProvider) throws IOException {
-		this.keyProvider = keyProvider;
+	public FortnoxClient3(String configFile, FortnoxCredentialsProvider credentialsProvider) throws IOException {
+		this.credentialsProvider = credentialsProvider;
 		initFromFile(configFile);
 	}
 
 	/**
 	 * Set a new key provider for the client
 	 * 
-	 * @param keyProvider	The new key provider
+	 * @param credentialsProvider	The new key provider
 	 */
-	public void setKeyProvider(FortnoxKeyProvider keyProvider) {
-		this.keyProvider = keyProvider;
+	public void setKeyProvider(FortnoxCredentialsProvider credentialsProvider) {
+		this.credentialsProvider = credentialsProvider;
 	}
 
 	/**
 	 * @return	True if a key can be retrieved from the key provider
 	 */
 	public boolean hasCredentials() {
-		FortnoxApiKey key;
+		FortnoxCredentials credentials;
 		try {
-			key = keyProvider.getKey();
-			if(key != null) {
-				if(key.getAccessToken() != null || key.getLegacyToken() != null)
+			credentials = credentialsProvider.getCredentials();
+			if(credentials != null) {
+				if(credentials.getAccessToken() != null || credentials.getLegacyToken() != null)
 					return true;
 			}
 		} catch (Exception e) {
@@ -714,31 +715,31 @@ public class FortnoxClient3 {
 	}
 
 	private Map<? extends String, ? extends String> getAuthorizationHeaders() throws Exception {
-		FortnoxApiKey key = keyProvider.getKey();
-		if(key.getAuthorizationCode() != null) {
-			key = FortnoxOAuth2Client.getAccessToken(m_clientId, m_clientSecret, key.getAuthorizationCode());
-			keyProvider.setKey(key);
+		FortnoxCredentials credentials = credentialsProvider.getCredentials();
+		if(credentials.getAuthorizationCode() != null) {
+			credentials = FortnoxOAuth2Client.getAccessToken(m_clientId, m_clientSecret, credentials.getAuthorizationCode());
+			credentialsProvider.setCredentials(credentials);
 		}
 
-		if(key.getLegacyToken() != null) {
-			return getLegacyAuthorizationHeaders(key.getLegacyToken());
+		if(credentials.getLegacyToken() != null) {
+			return getLegacyAuthorizationHeaders(credentials.getLegacyToken());
 		} 
-		else if(key.getAccessToken() != null) {
-			key = updateKey(key);
-			return getBearerTokenHeader(key);
+		else if(credentials.getAccessToken() != null) {
+			credentials = updateCredentials(credentials);
+			return getBearerTokenHeader(credentials);
 		}
 		return null;
 	}
 
-	private FortnoxApiKey updateKey(FortnoxApiKey key) throws Exception {
-		if(key.getLastRefresh() + (key.getExpiresIn() * 1000) < new Date().getTime()) {
-			key = FortnoxOAuth2Client.refreshAccessToken(m_clientId, m_clientSecret, key.getRefreshToken());
-			keyProvider.setKey(key);
+	private FortnoxCredentials updateCredentials(FortnoxCredentials credentials) throws Exception {
+		if(credentials.getLastRefresh() + (credentials.getExpiresIn() * 1000) < new Date().getTime()) {
+			credentials = FortnoxOAuth2Client.refreshAccessToken(m_clientId, m_clientSecret, credentials.getRefreshToken());
+			credentialsProvider.setCredentials(credentials);
 		}
-		return key;
+		return credentials;
 	}
 
-	private Map<? extends String, ? extends String> getBearerTokenHeader(FortnoxApiKey key) {
+	private Map<? extends String, ? extends String> getBearerTokenHeader(FortnoxCredentials key) {
 		Map<String, String> headers = new HashMap<String, String>();
 		headers.put("Authorization", "Bearer " + key.getAccessToken());
 		return headers;
@@ -3426,11 +3427,11 @@ public class FortnoxClient3 {
 	 * @return	True if the accessToken is equal.
 	 */
 	public boolean equals(FortnoxClient3 that) {
-		if (keyProvider==null && that.keyProvider==null)
+		if (credentialsProvider==null && that.credentialsProvider==null)
 			return true;
-		if (keyProvider==null)
+		if (credentialsProvider==null)
 			return false;
-		return (keyProvider.equals(that.keyProvider));
+		return (credentialsProvider.equals(that.credentialsProvider));
 	}
 	
 	/**
