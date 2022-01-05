@@ -33,7 +33,8 @@ import org.junit.runners.Suite.SuiteClasses;
 		TestGetAccounts.class, TestGetErrorInformation.class,
 		TestGetPreDefinedAccounts.class, TestGetRevenueAccountMap.class,
 		TestGetVoucher.class, TestRemoveNonAllowedCharacters.class,
-		TestSearch.class })
+		TestSearch.class,
+		TestGetCurrency.class})
 
 public class AllTests {
 

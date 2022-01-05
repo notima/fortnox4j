@@ -63,6 +63,7 @@ import org.notima.api.fortnox.entities3.Articles;
 import org.notima.api.fortnox.entities3.CompanySetting;
 import org.notima.api.fortnox.entities3.CostCenter;
 import org.notima.api.fortnox.entities3.CostCenters;
+import org.notima.api.fortnox.entities3.Currency;
 import org.notima.api.fortnox.entities3.Customer;
 import org.notima.api.fortnox.entities3.CustomerSubset;
 import org.notima.api.fortnox.entities3.Customers;
@@ -113,7 +114,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Client class for communicating with Fortnox.
  * 
- * Copyright 2019 Notima System Integration AB (Sweden)
+ * Copyright 2019-2021 Notima System Integration AB (Sweden)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -131,11 +132,10 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class FortnoxClient3 {
-	/**
-	 * Available markAsSent options
-	 * @see markAsSent(int, String)
-	 */
 
+	public static final String DEFAULT_ACCOUNTING_CURRENCY = "SEK";
+	public static final int	   DEFAULT_ROUNDING_PRECISION = 2;
+	
 	/**
 	 * Filters
 	 */
@@ -249,6 +249,7 @@ public class FortnoxClient3 {
 	 * Error Codes
 	 */
 	public static final String ERROR_CANT_FIND_CUSTOMER = "2000433";
+	public static final String ERROR_CANT_FIND_CURRENCY = "2000427";
 	public static final String ERROR_CANT_FIND_INVOICE = "2000434";
 	public static final String ERROR_NOT_AUTH_FOR_SCOPE = "2000663";
 	public static final String ERROR_INVALID_LOGIN = "2000310";
@@ -283,7 +284,8 @@ public class FortnoxClient3 {
 	private String		m_baseUrl = "https://api.fortnox.se";
 	private FortnoxCredentialsProvider credentialsProvider;
 	
-	public static DateFormat	s_dfmt = new SimpleDateFormat("yyyy-MM-dd");
+	public static String		s_dfmtStr = "yyyy-MM-dd";
+	public static DateFormat	s_dfmt = new SimpleDateFormat(s_dfmtStr);
 	
 	// A map used to quickly lookup a customer using tax id
 	private Map<String, CustomerSubset>	m_customerTaxIdLookupMap;
@@ -2447,6 +2449,33 @@ public class FortnoxClient3 {
 	        return out;
         }
 
+		
+	}
+	
+	public Currency getCurrency(String currency) throws Exception {
+		
+		if (currency==null) 
+			return null;
+		
+		Currency c = new Currency();
+		// Create request
+		String getStr = URLEncoder.encode(currency, "UTF-8");
+		StringBuffer result = callFortnox("/currencies/", getStr, null);
+		
+		ErrorInformation e = checkIfError(result);
+		if (e==null) {
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(result.toString().getBytes()), "UTF-8"));
+	        c = JAXB.unmarshal(in, c.getClass());
+	        return(c); 
+		} else {
+			if (ERROR_CANT_FIND_CURRENCY.equals(e.getCode())) {
+				return null;
+			} else {
+				throw new FortnoxException(e);
+			}
+		}
+		
 		
 	}
 	
