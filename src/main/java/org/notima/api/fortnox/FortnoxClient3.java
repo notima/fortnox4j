@@ -31,8 +31,6 @@ import javax.xml.bind.JAXB;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import com.google.gson.Gson;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -52,7 +50,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
-import org.notima.api.fortnox.clients.FortnoxCredentials;
 import org.notima.api.fortnox.clients.FortnoxClientInfo;
 import org.notima.api.fortnox.clients.FortnoxClientList;
 import org.notima.api.fortnox.clients.FortnoxCredentials;
@@ -111,6 +108,8 @@ import org.notima.api.fortnox.entities3.WriteOffs;
 import org.notima.api.fortnox.oauth2.FortnoxOAuth2Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
 
 /**
  * Client class for communicating with Fortnox.
@@ -283,6 +282,7 @@ public class FortnoxClient3 {
 	private String 		m_clientId;
 	private String 		m_clientSecret;
 	private String		m_baseUrl = "https://api.fortnox.se";
+	private String		m_redirectUri = null;
 	private FortnoxCredentialsProvider credentialsProvider;
 	
 	public static String		s_dfmtStr = "yyyy-MM-dd";
@@ -717,7 +717,7 @@ public class FortnoxClient3 {
 	private Map<? extends String, ? extends String> getAuthorizationHeaders() throws Exception {
 		FortnoxCredentials credentials = credentialsProvider.getCredentials();
 		if(credentials.getAuthorizationCode() != null) {
-			credentials = FortnoxOAuth2Client.getAccessToken(m_clientId, m_clientSecret, credentials.getAuthorizationCode());
+			credentials = FortnoxOAuth2Client.getAccessToken(m_clientId, m_clientSecret, credentials.getAuthorizationCode(), m_redirectUri);
 			credentialsProvider.setCredentials(credentials);
 		}
 
@@ -1205,7 +1205,14 @@ public class FortnoxClient3 {
 		}
 		
 	}
+
+	public void setRedirectUri(String uri) {
+		m_redirectUri = uri;
+	}
 	
+	public String getRedirectUri() {
+		return m_redirectUri;
+	}
 
 	/**
 	 * Reads a specific account.

@@ -53,8 +53,10 @@ public class Fortnox4jCLI {
 				String clientSecret = fc.getClientSecret();
 				String clientId = fc.getClientId();
 				String authCode = fc.getApiCode();
+				// TODO: Make redirectUri configurable.
+				String redirectUri = null;
 
-				getAccessToken(clientId, clientSecret, authCode);
+				getAccessToken(clientId, clientSecret, authCode, redirectUri);
 				
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -129,9 +131,9 @@ public class Fortnox4jCLI {
         server.start();
 	}
 
-	private static void getAccessToken(String clientId, String clientSecret, String authCode) {
+	private static void getAccessToken(String clientId, String clientSecret, String authCode, String redirectUri) {
 		try {
-			FortnoxCredentials credentials = FortnoxOAuth2Client.getAccessToken(clientId, clientSecret, authCode);
+			FortnoxCredentials credentials = FortnoxOAuth2Client.getAccessToken(clientId, clientSecret, authCode, redirectUri);
 			System.out.println("Access Token:");
 			System.out.println(credentials.getAccessToken() + "\n");
 			System.out.println("Refresh Token:");

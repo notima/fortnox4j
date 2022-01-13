@@ -30,14 +30,18 @@ public class FortnoxOAuth2Client {
     private static final String KEY_GRANT_TYPE = "grant_type";
     private static final String KEY_AUTH_CODE = "code";
     private static final String KEY_REFRESH_TOKEN = "refresh_token";
+    private static final String KEY_REDIRECT_URI = "redirect_uri";
 
     private static final String GRANT_TYPE_AUTH = "authorization_code";
     private static final String GRANT_TYPE_REFRESH = "refresh_token";
 
-    public static FortnoxCredentials getAccessToken(String clientId, String clientSecret, String authorizationCode) throws Exception {
+    public static FortnoxCredentials getAccessToken(String clientId, String clientSecret, String authorizationCode, String redirectUri) throws Exception {
         Map<String, String> body = new HashMap<String, String>();
         body.put(KEY_GRANT_TYPE, GRANT_TYPE_AUTH);
         body.put(KEY_AUTH_CODE, authorizationCode);
+        if (redirectUri!=null) {
+        	body.put(KEY_REDIRECT_URI, redirectUri);
+        }
 
         OAuthRequest request = new OAuthRequest();
         request.setUrl(TOKEN_URL);
