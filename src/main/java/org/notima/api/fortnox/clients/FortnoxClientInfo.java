@@ -22,6 +22,7 @@ public class FortnoxClientInfo {
 	
 	private String	orgNo;
 	private String	orgName;
+	private String	countryCode = "SE";		// Currently Fortnox is only for Swedish organizations.
 
 	private String	contactName;
 	private String 	contactEmail;
@@ -52,6 +53,14 @@ public class FortnoxClientInfo {
 
 	public void setClientId(String clientId) {
 		this.clientId = clientId;
+	}
+	
+	public String getCountryCode() {
+		return countryCode;
+	}
+
+	public void setCountryCode(String countryCode) {
+		this.countryCode = countryCode;
 	}
 
 	/**
