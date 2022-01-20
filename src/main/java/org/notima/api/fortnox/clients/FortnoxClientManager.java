@@ -72,9 +72,8 @@ public class FortnoxClientManager {
 			dst.setClientId(ci.getClientId());
 			dst.setClientSecret(ci.getClientSecret());
 		}
-		CompanySetting cs = ci.getCompanySetting();
-		if (cs!=null) {
-			dst.setOrgName(cs.getName());
+		if (!dst.hasOrgName()) {
+			dst.setOrgName(ci.getOrgName());
 		}
 
 		boolean saved = saveClientInfo();
