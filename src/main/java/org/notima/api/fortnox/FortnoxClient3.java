@@ -716,6 +716,10 @@ public class FortnoxClient3 {
 
 	private Map<? extends String, ? extends String> getAuthorizationHeaders() throws Exception {
 		FortnoxCredentials credentials = credentialsProvider.getCredentials();
+		if (credentials==null) {
+			logger.error("No credentials found for " + credentialsProvider.getOrgNo());
+			return new TreeMap<String, String>();
+		}
 		if(credentials.getAuthorizationCode() != null) {
 			credentials = FortnoxOAuth2Client.getAccessToken(m_clientId, m_clientSecret, credentials.getAuthorizationCode(), m_redirectUri);
 			credentialsProvider.setCredentials(credentials);
@@ -728,7 +732,8 @@ public class FortnoxClient3 {
 			credentials = updateCredentials(credentials);
 			return getBearerTokenHeader(credentials);
 		}
-		return null;
+		logger.warn("No authorization headers created.");
+		return new TreeMap<String, String>();
 	}
 
 	private FortnoxCredentials updateCredentials(FortnoxCredentials credentials) throws Exception {

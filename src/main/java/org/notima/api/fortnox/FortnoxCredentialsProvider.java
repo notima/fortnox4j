@@ -9,6 +9,10 @@ public abstract class FortnoxCredentialsProvider {
         this.orgNo = orgNo;
     }
     
+    public String getOrgNo() {
+    	return orgNo;
+    }
+    
     public abstract FortnoxCredentials getCredentials() throws Exception;
     public abstract void setCredentials(FortnoxCredentials credentials) throws Exception;
 }
