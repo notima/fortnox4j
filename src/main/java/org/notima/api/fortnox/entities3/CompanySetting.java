@@ -2,7 +2,6 @@ package org.notima.api.fortnox.entities3;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 @XmlRootElement(name = "CompanySettings")
 public class CompanySetting {
@@ -135,7 +134,6 @@ public class CompanySetting {
 		this.iBAN = iBAN;
 	}
 	
-	@XmlTransient
 	public boolean hasName() {
 		return name!=null && name.trim().length()>0;
 	}
@@ -148,7 +146,6 @@ public class CompanySetting {
 		this.name = name;
 	}
 	
-	@XmlTransient
 	public boolean hasOrganizationNumber() {
 		return organizationNumber!=null && organizationNumber.trim().length()>0;
 	}
