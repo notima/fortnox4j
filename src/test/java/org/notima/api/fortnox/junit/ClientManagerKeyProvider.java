@@ -27,6 +27,9 @@ public class ClientManagerKeyProvider extends FortnoxCredentialsProvider {
         clientManager.updateAndSaveClientInfo(clientInfo);
     }
 
+    @Override
+    public void removeCredentials() throws Exception {}
+
     private FortnoxClientInfo getClientInfo(String orgNo) {
         for(FortnoxClientInfo clientInfo : clientManager.getFortnoxClients()) {
             if(clientInfo.getOrgNo().equals(orgNo)) {

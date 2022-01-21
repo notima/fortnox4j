@@ -37,6 +37,13 @@ public class TestUtil {
 				// TODO Auto-generated method stub
 				
 			}
+
+
+			@Override
+			public void removeCredentials() throws Exception {
+				// TODO Auto-generated method stub
+				
+			}
 		});
 		
 		return client;
