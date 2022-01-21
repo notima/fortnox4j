@@ -11,4 +11,5 @@ public abstract class FortnoxCredentialsProvider {
     
     public abstract FortnoxCredentials getCredentials() throws Exception;
     public abstract void setCredentials(FortnoxCredentials credentials) throws Exception;
+    public abstract void removeCredentials() throws Exception;
 }
