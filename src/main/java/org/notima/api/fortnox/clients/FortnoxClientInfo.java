@@ -22,6 +22,7 @@ public class FortnoxClientInfo {
 	
 	private String	orgNo;
 	private String	orgName;
+	private String	countryCode = "SE";		// Currently Fortnox is only for Swedish organizations.
 
 	private String	contactName;
 	private String 	contactEmail;
@@ -52,6 +53,14 @@ public class FortnoxClientInfo {
 
 	public void setClientId(String clientId) {
 		this.clientId = clientId;
+	}
+	
+	public String getCountryCode() {
+		return countryCode;
+	}
+
+	public void setCountryCode(String countryCode) {
+		this.countryCode = countryCode;
 	}
 
 	/**
@@ -122,11 +131,18 @@ public class FortnoxClientInfo {
 	}
 
 	public String getOrgNo() {
-		return orgNo;
+		if (hasCompanySetting() && companySetting.hasOrganizationNumber()) {
+			return companySetting.getOrganizationNumber();
+		} else {
+			return orgNo;
+		}
 	}
 
 	public void setOrgNo(String orgNo) {
 		this.orgNo = orgNo;
+		if (hasCompanySetting()) {
+			companySetting.setOrganizationNumber(orgNo);
+		}
 	}
 
 	public String getPollType() {
@@ -137,12 +153,23 @@ public class FortnoxClientInfo {
 		this.pollType = pollType;
 	}
 
+	public boolean hasOrgName() {
+		return (getOrgName()!=null && getOrgName().trim().length()>0);
+	}
+	
 	public String getOrgName() {
-		return orgName;
+		if (hasCompanySetting() && companySetting.hasName()) {
+			return companySetting.getName();
+		} else {
+			return orgName;
+		}
 	}
 
 	public void setOrgName(String clientName) {
 		this.orgName = clientName;
+		if (hasCompanySetting()) {
+			companySetting.setName(clientName);
+		}
 	}
 
 	public String getContactName(){
@@ -207,6 +234,10 @@ public class FortnoxClientInfo {
 
 	public void setCompanySetting(CompanySetting companySetting) {
 		this.companySetting = companySetting;
+	}
+
+	public boolean hasCompanySetting() {
+		return companySetting!=null;
 	}
 	
 }

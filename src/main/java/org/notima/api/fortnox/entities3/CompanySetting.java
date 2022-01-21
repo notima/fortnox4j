@@ -133,6 +133,11 @@ public class CompanySetting {
 	public void setiBAN(String iBAN) {
 		this.iBAN = iBAN;
 	}
+	
+	public boolean hasName() {
+		return name!=null && name.trim().length()>0;
+	}
+	
 	@XmlElement(name="Name")
 	public String getName() {
 		return name;
@@ -140,6 +145,11 @@ public class CompanySetting {
 	public void setName(String name) {
 		this.name = name;
 	}
+	
+	public boolean hasOrganizationNumber() {
+		return organizationNumber!=null && organizationNumber.trim().length()>0;
+	}
+	
 	@XmlElement(name="OrganizationNumber")
 	public String getOrganizationNumber() {
 		return organizationNumber;

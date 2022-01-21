@@ -7,7 +7,6 @@ import java.util.List;
 import javax.xml.bind.JAXBException;
 
 import org.notima.api.fortnox.FortnoxUtil;
-import org.notima.api.fortnox.entities3.CompanySetting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,9 +71,8 @@ public class FortnoxClientManager {
 			dst.setClientId(ci.getClientId());
 			dst.setClientSecret(ci.getClientSecret());
 		}
-		CompanySetting cs = ci.getCompanySetting();
-		if (cs!=null) {
-			dst.setOrgName(cs.getName());
+		if (!dst.hasOrgName()) {
+			dst.setOrgName(ci.getOrgName());
 		}
 
 		boolean saved = saveClientInfo();
