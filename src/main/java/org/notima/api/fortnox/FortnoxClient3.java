@@ -3346,13 +3346,24 @@ public class FortnoxClient3 {
 				.addBinaryBody("file", f, ContentType.DEFAULT_BINARY, f.getName())
 				.build();
 		
+		Map<String,String> headers = new TreeMap<String, String>();		
+		
+		headers.put("Accept", "application/xml");
+		headers.putAll(getAuthorizationHeaders());
+		
 		// Build http request and assign multipart upload data
 		HttpUriRequest request = RequestBuilder
 				.post(m_baseUrl + "/3/inbox?folderid=" + folderId)
-				.setHeader("Accept", "application/xml")
 				.setEntity(data)
 				.build();
 
+		// Set headers
+		if (headers!=null) {
+			for (String s : headers.keySet()) {
+				request.setHeader(s, headers.get(s));
+			}
+		}
+		
 		ResponseHandler<String> responseHandler = response -> {
 			int status = response.getStatusLine().getStatusCode();
 			HttpEntity entity = response.getEntity();
