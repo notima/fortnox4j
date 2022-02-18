@@ -64,35 +64,30 @@ public class FortnoxClientInfo {
 	}
 
 	/**
-	 * The API code is used once to get an access token. 
+	 * The API code is used once to get an access token (pre-oauth) 
 	 * 
 	 * @return	The API code if set.
 	 */
-	@Deprecated
 	public String getApiCode() {
 		return apiCode;
 	}
 
-	@Deprecated
 	public void setApiCode(String apiCode) {
 		this.apiCode = apiCode;
 	}
 
 	/**
 	 * The Access Token is used together with the Client Secret to gain access
-	 * to a particular Fortnox organization.
+	 * to a particular Fortnox organization. (pre-oauth)
 	 * 
 	 * @return		The access token if set.
-	 * @deprecated 	use {@link #getApiKey()}
 	 */
-	@Deprecated
 	public String getAccessToken() {
 		if(apiKey == null)
 			return null;
 		return apiKey.getLegacyToken();
 	}
 	
-	@Deprecated
 	public void setAccessToken(String accessToken) {
 		if(apiKey == null)
 			apiKey = new FortnoxCredentials();
