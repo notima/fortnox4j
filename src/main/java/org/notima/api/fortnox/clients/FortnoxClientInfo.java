@@ -17,6 +17,7 @@ public class FortnoxClientInfo {
 
 	private String	clientId;
 	private String	apiCode;
+	private String	accessToken;
 	private String	clientSecret;
 	private FortnoxCredentials apiKey;
 	
@@ -76,19 +77,29 @@ public class FortnoxClientInfo {
 		this.apiCode = apiCode;
 	}
 
+	
+	/**
+	 * Used by legacy access token json-struct.
+	 * 
+	 * @param accessToken
+	 */
+	public void setAccessToken(String accessToken) {
+		this.accessToken = accessToken;
+	}
+
 	/**
 	 * The Access Token is used together with the Client Secret to gain access
 	 * to a particular Fortnox organization. (pre-oauth)
 	 * 
 	 * @return		The access token if set.
 	 */
-	public String getAccessToken() {
+	public String getLegacyAccessToken() {
 		if(apiKey == null)
-			return null;
+			return accessToken;
 		return apiKey.getLegacyToken();
 	}
 	
-	public void setAccessToken(String accessToken) {
+	public void setLegacyAccessToken(String accessToken) {
 		if(apiKey == null)
 			apiKey = new FortnoxCredentials();
 		apiKey.setLegacyToken(accessToken);
