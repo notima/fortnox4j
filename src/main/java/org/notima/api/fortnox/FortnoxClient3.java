@@ -370,6 +370,14 @@ public class FortnoxClient3 {
 		this.credentialsProvider = credentialsProvider;
 	}
 
+	public void setClientSecret(String clientSecret) {
+		m_clientSecret = clientSecret;
+	}
+	
+	public boolean hasClientSecret() {
+		return m_clientSecret!=null && m_clientSecret.trim().length()>0;
+	}
+	
 	/**
 	 * @return	True if a key can be retrieved from the key provider
 	 */
