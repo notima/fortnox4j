@@ -1322,6 +1322,7 @@ public class FortnoxClient3 {
 	        result = (org.notima.api.fortnox.entities3.PreDefinedAccount)JAXB.unmarshal(in, PreDefinedAccount.class); //NOI18N
 	        return(result); 
 		} else {
+			e.appendMessage("Predefined account name " + pname);
 			throw new FortnoxException(e);
 		}
 		
