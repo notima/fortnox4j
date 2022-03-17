@@ -58,6 +58,7 @@ import org.notima.api.fortnox.entities3.AccountSubset;
 import org.notima.api.fortnox.entities3.Accounts;
 import org.notima.api.fortnox.entities3.Article;
 import org.notima.api.fortnox.entities3.Articles;
+import org.notima.api.fortnox.entities3.Authorization;
 import org.notima.api.fortnox.entities3.CompanySetting;
 import org.notima.api.fortnox.entities3.CostCenter;
 import org.notima.api.fortnox.entities3.CostCenters;
@@ -452,6 +453,40 @@ public class FortnoxClient3 {
 		
 		
 	}
+
+	/**
+	 * Gets legacy access token from an auth code (API-code) and client secret.
+	 * 
+	 * @param authCode			The auth code supplied by the Fortnox client.
+	 * @param clientSecret		The secret to access the API.
+	 * @return					The access token if successful.
+	 * @throws Exception		If something goes wrong.
+	 */
+	public String getLegacyAccessToken(String authCode, String clientSecret) throws Exception {
+		
+		Map<String,String> headers = new TreeMap<String,String>();
+		headers.put("Authorization-Code", authCode);
+		headers.put("Client-Secret", clientSecret);
+		
+		// Use any call to request the access token.
+		StringBuffer result = callFortnox("/customers", "", null, headers, null);
+		
+		StringReader strReader = new StringReader(result.toString());
+		// If auth code and client secret don't match, a 404 error is returned.
+		if (result.toString().startsWith("404")) {
+			throw new FortnoxException("404: Failed to retrieve access token for API-code " + authCode);
+		}
+		
+		ErrorInformation err = checkIfError(result);
+		if (err!=null) {
+			throw new FortnoxException(err);
+		}
+		
+		Authorization auth = JAXB.unmarshal(strReader, Authorization.class);
+		
+		return auth.getAccessToken();
+		
+	}
 	
 	public StringBuffer postFortnox(String route, StringBuffer postContents) throws Exception {
 		return callFortnox(route, null, postContents, null, "POST");
@@ -673,7 +708,9 @@ public class FortnoxClient3 {
 			logger.debug((put ? "Putting" : (delete ? "Deleting " : "Getting url")) + ": " + urlStr);
 		}
 
-		headers.putAll(getAuthorizationHeaders());
+		if(headers.get("Authorization-Code") == null) {
+			headers.putAll(getAuthorizationHeaders());
+		}
 
 		// Set headers
 		if (headers!=null) {
