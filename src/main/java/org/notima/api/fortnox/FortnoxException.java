@@ -43,6 +43,21 @@ public class FortnoxException extends Exception {
 		errorInformation = e; 
 	}
 	
+	public void appendMessage(String additionalMessage) {
+		if (additionalMessage!=null && additionalMessage.trim().length()>0) {
+			if (error!=null) {
+				if (error.getMessage()!=null && error.getMessage().trim().length()>0) {
+					error.setMessage(error.getMessage() + " : " + additionalMessage);
+				} else {
+					error.setMessage(additionalMessage);
+				}
+			}
+			if (errorInformation!=null) {
+				errorInformation.appendMessage(additionalMessage);
+			}
+		}
+	}
+	
 	public org.notima.api.fortnox.entities3.Error getError() {
 		return error;
 	}

@@ -27,6 +27,15 @@ public class ErrorInformation {
 		this.message = message;
 	}
 	
+	public void appendMessage(String additionalMessage) {
+		if (additionalMessage==null || additionalMessage.trim().length()==0) return;
+		if (message!=null && message.trim().length()>0) {
+			message += " : " + additionalMessage;
+		} else {
+			message = additionalMessage;
+		}
+	}
+	
 	@XmlElement(name="Code")
 	public String getCode() {
 		return code;
