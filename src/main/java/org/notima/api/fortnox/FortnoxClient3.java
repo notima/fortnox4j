@@ -179,9 +179,21 @@ public class FortnoxClient3 {
 	 */
 	public static final String ACCT_SALES_MP1 = "SALES";
 	public static final String ACCT_SALES_SERVICE_MP1 = "SALES2";
+	public static final String ACCT_SALES_MP1_EASY_VAT = "SALES_25_SE";
+	public static final String ACCT_SALES_MP1_SERVICE_EASY_VAT = "SALES_25_SE2";
+	
 	public static final String ACCT_SALES_MP2 = "SALES_MP2";
+	public static final String ACCT_SALES_MP2_EASY_VAT = "SALES_12_SE";
+	public static final String ACCT_SALES_MP2_SERVICE_EASY_VAT = "SALES_12_SE2";
+	
 	public static final String ACCT_SALES_MP3 = "SALES_MP3";
+	public static final String ACCT_SALES_MP3_EASY_VAT = "SALES_6_SE";
+	public static final String ACCT_SALES_MP3_SERVICE_EASY_VAT = "SALES_6_SE2";
+	
 	public static final String ACCT_SALES_MP0 = "SALES_MP0";
+	public static final String ACCT_SALES_MP0_EASY_VAT = "SALES_0_SE";
+	public static final String ACCT_SALES_MP0_SERVICE_EASY_VAT = "SALES_0_SE2";
+	
 	public static final String ACCT_SALES_NO_VAT = "SALES_NOVAT";
 	public static final String ACCT_SALES_EU = "SALESEUREV";
 	public static final String ACCT_SALES_EU_SERVICE = "SALESEUREV2";
@@ -205,7 +217,8 @@ public class FortnoxClient3 {
 
 	/**
 	 * Predefined revenue accounts
-	 * These exist as predefined accounts in Fortnox
+	 * These exist as predefined accounts in Fortnox.
+	 * Not all may exist at the same time (Easy VAT).
 	 */
 	public static String[] PREDEFINED_REV_ACCT = new String[] {
 		ACCT_CURRENCYGAIN,
@@ -220,7 +233,15 @@ public class FortnoxClient3 {
 		ACCT_SALES_EXPORT,
 		ACCT_SALES_EU_W_VAT,
 		ACCT_SALES_EU_W_VAT_SERVICE,
-		ACCT_SALES_SE_REV
+		ACCT_SALES_SE_REV,
+		ACCT_SALES_MP1_EASY_VAT,
+		ACCT_SALES_MP1_SERVICE_EASY_VAT,
+		ACCT_SALES_MP2_EASY_VAT,
+		ACCT_SALES_MP2_SERVICE_EASY_VAT,
+		ACCT_SALES_MP3_EASY_VAT,
+		ACCT_SALES_MP3_SERVICE_EASY_VAT,
+		ACCT_SALES_MP0_EASY_VAT,
+		ACCT_SALES_MP0_SERVICE_EASY_VAT
 	};
 
 	/**
@@ -264,6 +285,7 @@ public class FortnoxClient3 {
 	public static final String ERROR_PRICE_LIST_NOT_FOUND = "2000431";
 	public static final String ERROR_TERMS_OF_DELIVERY_NOT_FOUND = "2000435";
 	public static final String ERROR_PROJECT_NOT_FOUND = "2001161";
+	public static final String ERROR_CANT_FIND_PREDEFINED_ACCOUNT = "2001403";
 	
 	/**
 	 * Inbox folders
@@ -1456,7 +1478,9 @@ public class FortnoxClient3 {
 	 * @see	getPreDefinedAccount
 	 * 
 	 * @param 		year		The year to use for COA.
-	 * @return					A map of revenue accounts.
+	 * @return					A map of revenue accounts. The key is the predefined account.
+	 * 							If Easy VAT is enabled, remaps to old VAT predefined accounts are
+	 * 							made for backwards compatibility.
 	 * @throws Exception 		If something goes wrong.
 	 */
 	public Map<String, Integer> getRevenueAccountMap(int year) throws Exception {
@@ -1466,12 +1490,49 @@ public class FortnoxClient3 {
 		PreDefinedAccount pa;
 		
 		for (String s : PREDEFINED_REV_ACCT) {
-			pa = this.getPreDefinedAccount(s);
-			if (pa!=null) {
-				result.put(s, pa.getAccount());
+			try {
+				pa = this.getPreDefinedAccount(s);
+				if (pa!=null) {
+					result.put(s, pa.getAccount());
+				}
+			} catch (FortnoxException ee) {
+				if (ee.getErrorInformation()!=null 
+						&& ee.getErrorInformation().getCode()!=null 
+						&& ERROR_CANT_FIND_PREDEFINED_ACCOUNT.equals(ee.getErrorInformation().getCode().toString())) {
+					logger.info(ee.getMessage());
+				} else {
+					throw ee;
+				}
 			}
 		}
 
+		boolean easyVatMp2 = false;
+		boolean easyVatMp3 = false;
+		boolean easyVatMp0 = false;
+		
+		// Check if there are easy VAT settings
+		if (result.containsKey(ACCT_SALES_MP1_EASY_VAT)) {
+			result.put(ACCT_SALES_MP1, result.get(ACCT_SALES_MP1_EASY_VAT));
+			result.put(ACCT_SALES_SERVICE_MP1, result.get(ACCT_SALES_MP1_SERVICE_EASY_VAT));
+		}
+		
+		if (result.containsKey(ACCT_SALES_MP2_EASY_VAT)) {
+			result.put(PREDEFINED_REVENUE_VAT_ACCT[0], result.get(ACCT_SALES_MP2_EASY_VAT));
+			easyVatMp2 = true;
+		}
+
+		if (result.containsKey(ACCT_SALES_MP3_EASY_VAT)) {
+			result.put(PREDEFINED_REVENUE_VAT_ACCT[1], result.get(ACCT_SALES_MP3_EASY_VAT));
+			easyVatMp3 = true;
+		}
+
+		if (result.containsKey(ACCT_SALES_MP0_EASY_VAT)) {
+			result.put(PREDEFINED_REVENUE_VAT_ACCT[2], result.get(ACCT_SALES_MP0_EASY_VAT));
+			easyVatMp0 = true;
+		}
+		// End of easy VAT remap
+		
+		
 		// Look for VAT accounts
 		Accounts accounts = getAccounts(year);
 		
@@ -1504,13 +1565,13 @@ public class FortnoxClient3 {
 			
 		}
 		
-		if (mp2.size()>0) {
+		if (!easyVatMp2 && mp2.size()>0) {
 			result.put(PREDEFINED_REVENUE_VAT_ACCT[0], mp2.first());
 		}
-		if (mp3.size()>0) {
+		if (!easyVatMp3 && mp3.size()>0) {
 			result.put(PREDEFINED_REVENUE_VAT_ACCT[1], mp3.first());
 		}
-		if (mp0.size()>0) {
+		if (!easyVatMp0 && mp0.size()>0) {
 			result.put(PREDEFINED_REVENUE_VAT_ACCT[2], mp0.first());
 		}
 		if (mpNoVAT.size()>0) {
