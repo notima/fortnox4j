@@ -5,13 +5,11 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.math.BigDecimal;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.text.DateFormat;
@@ -50,7 +48,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
-import org.notima.api.fortnox.clients.FortnoxClientInfo;
 import org.notima.api.fortnox.clients.FortnoxClientList;
 import org.notima.api.fortnox.clients.FortnoxCredentials;
 import org.notima.api.fortnox.entities3.Account;
@@ -302,8 +299,6 @@ public class FortnoxClient3 {
 	public static final String DFortnox4JFile = "Fortnox4JFile";
 	public static final String ENV_CONFIG_FILE = DFortnox4JFile.toUpperCase();
 	
-	private String 		m_clientId;
-	private String 		m_clientSecret;
 	private String		m_baseUrl = "https://api.fortnox.se";
 	private String		m_redirectUri = null;
 	private FortnoxCredentialsProvider credentialsProvider;
@@ -352,36 +347,6 @@ public class FortnoxClient3 {
 	 */
 	public FortnoxClient3(FortnoxCredentialsProvider credentialsProvider) {
 		this.credentialsProvider = credentialsProvider;
-		try {
-			initFromFile(null);
-		} catch (Exception e) {
-			logger.error(e.getMessage());
-		}
-	}
-	
-	/**
-	 * Create FortnoxClient using specified accessToken and clientSecret.
-	 * 
-	 * @param clientId				The clientId
-	 * @param clientSecret			The clientSecret.
-	 * @param credentialsProvider			The key provider that will be used to retrieve the access token
-	 */
-	public FortnoxClient3(String clientId, String clientSecret, FortnoxCredentialsProvider credentialsProvider) {
-		m_clientId = clientId;
-		m_clientSecret = clientSecret;
-		this.credentialsProvider = credentialsProvider;
-	}
-	
-	/**
-	 * Create FortnoxClient using specified configuration file.
-	 * 
-	 * @param configFile		The configuration file to use.
-	 * @param credentialsProvider			The key provider that will be used to retrieve the access token
-	 * @throws IOException		If something goes wrong when reading the file. 
-	 */
-	public FortnoxClient3(String configFile, FortnoxCredentialsProvider credentialsProvider) throws IOException {
-		this.credentialsProvider = credentialsProvider;
-		initFromFile(configFile);
 	}
 
 	/**
@@ -392,13 +357,15 @@ public class FortnoxClient3 {
 	public void setKeyProvider(FortnoxCredentialsProvider credentialsProvider) {
 		this.credentialsProvider = credentialsProvider;
 	}
-
-	public void setClientSecret(String clientSecret) {
-		m_clientSecret = clientSecret;
-	}
 	
 	public boolean hasClientSecret() {
-		return m_clientSecret!=null && m_clientSecret.trim().length()>0;
+		String clientSecret = null;
+		try {
+			clientSecret = credentialsProvider.getCredentials().getClientSecret();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return clientSecret!=null && clientSecret.trim().length()>0;
 	}
 	
 	/**
@@ -415,65 +382,6 @@ public class FortnoxClient3 {
 		} catch (Exception e) {
 		}
 		return false;
-	}
-	
-	/**
-	 * Read client parameters from file (if found).
-	 * 
-	 * @param configFile
-	 * @throws IOException 
-	 */
-	private void initFromFile(String configFile) throws IOException {
-		
-		if (configFile==null || configFile.trim().length()==0) {
-			// Try system properties
-			String defaultFile = System.getProperty(DFortnox4JFile);
-			if (defaultFile==null) {
-				// Try environment
-				defaultFile = System.getenv(ENV_CONFIG_FILE);
-			}
-			if (defaultFile!=null) {
-				configFile = defaultFile;
-				logger.debug("Trying config from environment: {}", configFile);
-			}
-		}
-		
-		// First check if this resolves to a file right away
-		File f = configFile!=null ? new File(configFile) : null;
-		if (f!=null && !f.exists()) {
-			// Try to resolve from classpath
-			URL url = ClassLoader.getSystemResource(configFile);
-			if (url!=null) {
-				f = new File(url.getFile());
-			} else {
-				f = null;
-			}
-			if (f==null || !f.exists()) {
-				logger.warn("Configuration file {} not found.", configFile);
-				return; // Don't configure from file.
-			}
-		}
-
-		if (f==null) {
-			logger.debug("Not using configuration file to init FortnoxClient");
-			return;
-		}
-		
-		try {
-			logger.debug("Using configuration file {}.", configFile);
-			clientList = FortnoxUtil.readFortnoxClientListFromFile(configFile);
-		} catch (Exception e) {
-			logger.error("Problem with reading configuration file {}.", configFile);
-			e.printStackTrace();
-			return;
-		}
-
-		FortnoxClientInfo fc = clientList.getFirstClient();
-		
-		m_clientId = fc.getClientId();
-		m_clientSecret = fc.getClientSecret();
-		
-		
 	}
 
 	/**
@@ -788,12 +696,12 @@ public class FortnoxClient3 {
 			return new TreeMap<String, String>();
 		}
 		if(credentials.getAuthorizationCode() != null) {
-			credentials = FortnoxOAuth2Client.getAccessToken(m_clientId, m_clientSecret, credentials.getAuthorizationCode(), m_redirectUri);
+			credentials = FortnoxOAuth2Client.getAccessToken(credentials.getClientId(), credentials.getClientSecret(), credentials.getAuthorizationCode(), m_redirectUri);
 			credentialsProvider.setCredentials(credentials);
 		}
 
 		if(credentials.getLegacyToken() != null) {
-			return getLegacyAuthorizationHeaders(credentials.getLegacyToken());
+			return getLegacyAuthorizationHeaders(credentials.getLegacyToken(), credentials.getClientSecret());
 		} 
 		else if(credentials.getAccessToken() != null) {
 			credentials = updateCredentials(credentials);
@@ -805,7 +713,8 @@ public class FortnoxClient3 {
 
 	private FortnoxCredentials updateCredentials(FortnoxCredentials credentials) throws Exception {
 		if(credentials.getLastRefresh() + (credentials.getExpiresIn() * 1000) < new Date().getTime()) {
-			credentials = FortnoxOAuth2Client.refreshAccessToken(m_clientId, m_clientSecret, credentials.getRefreshToken());
+			logger.info("Refreshing credentials for " + credentials.getOrgNo());
+			credentials = FortnoxOAuth2Client.refreshAccessToken(credentials.getClientId(), credentials.getClientSecret(), credentials.getRefreshToken());
 			credentialsProvider.setCredentials(credentials);
 		}
 		return credentials;
@@ -817,10 +726,10 @@ public class FortnoxClient3 {
 		return headers;
 	}
 
-	private Map<? extends String, ? extends String> getLegacyAuthorizationHeaders(String accessToken) {
+	private Map<? extends String, ? extends String> getLegacyAuthorizationHeaders(String accessToken, String clientSecret) {
 		Map<String, String> headers = new HashMap<String, String>();
 		headers.put("Access-Token", accessToken);
-		headers.put("Client-Secret", m_clientSecret);
+		headers.put("Client-Secret", clientSecret);
 		return headers;
 	}
 	
