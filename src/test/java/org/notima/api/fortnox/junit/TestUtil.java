@@ -20,7 +20,7 @@ public class TestUtil {
 	 * @throws Exception 
 	 */
 	public static FortnoxClient3 getFortnoxClient() throws Exception {
-		FortnoxClient3 client = new FortnoxClient3("FortnoxClientList.xml", new FortnoxCredentialsProvider("") {
+		FortnoxClient3 client = new FortnoxClient3(new FortnoxCredentialsProvider("") {
 			URL file = Thread.currentThread().getContextClassLoader().getResource("FortnoxCredentials.json");
 			private Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
