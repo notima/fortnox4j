@@ -18,6 +18,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.notima.api.fortnox.FortnoxAuthenticationException;
 import org.notima.api.fortnox.clients.FortnoxCredentials;
 
 public class FortnoxOAuth2Client {
@@ -88,7 +89,7 @@ public class FortnoxOAuth2Client {
         if(statusCode == 200) {
             return gson.fromJson(entity, classOfT);
         } else {
-            throw new Exception(String.format(
+            throw new FortnoxAuthenticationException(String.format(
                 "%s responded with %d %s\n%s", 
                 post.getURI(), 
                 statusCode, 
