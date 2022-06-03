@@ -339,10 +339,6 @@ public class FortnoxClient3 {
 	 * 
 	 * export FORTNOX4JFILE=//file
 	 * 
-	 * NOTE: If the above environment variables are set and valid they will be used if this constructor 
-	 * 		 is called. If you want to specify accessToken and clientSecret programmatically, 
-	 * 		 use {@link FortnoxClient3#FortnoxClient3(String, String, FortnoxCredentialsProvider)}
-	 * 
 	 * @param credentialsProvider			The key provider that will be used to retrieve the access token
 	 */
 	public FortnoxClient3(FortnoxCredentialsProvider credentialsProvider) {
