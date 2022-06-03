@@ -1,5 +1,8 @@
 package org.notima.api.fortnox.clients;
 
+import java.beans.Transient;
+import java.util.Date;
+
 import com.google.gson.annotations.SerializedName;
 
 public class FortnoxCredentials {
@@ -106,6 +109,15 @@ public class FortnoxCredentials {
         return lastRefresh;
     }
 
+    @Transient
+    public Date getLastRefreshAsDate() {
+    	
+    	Date date = new Date();
+    	date.setTime(lastRefresh);
+    	return date;
+    	
+    }
+    
     public void setLastRefresh(long lastRefresh) {
         this.lastRefresh = lastRefresh;
     }
