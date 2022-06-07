@@ -129,4 +129,48 @@ public class FortnoxCredentials {
     public void setLegacyToken(String legacyToken) {
         this.legacyToken = legacyToken;
     }
+    
+    @Transient
+    public boolean hasLegacyTokenAndClientSecret() {
+    	return (hasLegacyToken() &&
+    			hasClientSecret());
+    }
+    
+    public boolean equals(FortnoxCredentials that) {
+    	
+    	if (hasLegacyToken()) {
+    		return (legacyTokenEquals(that) && clientSecretEquals(that));
+    	} else {
+    		return (accessTokenEquals(that) && (lastRefresh == that.lastRefresh));
+    	}
+    	
+    }
+    
+    private boolean hasAccessToken() {
+    	return accessToken!=null && accessToken.trim().length()>0;
+    }
+    
+    private boolean accessTokenEquals(FortnoxCredentials that) {
+    	if (that==null) return false;
+    	return (hasAccessToken() && accessToken.equals(that.getAccessToken()));
+    }
+    
+    private boolean hasClientSecret() {
+    	return (clientSecret!=null && clientSecret.trim().length()>0);
+    }
+    
+    private boolean hasLegacyToken() {
+    	return (legacyToken!=null && legacyToken.trim().length()>0);
+    }
+    
+    private boolean legacyTokenEquals(FortnoxCredentials that) {
+    	if (that==null || !hasLegacyToken()) return false;
+    	return (legacyToken.equals(that.getLegacyToken()));
+    }
+    
+    private boolean clientSecretEquals(FortnoxCredentials that) {
+    	if (that==null || !hasClientSecret()) return false;
+    	return (clientSecret.equals(that.getClientSecret()));
+    }
+     
 }

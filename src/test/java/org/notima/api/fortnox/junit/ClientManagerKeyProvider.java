@@ -1,5 +1,7 @@
 package org.notima.api.fortnox.junit;
 
+import java.util.List;
+
 import org.notima.api.fortnox.FortnoxCredentialsProvider;
 import org.notima.api.fortnox.clients.FortnoxClientInfo;
 import org.notima.api.fortnox.clients.FortnoxClientManager;
@@ -38,5 +40,17 @@ public class ClientManagerKeyProvider extends FortnoxCredentialsProvider {
         }
         return null;
     }
+
+	@Override
+	public List<FortnoxCredentials> getAllCredentials() throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void removeCredential(FortnoxCredentials removeThis) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
     
 }

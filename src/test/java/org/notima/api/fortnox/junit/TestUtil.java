@@ -2,6 +2,7 @@ package org.notima.api.fortnox.junit;
 
 import java.io.FileReader;
 import java.net.URL;
+import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -41,6 +42,20 @@ public class TestUtil {
 
 			@Override
 			public void removeCredentials() throws Exception {
+				// TODO Auto-generated method stub
+				
+			}
+
+
+			@Override
+			public List<FortnoxCredentials> getAllCredentials() throws Exception {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+
+			@Override
+			public void removeCredential(FortnoxCredentials removeThis) throws Exception {
 				// TODO Auto-generated method stub
 				
 			}
