@@ -129,6 +129,33 @@ public class FortnoxCredentials {
     public void setLegacyToken(String legacyToken) {
         this.legacyToken = legacyToken;
     }
+
+    @Transient
+    public String getLegacyTokenAbbreviated() {
+    	if (!hasLegacyToken()) {
+    		return ("N/A");
+    	} else {
+    		if (legacyToken.length()>8) {
+    			return ".." + legacyToken.substring(legacyToken.length()-8, legacyToken.length());
+    		}
+    		return legacyToken;
+    	}
+    }
+    
+    @Transient
+    public String getAccessTokenAbbreviated() {
+    	
+    	if (!hasAccessToken()) {
+    		return("N/A");
+    	} else {
+    		if (accessToken.length()>8) {
+    			return ".." + accessToken.substring(accessToken.length()-8, accessToken.length());
+    		} else {
+    			return accessToken;
+    		}
+    	}
+    	
+    }
     
     @Transient
     public boolean hasLegacyTokenAndClientSecret() {
