@@ -163,6 +163,19 @@ public class FortnoxCredentials {
     			hasClientSecret());
     }
     
+    /**
+     * A string representation of the credential
+     */
+    public String toString() {
+    	if (hasLegacyToken()) {
+    		return "Legacy: " + getLegacyTokenAbbreviated();
+    	}
+    	if (hasAccessToken()) {
+    		return ("Oauth2: " + getAccessTokenAbbreviated() + ", Refresh: " + getLastRefreshAsDate());
+    	}
+    	return ("ClientID: " + clientId + ". Credentials uncomplete.");
+    }
+    
     public boolean equals(FortnoxCredentials that) {
     	
     	if (hasLegacyToken()) {

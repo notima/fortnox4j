@@ -685,22 +685,38 @@ public class FortnoxClient3 {
 		return(result);
 	}
 
-	private Map<? extends String, ? extends String> getAuthorizationHeaders() throws Exception {
+	private FortnoxCredentials getCurrentCredentials() throws Exception {
 		FortnoxCredentials credentials = credentialsProvider.getCredentials();
+		
+		if (credentials!=null) {
+			
+			if(credentials.getAuthorizationCode() != null) {
+				credentials = FortnoxOAuth2Client.getAccessToken(credentials.getClientId(), credentials.getClientSecret(), credentials.getAuthorizationCode(), m_redirectUri);
+				credentialsProvider.setCredentials(credentials);
+			}
+			
+			if (credentials.getLegacyToken()==null && credentials.getAccessToken()!=null) {
+				credentials = updateCredentials(credentials);
+			}
+			
+		}
+		
+		
+		return credentials;
+	}
+	
+	private Map<? extends String, ? extends String> getAuthorizationHeaders() throws Exception {
+		FortnoxCredentials credentials = getCurrentCredentials();
 		if (credentials==null) {
 			logger.error("No credentials found for " + credentialsProvider.getOrgNo());
 			return new TreeMap<String, String>();
 		}
-		if(credentials.getAuthorizationCode() != null) {
-			credentials = FortnoxOAuth2Client.getAccessToken(credentials.getClientId(), credentials.getClientSecret(), credentials.getAuthorizationCode(), m_redirectUri);
-			credentialsProvider.setCredentials(credentials);
-		}
+		logger.debug("Got credential: " + credentials.toString());
 
 		if(credentials.getLegacyToken() != null) {
 			return getLegacyAuthorizationHeaders(credentials.getLegacyToken(), credentials.getClientSecret());
 		} 
 		else if(credentials.getAccessToken() != null) {
-			credentials = updateCredentials(credentials);
 			return getBearerTokenHeader(credentials);
 		}
 		logger.warn("No authorization headers created.");
