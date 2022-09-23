@@ -15,6 +15,11 @@ public class FortnoxAuthenticationException extends Exception {
         super(format);
     }
 
+	public FortnoxAuthenticationException(FortnoxCredentials creds) {
+		super(creds!=null ? creds.toString() : "Invalid credentials"); 
+		credentials = creds;
+	}
+	
 	public boolean hasCredentials() {
 		return (credentials!=null);
 	}

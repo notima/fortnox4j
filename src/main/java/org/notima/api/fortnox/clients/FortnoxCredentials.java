@@ -80,6 +80,19 @@ public class FortnoxCredentials {
     public void setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
     }
+    
+    @Transient
+    public String getRefreshTokenAbbreviated() {
+    	if (!hasRefreshToken()) {
+    		return ("N/A");
+    	} else {
+    		if (refreshToken.length()>8) {
+    			return ".." + refreshToken.substring(refreshToken.length()-8, refreshToken.length());
+    		}
+    		return legacyToken;
+    	}
+    }
+    
 
     public String getScope() {
         return scope;
@@ -170,10 +183,16 @@ public class FortnoxCredentials {
     	if (hasLegacyToken()) {
     		return "Legacy: " + getLegacyTokenAbbreviated();
     	}
-    	if (hasAccessToken()) {
-    		return ("Oauth2: " + getAccessTokenAbbreviated() + ", Refresh: " + getLastRefreshAsDate());
+    	StringBuffer buf = new StringBuffer();
+    	buf.append("ClientID: " + getClientId() + ", Secret: " + (hasClientSecret() ? "Yes" : "No") + ", ");
+    	buf.append("Oauth2: " + getAccessTokenAbbreviated() + ", ");
+    	if (hasRefreshToken()) {
+    		buf.append("RefreshToken: " + getRefreshTokenAbbreviated() + ", ");
+    	} else {
+    		buf.append("No refresh token, ");
     	}
-    	return ("ClientID: " + clientId + ". Credentials uncomplete.");
+    	buf.append(getLastRefreshAsDate() + " (" + lastRefresh + ")");
+    	return (buf.toString());
     }
     
     public boolean equals(FortnoxCredentials that) {
@@ -186,7 +205,8 @@ public class FortnoxCredentials {
     	
     }
     
-    private boolean hasAccessToken() {
+    @Transient
+    public boolean hasAccessToken() {
     	return accessToken!=null && accessToken.trim().length()>0;
     }
     
@@ -195,12 +215,19 @@ public class FortnoxCredentials {
     	return (hasAccessToken() && accessToken.equals(that.getAccessToken()));
     }
     
-    private boolean hasClientSecret() {
+    @Transient
+    public boolean hasClientSecret() {
     	return (clientSecret!=null && clientSecret.trim().length()>0);
     }
     
-    private boolean hasLegacyToken() {
+    @Transient
+    public boolean hasLegacyToken() {
     	return (legacyToken!=null && legacyToken.trim().length()>0);
+    }
+    
+    @Transient
+    public boolean hasRefreshToken() {
+    	return (refreshToken!=null && refreshToken.trim().length()>0);
     }
     
     private boolean legacyTokenEquals(FortnoxCredentials that) {

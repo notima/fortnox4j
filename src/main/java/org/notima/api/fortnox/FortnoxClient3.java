@@ -356,10 +356,18 @@ public class FortnoxClient3 {
 	
 	public boolean hasClientSecret() {
 		String clientSecret = null;
+		FortnoxCredentials fc = null;
 		try {
-			clientSecret = credentialsProvider.getCredentials().getClientSecret();
+			fc = credentialsProvider.getCredentials();			
+			clientSecret = fc.getClientSecret();
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+		if (clientSecret==null && credentialsProvider.hasDefaultClientSecret()) {
+			clientSecret = credentialsProvider.getDefaultClientSecret();
+			if (fc!=null) {
+				fc.setClientSecret(clientSecret);
+			}
 		}
 		return clientSecret!=null && clientSecret.trim().length()>0;
 	}
@@ -685,7 +693,7 @@ public class FortnoxClient3 {
 		return(result);
 	}
 
-	private FortnoxCredentials getCurrentCredentials() throws Exception {
+	public FortnoxCredentials getCurrentCredentials() throws Exception {
 		FortnoxCredentials credentials = credentialsProvider.getCredentials();
 		
 		if (credentials!=null) {
@@ -693,10 +701,6 @@ public class FortnoxClient3 {
 			if(credentials.getAuthorizationCode() != null) {
 				credentials = FortnoxOAuth2Client.getAccessToken(credentials.getClientId(), credentials.getClientSecret(), credentials.getAuthorizationCode(), m_redirectUri);
 				credentialsProvider.setCredentials(credentials);
-			}
-			
-			if (credentials.getLegacyToken()==null && credentials.getAccessToken()!=null) {
-				credentials = updateCredentials(credentials);
 			}
 			
 		}
@@ -707,6 +711,9 @@ public class FortnoxClient3 {
 	
 	private Map<? extends String, ? extends String> getAuthorizationHeaders() throws Exception {
 		FortnoxCredentials credentials = getCurrentCredentials();
+		if (!credentials.hasLegacyToken() && credentials.hasAccessToken()) {
+			credentials = updateCredentials(credentials);
+		}
 		if (credentials==null) {
 			logger.error("No credentials found for " + credentialsProvider.getOrgNo());
 			return new TreeMap<String, String>();
@@ -723,7 +730,7 @@ public class FortnoxClient3 {
 		return new TreeMap<String, String>();
 	}
 
-	private FortnoxCredentials updateCredentials(FortnoxCredentials credentials) throws Exception {
+	private FortnoxCredentials updateCredentials(FortnoxCredentials credentials) throws FortnoxAuthenticationException, Exception {
 		if(credentials.getLastRefresh() + (credentials.getExpiresIn() * 1000) < new Date().getTime()) {
 			logger.info("Refreshing credentials for " + credentials.getOrgNo());
 			credentials = FortnoxOAuth2Client.refreshAccessToken(credentials.getClientId(), credentials.getClientSecret(), credentials.getRefreshToken());

@@ -36,8 +36,16 @@ public class FortnoxOAuth2Client {
     private static final String GRANT_TYPE_AUTH = "authorization_code";
     private static final String GRANT_TYPE_REFRESH = "refresh_token";
 
-    public static FortnoxCredentials getAccessToken(String clientId, String clientSecret, String authorizationCode, String redirectUri) throws Exception {
-        Map<String, String> body = new HashMap<String, String>();
+    public static FortnoxCredentials getAccessToken(String clientId, String clientSecret, String authorizationCode, String redirectUri) throws FortnoxAuthenticationException, Exception {
+
+    	if (clientSecret==null) {
+    		FortnoxCredentials errorCredentials = new FortnoxCredentials();
+    		errorCredentials.setClientId(clientId);
+    		errorCredentials.setAuthorizationCode(authorizationCode);
+    		throw new FortnoxAuthenticationException(errorCredentials);
+    	}
+    	
+    	Map<String, String> body = new HashMap<String, String>();
         body.put(KEY_GRANT_TYPE, GRANT_TYPE_AUTH);
         body.put(KEY_AUTH_CODE, authorizationCode);
         if (redirectUri!=null) {
@@ -55,8 +63,16 @@ public class FortnoxOAuth2Client {
         return credentials;
     }
 
-    public static FortnoxCredentials refreshAccessToken(String clientId, String clientSecret, String refreshToken) throws Exception {
-        Map<String, String> body = new HashMap<String, String>();
+    public static FortnoxCredentials refreshAccessToken(String clientId, String clientSecret, String refreshToken) throws FortnoxAuthenticationException, Exception {
+
+    	if (clientSecret==null) {
+    		FortnoxCredentials errorCredentials = new FortnoxCredentials();
+    		errorCredentials.setClientId(clientId);
+    		errorCredentials.setRefreshToken(refreshToken);
+    		throw new FortnoxAuthenticationException(errorCredentials);
+    	}
+    	
+    	Map<String, String> body = new HashMap<String, String>();
         body.put(KEY_GRANT_TYPE, GRANT_TYPE_REFRESH);
         body.put(KEY_REFRESH_TOKEN, refreshToken);
 
@@ -66,9 +82,19 @@ public class FortnoxOAuth2Client {
         request.setClientSecret(clientSecret);
         request.setBody(xWWWFormURLEncode(body));
 
-        FortnoxCredentials credentials = callApi(request, FortnoxCredentials.class);
-        credentials.setLastRefresh(new Date().getTime());
-        return credentials;
+        FortnoxCredentials credentials;
+        try {
+        	credentials = callApi(request, FortnoxCredentials.class);
+            credentials.setLastRefresh(new Date().getTime());
+            return credentials;
+        } catch (FortnoxAuthenticationException fae) {
+        	FortnoxCredentials failedCredentials = new FortnoxCredentials();
+        	failedCredentials.setClientId(clientId);
+        	failedCredentials.setClientSecret(clientSecret);
+        	failedCredentials.setRefreshToken(refreshToken);
+        	fae.setCredentials(failedCredentials);
+        	throw fae;
+        }
     }
 
     // TODO: Implement!
@@ -76,7 +102,7 @@ public class FortnoxOAuth2Client {
         return false;
     }*/
 
-    private static <T> T callApi(OAuthRequest request, Class<T> classOfT) throws Exception {
+    private static <T> T callApi(OAuthRequest request, Class<T> classOfT) throws FortnoxAuthenticationException, Exception {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         String credentials = getBasicAuthCredentials(request.getClientId(), request.getClientSecret());
         HttpPost post = new HttpPost(BASE_URL + request.getUrl());
@@ -115,4 +141,5 @@ public class FortnoxOAuth2Client {
         }
         return buffer.toString();
     }
+    
 }
