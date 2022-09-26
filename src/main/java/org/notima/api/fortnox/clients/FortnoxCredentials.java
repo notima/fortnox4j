@@ -169,6 +169,11 @@ public class FortnoxCredentials {
     	}
     	
     }
+
+    @Transient
+    public boolean hasAuthorizationCode() {
+    	return (authorizationCode!=null && authorizationCode.trim().length()>0);
+    }
     
     @Transient
     public boolean hasLegacyTokenAndClientSecret() {
@@ -213,6 +218,11 @@ public class FortnoxCredentials {
     private boolean accessTokenEquals(FortnoxCredentials that) {
     	if (that==null) return false;
     	return (hasAccessToken() && accessToken.equals(that.getAccessToken()));
+    }
+
+    @Transient
+    public boolean hasClientId() {
+    	return (clientId!=null && clientId.trim().length()>0);
     }
     
     @Transient
