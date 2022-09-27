@@ -185,10 +185,12 @@ public class FortnoxCredentials {
      * A string representation of the credential
      */
     public String toString() {
-    	if (hasLegacyToken()) {
-    		return "Legacy: " + getLegacyTokenAbbreviated();
-    	}
     	StringBuffer buf = new StringBuffer();
+    	buf.append("OrgNo: " + orgNo + ", ");
+    	if (hasLegacyToken()) {
+    		buf.append("Legacy: " + getLegacyTokenAbbreviated());
+    		return buf.toString();
+    	}
     	buf.append("ClientID: " + getClientId() + ", Secret: " + (hasClientSecret() ? "Yes" : "No") + ", ");
     	buf.append("Oauth2: " + getAccessTokenAbbreviated() + ", ");
     	if (hasRefreshToken()) {
@@ -201,6 +203,9 @@ public class FortnoxCredentials {
     }
     
     public boolean equals(FortnoxCredentials that) {
+    	
+    	if (!orgNo.equals(that.orgNo))
+    		return false;
     	
     	if (hasLegacyToken()) {
     		return (legacyTokenEquals(that) && clientSecretEquals(that));
