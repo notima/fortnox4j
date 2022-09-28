@@ -68,7 +68,22 @@ public abstract class FortnoxCredentialsProvider {
      * @throws Exception
      */
     public abstract void removeCredential(FortnoxCredentials removeThis) throws Exception;
-    public abstract void removeCredentials() throws Exception;
+    
+    /**
+     * Removes all credentials for this org no (provider)
+     * 
+     * @throws Exception
+     */
+    public abstract void removeAllCredentials() throws Exception;
+
+    /**
+     * Removes a list of credentials
+     * 
+     * @param removeThese
+     * @return The number of credentials removed.
+     * @throws Exception
+     */
+    public abstract int removeCredentials(List<FortnoxCredentials> removeThese) throws Exception;
     
     /**
      * Removes old Oauth tokens with a last refresh lower than lastRefresh. The youngest
@@ -93,6 +108,7 @@ public abstract class FortnoxCredentialsProvider {
     	
     	List<FortnoxCredentials> allCredentials = getAllCredentials();
     	List<FortnoxCredentials> credentialsToKeep = new ArrayList<FortnoxCredentials>();
+    	List<FortnoxCredentials> credentialsToRemove = new ArrayList<FortnoxCredentials>();
     	List<FortnoxCredentials> listCopy = new ArrayList<FortnoxCredentials>();
     	listCopy.addAll(allCredentials);
     	Collections.sort(listCopy, new FortnoxCredentialComparatorByRefresh());
@@ -110,7 +126,7 @@ public abstract class FortnoxCredentialsProvider {
     		}
     		
     		if (credential.hasRefreshToken() && credential.getLastRefresh() < lastRefresh) {
-    			removeCredential(credential);
+    			credentialsToRemove.add(credential);
     			removeCount++;
     			continue;
     		}
@@ -125,6 +141,9 @@ public abstract class FortnoxCredentialsProvider {
     		credentialsToKeep.add(listCopy.get(listCopy.size()-1));
     	}
 
+    	// Remove credentials
+    	removeCredentials(credentialsToRemove);
+    	
     	boolean updated;
     	// Make sure we have clientId and clientSecret
     	for (FortnoxCredentials credential : credentialsToKeep) {
