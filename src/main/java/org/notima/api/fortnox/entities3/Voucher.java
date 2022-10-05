@@ -124,7 +124,7 @@ public class Voucher extends VoucherSubset {
 		Double amount = calculateBalance();
 		VoucherRow vr = new VoucherRow();
 		vr.setAccount(balanceAccount);
-		vr.setAmount(amount);
+		vr.setAmount(-amount);
 		addVoucherRow(vr);
 		
 	}
@@ -145,6 +145,8 @@ public class Voucher extends VoucherSubset {
 			balance += vr.getAmount();
 		}
 
+		balance = NumberUtils.roundToPrecision(balance, FortnoxClient3.DEFAULT_ROUNDING_PRECISION);
+		
 		return Double.valueOf(balance);
 	}
 	
