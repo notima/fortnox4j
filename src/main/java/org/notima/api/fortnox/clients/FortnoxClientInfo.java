@@ -1,5 +1,6 @@
 package org.notima.api.fortnox.clients;
 
+import java.beans.Transient;
 import java.util.Date;
 
 import javax.xml.bind.annotation.XmlTransient;
@@ -30,6 +31,7 @@ public class FortnoxClientInfo {
 	private String 	contactDeviationEmail;
 	
 	private String	settingsSupplierNo;
+	private Boolean	useSettingsSupplier = Boolean.FALSE;
 	private Boolean sandbox;
 
 	private String	pollType;
@@ -209,7 +211,20 @@ public class FortnoxClientInfo {
 	public void setSettingsSupplierNo(String settingsSupplierNo) {
 		this.settingsSupplierNo = settingsSupplierNo;
 	}
+
+	@Transient
+	public boolean useSettingsSupplier() {
+		return useSettingsSupplier!=null && useSettingsSupplier.booleanValue();
+	}
 	
+	public Boolean getUseSettingsSupplier() {
+		return useSettingsSupplier;
+	}
+
+	public void setUseSettingsSupplier(Boolean useSettingsSupplier) {
+		this.useSettingsSupplier = useSettingsSupplier;
+	}
+
 	public Boolean getSandbox() {
 		return sandbox;
 	}
