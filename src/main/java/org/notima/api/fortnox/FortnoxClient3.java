@@ -711,12 +711,12 @@ public class FortnoxClient3 {
 	
 	private Map<? extends String, ? extends String> getAuthorizationHeaders() throws Exception {
 		FortnoxCredentials credentials = getCurrentCredentials();
-		if (!credentials.hasLegacyToken() && credentials.hasAccessToken()) {
-			credentials = updateCredentials(credentials);
-		}
 		if (credentials==null) {
 			logger.error("No credentials found for " + credentialsProvider.getOrgNo());
 			return new TreeMap<String, String>();
+		}
+		if (!credentials.hasLegacyToken() && credentials.hasAccessToken()) {
+			credentials = updateCredentials(credentials);
 		}
 		logger.debug("Got credential: " + credentials.toString());
 
