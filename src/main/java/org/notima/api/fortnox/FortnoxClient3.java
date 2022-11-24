@@ -679,7 +679,12 @@ public class FortnoxClient3 {
 			// Mark that the content is consumed.
 			EntityUtils.consume(entity);
 		
-			logger.debug("Received reply: \n" + result.toString());			
+			try {
+				logger.debug("Received reply: \n" + result.toString());
+			} catch (Exception ee) {
+				// Probably to long message to log
+				logger.debug("Received reply: \n" + result.substring(0, Math.min(254, result.length())));
+			}
 		} else {
 			logger.debug("No content");
 		}
