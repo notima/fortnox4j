@@ -15,10 +15,11 @@ public class LegacyTokenCredentialsProvider extends FortnoxCredentialsProvider {
 
 	private FortnoxCredentials credentials;
 	
-	public LegacyTokenCredentialsProvider(String legacyToken) {
+	public LegacyTokenCredentialsProvider(String legacyToken, String clientSecret) {
 		super(null);
 		credentials = new FortnoxCredentials();
 		credentials.setLegacyToken(legacyToken);
+		credentials.setClientSecret(clientSecret);
 	}
 	
 	@Override
