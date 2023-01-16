@@ -3263,7 +3263,10 @@ public class FortnoxClient3 {
 	        cs = JAXB.unmarshal(in, cs.getClass());
 	        return(cs); 
 		} else {
-			throw new FortnoxException(e);
+			if (e.getCode().equals(FortnoxClient3.ERROR_NOT_AUTH_FOR_SCOPE)) {
+				throw new FortnoxScopeException(e);
+			} else 
+				throw new FortnoxException(e);
 		}
 	}
 	
