@@ -48,7 +48,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
-import org.notima.api.fortnox.clients.FortnoxClientList;
 import org.notima.api.fortnox.clients.FortnoxCredentials;
 import org.notima.api.fortnox.entities3.Account;
 import org.notima.api.fortnox.entities3.AccountSubset;
@@ -319,9 +318,6 @@ public class FortnoxClient3 {
 	protected Long		lastCall;
 	protected long		totalCalls = 0;
 	protected long		minMillisBetweenCalls = 310;	// Max 3,33 calls / second
-	
-	// Current client list
-	private FortnoxClientList	clientList;
 	
 	/**
 	 * Flag to say if articles should be used on invoices / orders
@@ -3443,14 +3439,23 @@ public class FortnoxClient3 {
 	 */
 	public Invoices getAllCustomerInvoicesByDateRange(Date fromDate, Date untilDate) throws Exception {
 		
-		String filter = "fromdate=" + FortnoxClient3.s_dfmt.format(fromDate);
-		if (untilDate!=null) {
-			filter += "&todate=" + FortnoxClient3.s_dfmt.format(untilDate);
+		StringBuffer filter = new StringBuffer();
+		
+		if (fromDate!=null) {
+			filter.append("fromdate=" + FortnoxClient3.s_dfmt.format(fromDate));
 		}
-		Invoices result = getInvoices(filter);
+		if (untilDate!=null) {
+			if (filter.length()>0) {
+				filter.append("&");
+			}
+			filter.append("todate=" + FortnoxClient3.s_dfmt.format(untilDate) );
+		}
+		Invoices result = getInvoices(filter.toString());
+		
 		return result;
 		
 	}
+	
 	
 	/**
 	 * Returns a list of unpaid customer invoices
