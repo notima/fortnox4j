@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.net.URL;
+import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -278,6 +279,33 @@ public class FortnoxUtil {
 				
 		return copyCustomerInvoices(clSrc, clDst, src, os);
 		
+	}
+	
+	/**
+	 * Checks if a date string is in the given range.
+	 * 
+	 * @param dateAsString
+	 * @param fromDate
+	 * @param untilDate
+	 * @return
+	 * @throws ParseException
+	 */
+	public static boolean isInDateRange(String dateAsString, Date fromDate, Date untilDate) throws ParseException {
+		if (dateAsString==null) return false;
+		if (fromDate==null && untilDate==null) return true;
+		
+		Date invoiceDate = FortnoxClient3.s_dfmt.parse(dateAsString);
+		
+		if (fromDate==null && invoiceDate.after(untilDate))
+			return false;
+		
+		if (untilDate==null && invoiceDate.before(fromDate))
+			return false;
+		
+		if ((fromDate!=null && invoiceDate.before(fromDate)) || (untilDate!=null && invoiceDate.after(untilDate)))
+			return false;
+		
+		return true;
 	}
 	
 	/**
