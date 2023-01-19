@@ -209,6 +209,7 @@ public class FortnoxClient3 {
 	public static final String ACCT_OUTVAT_MP3 = "OUTVAT_MP3";
 	public static final String ACCT_OUTVAT_MP4 = "OUTVAT_MP4";
 	public static final String ACCT_CASHBYCARD = "CASHBYCARD";
+	public static final String ACCT_INTEREST = "INTEREST"; 		// Normally interest income
 	
 
 	/**
