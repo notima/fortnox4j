@@ -3184,7 +3184,7 @@ public class FortnoxClient3 {
 		m_supplierTaxIdLookupMap = null;
 	}
 	
-	public String formatTaxId(String taxId, boolean isCompany) {
+	public static String formatTaxId(String taxId, boolean isCompany) {
 		if (taxId==null) return null;
 		if (!taxId.contains("-")) {
 			String lastDigits = taxId.substring(taxId.length()-4, taxId.length());
