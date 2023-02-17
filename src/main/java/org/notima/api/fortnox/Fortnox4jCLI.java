@@ -16,8 +16,14 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
+
 public class Fortnox4jCLI {
-    public static void main(String[] args) {
+
+	private static String clientId;
+	private static String clientSecret;
+	
+	
+	public static void main(String[] args) {
 		
 		if (args==null || args.length < 2) {
 			System.out.println("Usage: Fortnox4jCLI configfile command orgNo");
@@ -45,14 +51,20 @@ public class Fortnox4jCLI {
 			e.printStackTrace();
 			System.exit(1);
 		}
+
+		if (fc!=null && fc.getClientId()!=null) {
+			clientId = fc.getClientId();
+			clientSecret = fc.getClientSecret();
+		} else {
+			clientId = clientList.getApiClients().getApiClient().get(0).getClientId();
+			clientSecret = clientList.getApiClients().getApiClient().get(0).getClientSecret();
+		}
 		
 		if ("getAccessToken".equalsIgnoreCase(args[1])) {
 			
 			try {
 				
-				String clientSecret = fc.getClientSecret();
-				String clientId = fc.getClientId();
-				String authCode = fc.getApiCode();
+				String authCode = fc.getApiKey().getAuthorizationCode();
 				// TODO: Make redirectUri configurable.
 				String redirectUri = null;
 
@@ -64,8 +76,9 @@ public class Fortnox4jCLI {
 
 		} else if("getAuthenticationCode".equalsIgnoreCase(args[1])) {
 
+			
 			try {
-				signIn(fc.getClientId());
+				signIn(clientId);
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
