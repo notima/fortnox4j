@@ -203,7 +203,8 @@
 				<executions>
 					<execution>
 						<id>sign-artifacts</id>
-						<phase>verify</phase>
+						<!--change phase to verify when uploading to nexus -->
+						<phase>deploy</phase>
 						<goals>
 							<goal>sign</goal>
 						</goals>
@@ -218,7 +219,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>org.notima.api.fortnox.FortnoxClient</mainClass>
+							<mainClass>org.notima.api.fortnox.Fortnox4jCLI</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>
