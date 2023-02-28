@@ -830,10 +830,18 @@ public class FortnoxClient3 {
 	 * @param invoiceNo			The invoice to mark as warehouse ready
 	 * @return					True if the action was successful.
 	 * @throws Exception		If something goes wrong.
+	 * @throws FortnoxInvoiceException	If something goes wrong.
 	 */
-	public Invoice warehouseReadyInvoice(String invoiceNo) throws Exception {
+	public Invoice warehouseReadyInvoice(String invoiceNo) throws Exception, FortnoxInvoiceException {
 		
-		String invoiceXml = performAction(true, "invoice", invoiceNo, FortnoxClient3.ACTION_WAREHOUSE_READY);
+		String invoiceXml = null;
+		
+		try {
+			invoiceXml = performAction(true, "invoice", invoiceNo, FortnoxClient3.ACTION_WAREHOUSE_READY);
+		} catch (FortnoxException eee) {
+			throw new FortnoxInvoiceException(eee.getErrorInformation(), invoiceNo);
+		}
+		
 		StringBuffer result = new StringBuffer(invoiceXml);
 		
 		ErrorInformation e = checkIfError(result);
@@ -848,7 +856,7 @@ public class FortnoxClient3 {
 			if (FortnoxClient3.ERROR_CANT_FIND_INVOICE.equals(e.getCode())) {
 				return null;
 			}
-			throw new FortnoxException(e);
+			throw new FortnoxInvoiceException(e, invoiceNo);
 		}
 		
 	}
@@ -1523,7 +1531,7 @@ public class FortnoxClient3 {
 	 * @return					The result of the action.
 	 * @throws Exception		If something goes wrong.
 	 */
-	public String performAction(boolean put, String document, String documentNo, String action) throws Exception {
+	public String performAction(boolean put, String document, String documentNo, String action) throws Exception, FortnoxException {
 		
 		if (!document.endsWith("s"))
 			document += "s";
