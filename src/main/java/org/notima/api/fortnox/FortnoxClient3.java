@@ -282,6 +282,7 @@ public class FortnoxClient3 {
 	public static final String ERROR_PRICE_LIST_NOT_FOUND = "2000431";
 	public static final String ERROR_TERMS_OF_DELIVERY_NOT_FOUND = "2000435";
 	public static final String ERROR_PROJECT_NOT_FOUND = "2001161";
+	public static final String ERROR_NO_CUSTOMER_INVOICE_SCOPE = "2001393";
 	public static final String ERROR_CANT_FIND_PREDEFINED_ACCOUNT = "2001403";
 	
 	/**
@@ -2372,11 +2373,13 @@ public class FortnoxClient3 {
 	 * 
 	 * @param invoice			The invoice to be updated.
 	 * @throws Exception		If something goes wrong.
+	 * @throws FortnoxScopeException		If this is not allowed. 
 	 * @return	The invoice.
 	 */
-	public Invoice setInvoice(Invoice invoice) throws Exception {
+	public Invoice setInvoice(Invoice invoice) throws FortnoxScopeException, FortnoxInvoiceException, Exception {
 		
 		StringWriter result = new StringWriter();
+		String invoiceDocumentNo = null;
         
         // Remove totals from invoice lines (read only)
         for (InvoiceRow ir : invoice.getInvoiceRows().getInvoiceRow()) {
@@ -2394,12 +2397,14 @@ public class FortnoxClient3 {
         
 		JAXB.marshal(invoice, result);
        
+		invoiceDocumentNo = invoice.getDocumentNumber()!=null ? invoice.getDocumentNumber().trim() : null;
+		
         StringBuffer output = callFortnox("/invoices" + 
-        		(invoice.getDocumentNumber()!=null && invoice.getDocumentNumber().trim().length()>0 ? "/" + invoice.getDocumentNumber().trim() : ""), 
+        		(invoiceDocumentNo!=null && invoiceDocumentNo.length()>0 ? "/" + invoiceDocumentNo : ""), 
         		null, 
         		result.getBuffer(),
         		null, // Headers
-        		(invoice.getDocumentNumber()!=null && invoice.getDocumentNumber().trim().length()>0 ? "put" : null) // method
+        		(invoiceDocumentNo!=null && invoiceDocumentNo.length()>0 ? "put" : null) // method
         		);
 		
         Invoice out = null;
@@ -2408,7 +2413,11 @@ public class FortnoxClient3 {
         
         if (e!=null) {
         	logger.error(result.toString() + " : " + e.getMessage());
-        	throw new FortnoxException(e);
+        	if (ERROR_NO_CUSTOMER_INVOICE_SCOPE.equals(e.getCode())) {
+        		throw new FortnoxScopeException(e);
+        	} else {
+        		throw new FortnoxInvoiceException(e, invoiceDocumentNo);
+        	}
         } else {
 	        StringReader reader = new StringReader(output.toString());
 	        if (output!=null && output.length()>0) {
