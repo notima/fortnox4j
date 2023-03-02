@@ -283,6 +283,7 @@ public class FortnoxClient3 {
 	public static final String ERROR_TERMS_OF_DELIVERY_NOT_FOUND = "2000435";
 	public static final String ERROR_PROJECT_NOT_FOUND = "2001161";
 	public static final String ERROR_NO_CUSTOMER_INVOICE_SCOPE = "2001393";
+	public static final String ERROR_NO_VOUCHER_SCOPE = "2002455";
 	public static final String ERROR_CANT_FIND_PREDEFINED_ACCOUNT = "2001403";
 	
 	/**
@@ -2435,9 +2436,10 @@ public class FortnoxClient3 {
 	 * @param voucher			The voucher to be updated / created.
 	 * @throws Exception		If something goes wrong.
 	 * @throws FortnoxException	Fortnox error if occured.
+	 * @throws FortnoxScopeException		If this is not allowed. 
 	 * @return 					The voucher created / updated.
 	 */
-	public Voucher setVoucher(Voucher voucher) throws FortnoxException, Exception {
+	public Voucher setVoucher(Voucher voucher) throws FortnoxScopeException, FortnoxException, Exception {
 		
 		StringWriter result = new StringWriter();
 
@@ -2456,7 +2458,11 @@ public class FortnoxClient3 {
         Voucher out = null;
         if (e!=null) {
         	logger.error(result.toString() + " : " + e.getMessage());
-        	throw new FortnoxException(e);
+        	if (ERROR_NO_VOUCHER_SCOPE.equals(e.getCode())) {
+        		throw new FortnoxScopeException(e);
+        	} else {
+        		throw new FortnoxException(e);
+        	}
         } else {
 	        StringReader reader = new StringReader(output.toString());
 	        if (output!=null && output.length()>0) {
