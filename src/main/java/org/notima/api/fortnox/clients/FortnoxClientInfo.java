@@ -3,9 +3,12 @@ package org.notima.api.fortnox.clients;
 import java.beans.Transient;
 import java.util.Date;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.notima.api.fortnox.entities3.CompanySetting;
+
+import com.google.gson.annotations.SerializedName;
 
 /**
  * Class containing information about a Fortnox client
@@ -79,7 +82,6 @@ public class FortnoxClientInfo {
 		this.apiCode = apiCode;
 	}
 
-	
 	/**
 	 * Used by legacy access token json-struct.
 	 * 
@@ -93,8 +95,12 @@ public class FortnoxClientInfo {
 	 * The Access Token is used together with the Client Secret to gain access
 	 * to a particular Fortnox organization. (pre-oauth)
 	 * 
+	 * XmlElement accessToken is required for the legacy token to work from the
+	 * fortnoxClients.xml file.
+	 * 
 	 * @return		The access token if set.
 	 */
+	@XmlElement(name = "accessToken")
 	public String getLegacyAccessToken() {
 		if(apiKey == null)
 			return accessToken;
