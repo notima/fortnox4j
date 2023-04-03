@@ -79,7 +79,9 @@ public class FortnoxClientList {
 			return;
 		
 		for (FortnoxClientInfo fci : clients.getFortnoxClient()) {
-			clientMap.put(fci.getOrgNo(), fci);
+			if (fci.getOrgNo()!=null) {
+				clientMap.put(fci.getOrgNo(), fci);
+			}
 		}
 		
 	}

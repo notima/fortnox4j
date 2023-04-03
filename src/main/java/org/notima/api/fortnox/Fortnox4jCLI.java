@@ -54,9 +54,14 @@ public class Fortnox4jCLI {
 
 		if (fc!=null && fc.getClientId()!=null) {
 			clientId = fc.getClientId();
-			clientSecret = fc.getClientSecret();
 		} else {
 			clientId = clientList.getApiClients().getApiClient().get(0).getClientId();
+			clientSecret = clientList.getApiClients().getApiClient().get(0).getClientSecret();
+		}
+		
+		if (fc!=null && fc.getClientSecret()!=null) {
+			clientSecret = fc.getClientSecret();
+		} else {
 			clientSecret = clientList.getApiClients().getApiClient().get(0).getClientSecret();
 		}
 		
@@ -146,6 +151,9 @@ public class Fortnox4jCLI {
 
 	private static void getAccessToken(String clientId, String clientSecret, String authCode, String redirectUri) {
 		try {
+			if (redirectUri==null) {
+				redirectUri="http://localhost:8008/login";
+			}
 			FortnoxCredentials credentials = FortnoxOAuth2Client.getAccessToken(clientId, clientSecret, authCode, redirectUri);
 			System.out.println("Access Token:");
 			System.out.println(credentials.getAccessToken() + "\n");

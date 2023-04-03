@@ -70,7 +70,21 @@ Or karaf
 
 ## CLI guide
 
-Usage: `Fortnox4jCLI configfile command orgNo`
+Prerequisites
+
+Your integration in Fortnox must have a redirect URI that matches this client. That redirect URI is
+
+	http://localhost:8008/login
+
+The easiest way to run the CLI is to create an assembly by running
+
+	mvn assembly:single
+
+Usage: `org.notima.api.fortnox.Fortnox4jCLI configfile command orgNo`
+
+If you have created the assembly you would type something like
+
+	java -jar target/fortnox4j-2.0.1-SNAPSHOT-jar-with-dependencies.jar src/main/resources/FortnoxClientList.xml getAuthenticationCode 555555-5555
 
 
 Arguments:
