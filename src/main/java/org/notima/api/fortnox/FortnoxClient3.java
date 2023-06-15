@@ -2368,6 +2368,20 @@ public class FortnoxClient3 {
 		
 	}
 	
+	/**
+	 * Removes non-writable fields. Use to purge data before writing 
+	 * an invoice to Fortnox.
+	 * 
+	 * @param invoice
+	 */
+	private void removeNonWritableFields(Invoice invoice) {
+		if (invoice.getBasisTaxReduction()!=null) {
+			invoice.setBasisTaxReduction(null);
+		}
+		if (invoice.getTotalToPay()!=null) {
+			invoice.setTotalToPay(null);
+		}
+	}
 	
 	/**
 	 * Creates or updates an invoice.
@@ -2395,6 +2409,9 @@ public class FortnoxClient3 {
         		ir.setArticleNumber(null);
         	}
         }
+        
+        // Remove any fields that are non-writable but still is here
+        removeNonWritableFields(invoice);
         
 		JAXB.marshal(invoice, result);
        
