@@ -4,6 +4,9 @@ import java.beans.Transient;
 
 import javax.xml.bind.annotation.XmlElement;
 
+import org.notima.api.fortnox.FortnoxClient3;
+import org.notima.util.NumberUtils;
+
 public class VoucherRow {
 
 	private Integer 	account;
@@ -52,6 +55,21 @@ public class VoucherRow {
 	public double getAbsoluteAmount() {
 		double result = Math.abs(debit.doubleValue() - credit.doubleValue());
 		return result;
+	}
+	
+	@Transient
+	public double getAmount() {
+		double result = debit.doubleValue() - credit.doubleValue();
+		return NumberUtils.roundToPrecision(result, FortnoxClient3.DEFAULT_ROUNDING_PRECISION);
+	}
+	
+	@Transient
+	public void setAmount(Double amount) {
+		if (amount<0) {
+			setCredit(-amount);
+		} else {
+			setDebit(amount);
+		}
 	}
 	
 	@XmlElement(name="Description")

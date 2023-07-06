@@ -1,10 +1,16 @@
 package org.notima.api.fortnox.clients;
 
+import java.beans.Transient;
+import java.util.Date;
+
 import com.google.gson.annotations.SerializedName;
 
 public class FortnoxCredentials {
 
     private String orgNo;
+
+    private String clientId;
+    private String clientSecret;
 
     @SerializedName("authorization_code")
     private String authorizationCode;
@@ -35,6 +41,22 @@ public class FortnoxCredentials {
         this.orgNo = orgNo;
     }
 
+    public String getClientId() {
+        return clientId;
+    }
+
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
+
+    public String getClientSecret() {
+        return clientSecret;
+    }
+
+    public void setClientSecret(String clientSecret) {
+        this.clientSecret = clientSecret;
+    }
+
     public String getAuthorizationCode() {
         return authorizationCode;
     }
@@ -58,6 +80,19 @@ public class FortnoxCredentials {
     public void setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
     }
+    
+    @Transient
+    public String getRefreshTokenAbbreviated() {
+    	if (!hasRefreshToken()) {
+    		return ("N/A");
+    	} else {
+    		if (refreshToken.length()>8) {
+    			return ".." + refreshToken.substring(refreshToken.length()-8, refreshToken.length());
+    		}
+    		return legacyToken;
+    	}
+    }
+    
 
     public String getScope() {
         return scope;
@@ -87,6 +122,15 @@ public class FortnoxCredentials {
         return lastRefresh;
     }
 
+    @Transient
+    public Date getLastRefreshAsDate() {
+    	
+    	Date date = new Date();
+    	date.setTime(lastRefresh);
+    	return date;
+    	
+    }
+    
     public void setLastRefresh(long lastRefresh) {
         this.lastRefresh = lastRefresh;
     }
@@ -98,4 +142,117 @@ public class FortnoxCredentials {
     public void setLegacyToken(String legacyToken) {
         this.legacyToken = legacyToken;
     }
+
+    @Transient
+    public String getLegacyTokenAbbreviated() {
+    	if (!hasLegacyToken()) {
+    		return ("N/A");
+    	} else {
+    		if (legacyToken.length()>8) {
+    			return ".." + legacyToken.substring(legacyToken.length()-8, legacyToken.length());
+    		}
+    		return legacyToken;
+    	}
+    }
+    
+    @Transient
+    public String getAccessTokenAbbreviated() {
+    	
+    	if (!hasAccessToken()) {
+    		return("N/A");
+    	} else {
+    		if (accessToken.length()>8) {
+    			return ".." + accessToken.substring(accessToken.length()-8, accessToken.length());
+    		} else {
+    			return accessToken;
+    		}
+    	}
+    	
+    }
+
+    @Transient
+    public boolean hasAuthorizationCode() {
+    	return (authorizationCode!=null && authorizationCode.trim().length()>0);
+    }
+    
+    @Transient
+    public boolean hasLegacyTokenAndClientSecret() {
+    	return (hasLegacyToken() &&
+    			hasClientSecret());
+    }
+    
+    /**
+     * A string representation of the credential
+     */
+    public String toString() {
+    	StringBuffer buf = new StringBuffer();
+    	buf.append("OrgNo: " + orgNo + ", ");
+    	if (hasLegacyToken()) {
+    		buf.append("Legacy: " + getLegacyTokenAbbreviated());
+    		return buf.toString();
+    	}
+    	buf.append("ClientID: " + getClientId() + ", Secret: " + (hasClientSecret() ? "Yes" : "No") + ", ");
+    	buf.append("Oauth2: " + getAccessTokenAbbreviated() + ", ");
+    	if (hasRefreshToken()) {
+    		buf.append("RefreshToken: " + getRefreshTokenAbbreviated() + ", ");
+    	} else {
+    		buf.append("No refresh token, ");
+    	}
+    	buf.append(getLastRefreshAsDate() + " (" + lastRefresh + ")");
+    	return (buf.toString());
+    }
+    
+    public boolean equals(FortnoxCredentials that) {
+    	
+    	if (!orgNo.equals(that.orgNo))
+    		return false;
+    	
+    	if (hasLegacyToken()) {
+    		return (legacyTokenEquals(that) && clientSecretEquals(that));
+    	} else {
+    		return (accessTokenEquals(that) && (lastRefresh == that.lastRefresh));
+    	}
+    	
+    }
+    
+    @Transient
+    public boolean hasAccessToken() {
+    	return accessToken!=null && accessToken.trim().length()>0;
+    }
+    
+    private boolean accessTokenEquals(FortnoxCredentials that) {
+    	if (that==null) return false;
+    	return (hasAccessToken() && accessToken.equals(that.getAccessToken()));
+    }
+
+    @Transient
+    public boolean hasClientId() {
+    	return (clientId!=null && clientId.trim().length()>0);
+    }
+    
+    @Transient
+    public boolean hasClientSecret() {
+    	return (clientSecret!=null && clientSecret.trim().length()>0);
+    }
+    
+    @Transient
+    public boolean hasLegacyToken() {
+    	return (legacyToken!=null && legacyToken.trim().length()>0);
+    }
+    
+    @Transient
+    public boolean hasRefreshToken() {
+    	return (refreshToken!=null && refreshToken.trim().length()>0);
+    }
+    
+    private boolean legacyTokenEquals(FortnoxCredentials that) {
+    	if (that==null || !hasLegacyToken()) return false;
+    	return (legacyToken.equals(that.getLegacyToken()));
+    }
+    
+    private boolean clientSecretEquals(FortnoxCredentials that) {
+    	if (that==null || !hasClientSecret()) return false;
+    	return (clientSecret.equals(that.getClientSecret()));
+    }
+     
 }

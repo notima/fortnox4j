@@ -1,10 +1,14 @@
 package org.notima.api.fortnox.clients;
 
+import java.beans.Transient;
 import java.util.Date;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.notima.api.fortnox.entities3.CompanySetting;
+
+import com.google.gson.annotations.SerializedName;
 
 /**
  * Class containing information about a Fortnox client
@@ -17,17 +21,20 @@ public class FortnoxClientInfo {
 
 	private String	clientId;
 	private String	apiCode;
+	private String	accessToken;
 	private String	clientSecret;
 	private FortnoxCredentials apiKey;
 	
 	private String	orgNo;
 	private String	orgName;
+	private String	countryCode = "SE";		// Currently Fortnox is only for Swedish organizations.
 
 	private String	contactName;
 	private String 	contactEmail;
 	private String 	contactDeviationEmail;
 	
 	private String	settingsSupplierNo;
+	private Boolean	useSettingsSupplier = Boolean.FALSE;
 	private Boolean sandbox;
 
 	private String	pollType;
@@ -53,38 +60,54 @@ public class FortnoxClientInfo {
 	public void setClientId(String clientId) {
 		this.clientId = clientId;
 	}
+	
+	public String getCountryCode() {
+		return countryCode;
+	}
+
+	public void setCountryCode(String countryCode) {
+		this.countryCode = countryCode;
+	}
 
 	/**
-	 * The API code is used once to get an access token. 
+	 * The API code is used once to get an access token (pre-oauth) 
 	 * 
 	 * @return	The API code if set.
 	 */
-	@Deprecated
 	public String getApiCode() {
 		return apiCode;
 	}
 
-	@Deprecated
 	public void setApiCode(String apiCode) {
 		this.apiCode = apiCode;
 	}
 
 	/**
+	 * Used by legacy access token json-struct.
+	 * 
+	 * @param accessToken
+	 */
+	public void setAccessToken(String accessToken) {
+		this.accessToken = accessToken;
+	}
+
+	/**
 	 * The Access Token is used together with the Client Secret to gain access
-	 * to a particular Fortnox organization.
+	 * to a particular Fortnox organization. (pre-oauth)
+	 * 
+	 * XmlElement accessToken is required for the legacy token to work from the
+	 * fortnoxClients.xml file.
 	 * 
 	 * @return		The access token if set.
-	 * @deprecated 	use {@link #getApiKey()}
 	 */
-	@Deprecated
-	public String getAccessToken() {
+	@XmlElement(name = "accessToken")
+	public String getLegacyAccessToken() {
 		if(apiKey == null)
-			return null;
+			return accessToken;
 		return apiKey.getLegacyToken();
 	}
 	
-	@Deprecated
-	public void setAccessToken(String accessToken) {
+	public void setLegacyAccessToken(String accessToken) {
 		if(apiKey == null)
 			apiKey = new FortnoxCredentials();
 		apiKey.setLegacyToken(accessToken);
@@ -109,7 +132,6 @@ public class FortnoxClientInfo {
 	 * The client secret can also be supplied in the FortnoxApiClient if this
 	 * class is part of a FortnoxClientList. 
 	 * 
-	 * @see			FortnoxCredentialsProvider#getClientSecret()
 	 * @see			FortnoxClientList
 	 * 	
 	 * @return		The client secret if set.
@@ -123,11 +145,18 @@ public class FortnoxClientInfo {
 	}
 
 	public String getOrgNo() {
-		return orgNo;
+		if (hasCompanySetting() && companySetting.hasOrganizationNumber()) {
+			return companySetting.getOrganizationNumber();
+		} else {
+			return orgNo;
+		}
 	}
 
 	public void setOrgNo(String orgNo) {
 		this.orgNo = orgNo;
+		if (hasCompanySetting()) {
+			companySetting.setOrganizationNumber(orgNo);
+		}
 	}
 
 	public String getPollType() {
@@ -138,12 +167,23 @@ public class FortnoxClientInfo {
 		this.pollType = pollType;
 	}
 
+	public boolean hasOrgName() {
+		return (getOrgName()!=null && getOrgName().trim().length()>0);
+	}
+	
 	public String getOrgName() {
-		return orgName;
+		if (hasCompanySetting() && companySetting.hasName()) {
+			return companySetting.getName();
+		} else {
+			return orgName;
+		}
 	}
 
 	public void setOrgName(String clientName) {
 		this.orgName = clientName;
+		if (hasCompanySetting()) {
+			companySetting.setName(clientName);
+		}
 	}
 
 	public String getContactName(){
@@ -177,7 +217,20 @@ public class FortnoxClientInfo {
 	public void setSettingsSupplierNo(String settingsSupplierNo) {
 		this.settingsSupplierNo = settingsSupplierNo;
 	}
+
+	@Transient
+	public boolean useSettingsSupplier() {
+		return useSettingsSupplier!=null && useSettingsSupplier.booleanValue();
+	}
 	
+	public Boolean getUseSettingsSupplier() {
+		return useSettingsSupplier;
+	}
+
+	public void setUseSettingsSupplier(Boolean useSettingsSupplier) {
+		this.useSettingsSupplier = useSettingsSupplier;
+	}
+
 	public Boolean getSandbox() {
 		return sandbox;
 	}
@@ -208,6 +261,10 @@ public class FortnoxClientInfo {
 
 	public void setCompanySetting(CompanySetting companySetting) {
 		this.companySetting = companySetting;
+	}
+
+	public boolean hasCompanySetting() {
+		return companySetting!=null;
 	}
 	
 }

@@ -113,6 +113,42 @@ public class Voucher extends VoucherSubset {
 		return this;
 		
 	}
+
+	/**
+	 * Balances the voucher using the balance account as account.
+	 * 
+	 * @param balanceAccount
+	 */
+	public void balanceVoucher(Integer balanceAccount) {
+
+		Double amount = calculateBalance();
+		VoucherRow vr = new VoucherRow();
+		vr.setAccount(balanceAccount);
+		vr.setAmount(-amount);
+		addVoucherRow(vr);
+		
+	}
+	
+	/**
+	 * Calculates balance on the voucher. If balanced it should be 0. 
+	 * 
+	 * @return	The open balance
+	 */
+	public Double calculateBalance() {
+		
+		if (voucherRows==null || voucherRows.getVoucherRow()==null || voucherRows.getVoucherRow().isEmpty()) {
+			return Double.valueOf(0);
+		}
+		
+		double balance = 0d;
+		for (VoucherRow vr : voucherRows.getVoucherRow()) {
+			balance += vr.getAmount();
+		}
+
+		balance = NumberUtils.roundToPrecision(balance, FortnoxClient3.DEFAULT_ROUNDING_PRECISION);
+		
+		return Double.valueOf(balance);
+	}
 	
 	private void currencyConvertRow(Currency srcCurrency, VoucherRow vr) {
 

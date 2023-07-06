@@ -7,7 +7,6 @@ import java.util.List;
 import javax.xml.bind.JAXBException;
 
 import org.notima.api.fortnox.FortnoxUtil;
-import org.notima.api.fortnox.entities3.CompanySetting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,9 +26,9 @@ public class FortnoxClientManager {
 	private String	clientsFile;
 
 	// The default client id
-	private String	defaultClientId;
+	static private String	defaultClientId;
 	// The default client secret
-	private String	defaultClientSecret;
+	static private String	defaultClientSecret;
 	
 	public FortnoxClientManager() {}
 	
@@ -72,9 +71,8 @@ public class FortnoxClientManager {
 			dst.setClientId(ci.getClientId());
 			dst.setClientSecret(ci.getClientSecret());
 		}
-		CompanySetting cs = ci.getCompanySetting();
-		if (cs!=null) {
-			dst.setOrgName(cs.getName());
+		if (!dst.hasOrgName()) {
+			dst.setOrgName(ci.getOrgName());
 		}
 
 		boolean saved = saveClientInfo();
@@ -247,7 +245,7 @@ public class FortnoxClientManager {
 	}
 
 	public void setDefaultClientId(String defaultClientId) {
-		this.defaultClientId = defaultClientId;
+		FortnoxClientManager.defaultClientId = defaultClientId;
 	}
 	
 	/**
@@ -260,7 +258,7 @@ public class FortnoxClientManager {
 	}
 
 	public void setDefaultClientSecret(String defaultClientSecret) {
-		this.defaultClientSecret = defaultClientSecret;
+		FortnoxClientManager.defaultClientSecret = defaultClientSecret;
 	}
 
 	/**

@@ -5,13 +5,11 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.math.BigDecimal;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.text.DateFormat;
@@ -30,8 +28,6 @@ import java.util.TreeSet;
 import javax.xml.bind.JAXB;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.XMLGregorianCalendar;
-
-import com.google.gson.Gson;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -53,14 +49,12 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.notima.api.fortnox.clients.FortnoxCredentials;
-import org.notima.api.fortnox.clients.FortnoxClientInfo;
-import org.notima.api.fortnox.clients.FortnoxClientList;
-import org.notima.api.fortnox.clients.FortnoxCredentials;
 import org.notima.api.fortnox.entities3.Account;
 import org.notima.api.fortnox.entities3.AccountSubset;
 import org.notima.api.fortnox.entities3.Accounts;
 import org.notima.api.fortnox.entities3.Article;
 import org.notima.api.fortnox.entities3.Articles;
+import org.notima.api.fortnox.entities3.Authorization;
 import org.notima.api.fortnox.entities3.CompanySetting;
 import org.notima.api.fortnox.entities3.CostCenter;
 import org.notima.api.fortnox.entities3.CostCenters;
@@ -111,6 +105,8 @@ import org.notima.api.fortnox.entities3.WriteOffs;
 import org.notima.api.fortnox.oauth2.FortnoxOAuth2Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
 
 /**
  * Client class for communicating with Fortnox.
@@ -179,9 +175,21 @@ public class FortnoxClient3 {
 	 */
 	public static final String ACCT_SALES_MP1 = "SALES";
 	public static final String ACCT_SALES_SERVICE_MP1 = "SALES2";
+	public static final String ACCT_SALES_MP1_EASY_VAT = "SALES_25_SE";
+	public static final String ACCT_SALES_MP1_SERVICE_EASY_VAT = "SALES_25_SE2";
+	
 	public static final String ACCT_SALES_MP2 = "SALES_MP2";
+	public static final String ACCT_SALES_MP2_EASY_VAT = "SALES_12_SE";
+	public static final String ACCT_SALES_MP2_SERVICE_EASY_VAT = "SALES_12_SE2";
+	
 	public static final String ACCT_SALES_MP3 = "SALES_MP3";
+	public static final String ACCT_SALES_MP3_EASY_VAT = "SALES_6_SE";
+	public static final String ACCT_SALES_MP3_SERVICE_EASY_VAT = "SALES_6_SE2";
+	
 	public static final String ACCT_SALES_MP0 = "SALES_MP0";
+	public static final String ACCT_SALES_MP0_EASY_VAT = "SALES_0_SE";
+	public static final String ACCT_SALES_MP0_SERVICE_EASY_VAT = "SALES_0_SE2";
+	
 	public static final String ACCT_SALES_NO_VAT = "SALES_NOVAT";
 	public static final String ACCT_SALES_EU = "SALESEUREV";
 	public static final String ACCT_SALES_EU_SERVICE = "SALESEUREV2";
@@ -201,11 +209,13 @@ public class FortnoxClient3 {
 	public static final String ACCT_OUTVAT_MP3 = "OUTVAT_MP3";
 	public static final String ACCT_OUTVAT_MP4 = "OUTVAT_MP4";
 	public static final String ACCT_CASHBYCARD = "CASHBYCARD";
+	public static final String ACCT_INTEREST = "INTEREST"; 		// Normally interest income
 	
 
 	/**
 	 * Predefined revenue accounts
-	 * These exist as predefined accounts in Fortnox
+	 * These exist as predefined accounts in Fortnox.
+	 * Not all may exist at the same time (Easy VAT).
 	 */
 	public static String[] PREDEFINED_REV_ACCT = new String[] {
 		ACCT_CURRENCYGAIN,
@@ -220,7 +230,15 @@ public class FortnoxClient3 {
 		ACCT_SALES_EXPORT,
 		ACCT_SALES_EU_W_VAT,
 		ACCT_SALES_EU_W_VAT_SERVICE,
-		ACCT_SALES_SE_REV
+		ACCT_SALES_SE_REV,
+		ACCT_SALES_MP1_EASY_VAT,
+		ACCT_SALES_MP1_SERVICE_EASY_VAT,
+		ACCT_SALES_MP2_EASY_VAT,
+		ACCT_SALES_MP2_SERVICE_EASY_VAT,
+		ACCT_SALES_MP3_EASY_VAT,
+		ACCT_SALES_MP3_SERVICE_EASY_VAT,
+		ACCT_SALES_MP0_EASY_VAT,
+		ACCT_SALES_MP0_SERVICE_EASY_VAT
 	};
 
 	/**
@@ -264,6 +282,9 @@ public class FortnoxClient3 {
 	public static final String ERROR_PRICE_LIST_NOT_FOUND = "2000431";
 	public static final String ERROR_TERMS_OF_DELIVERY_NOT_FOUND = "2000435";
 	public static final String ERROR_PROJECT_NOT_FOUND = "2001161";
+	public static final String ERROR_NO_CUSTOMER_INVOICE_SCOPE = "2001393";
+	public static final String ERROR_NO_VOUCHER_SCOPE = "2002455";
+	public static final String ERROR_CANT_FIND_PREDEFINED_ACCOUNT = "2001403";
 	
 	/**
 	 * Inbox folders
@@ -280,9 +301,8 @@ public class FortnoxClient3 {
 	public static final String DFortnox4JFile = "Fortnox4JFile";
 	public static final String ENV_CONFIG_FILE = DFortnox4JFile.toUpperCase();
 	
-	private String 		m_clientId;
-	private String 		m_clientSecret;
 	private String		m_baseUrl = "https://api.fortnox.se";
+	private String		m_redirectUri = null;
 	private FortnoxCredentialsProvider credentialsProvider;
 	
 	public static String		s_dfmtStr = "yyyy-MM-dd";
@@ -302,9 +322,6 @@ public class FortnoxClient3 {
 	protected long		totalCalls = 0;
 	protected long		minMillisBetweenCalls = 310;	// Max 3,33 calls / second
 	
-	// Current client list
-	private FortnoxClientList	clientList;
-	
 	/**
 	 * Flag to say if articles should be used on invoices / orders
 	 */
@@ -321,44 +338,10 @@ public class FortnoxClient3 {
 	 * 
 	 * export FORTNOX4JFILE=//file
 	 * 
-	 * NOTE: If the above environment variables are set and valid they will be used if this constructor 
-	 * 		 is called. If you want to specify accessToken and clientSecret programmatically, 
-	 * 		 use {@link FortnoxClient3#FortnoxClient3(String, String)}
-	 * 
 	 * @param credentialsProvider			The key provider that will be used to retrieve the access token
 	 */
 	public FortnoxClient3(FortnoxCredentialsProvider credentialsProvider) {
 		this.credentialsProvider = credentialsProvider;
-		try {
-			initFromFile(null);
-		} catch (Exception e) {
-			logger.error(e.getMessage());
-		}
-	}
-	
-	/**
-	 * Create FortnoxClient using specified accessToken and clientSecret.
-	 * 
-	 * @param accessToken			The accessToken to use.
-	 * @param clientSecret			The clientSecret.
-	 * @param credentialsProvider			The key provider that will be used to retrieve the access token
-	 */
-	public FortnoxClient3(String clientId, String clientSecret, FortnoxCredentialsProvider credentialsProvider) {
-		m_clientId = clientId;
-		m_clientSecret = clientSecret;
-		this.credentialsProvider = credentialsProvider;
-	}
-	
-	/**
-	 * Create FortnoxClient using specified configuration file.
-	 * 
-	 * @param configFile		The configuration file to use.
-	 * @param credentialsProvider			The key provider that will be used to retrieve the access token
-	 * @throws IOException		If something goes wrong when reading the file. 
-	 */
-	public FortnoxClient3(String configFile, FortnoxCredentialsProvider credentialsProvider) throws IOException {
-		this.credentialsProvider = credentialsProvider;
-		initFromFile(configFile);
 	}
 
 	/**
@@ -369,7 +352,25 @@ public class FortnoxClient3 {
 	public void setKeyProvider(FortnoxCredentialsProvider credentialsProvider) {
 		this.credentialsProvider = credentialsProvider;
 	}
-
+	
+	public boolean hasClientSecret() {
+		String clientSecret = null;
+		FortnoxCredentials fc = null;
+		try {
+			fc = credentialsProvider.getCredentials();			
+			clientSecret = fc.getClientSecret();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		if (clientSecret==null && credentialsProvider.hasDefaultClientSecret()) {
+			clientSecret = credentialsProvider.getDefaultClientSecret();
+			if (fc!=null) {
+				fc.setClientSecret(clientSecret);
+			}
+		}
+		return clientSecret!=null && clientSecret.trim().length()>0;
+	}
+	
 	/**
 	 * @return	True if a key can be retrieved from the key provider
 	 */
@@ -385,63 +386,38 @@ public class FortnoxClient3 {
 		}
 		return false;
 	}
-	
+
 	/**
-	 * Read client parameters from file (if found).
+	 * Gets legacy access token from an auth code (API-code) and client secret.
 	 * 
-	 * @param configFile
-	 * @throws IOException 
+	 * @param authCode			The auth code supplied by the Fortnox client.
+	 * @param clientSecret		The secret to access the API.
+	 * @return					The access token if successful.
+	 * @throws Exception		If something goes wrong.
 	 */
-	private void initFromFile(String configFile) throws IOException {
+	public String getLegacyAccessToken(String authCode, String clientSecret) throws Exception {
 		
-		if (configFile==null || configFile.trim().length()==0) {
-			// Try system properties
-			String defaultFile = System.getProperty(DFortnox4JFile);
-			if (defaultFile==null) {
-				// Try environment
-				defaultFile = System.getenv(ENV_CONFIG_FILE);
-			}
-			if (defaultFile!=null) {
-				configFile = defaultFile;
-				logger.debug("Trying config from environment: {}", configFile);
-			}
+		Map<String,String> headers = new TreeMap<String,String>();
+		headers.put("Authorization-Code", authCode);
+		headers.put("Client-Secret", clientSecret);
+		
+		// Use any call to request the access token.
+		StringBuffer result = callFortnox("/customers", "", null, headers, null);
+		
+		StringReader strReader = new StringReader(result.toString());
+		// If auth code and client secret don't match, a 404 error is returned.
+		if (result.toString().startsWith("404")) {
+			throw new FortnoxException("404: Failed to retrieve access token for API-code " + authCode);
 		}
 		
-		// First check if this resolves to a file right away
-		File f = configFile!=null ? new File(configFile) : null;
-		if (f!=null && !f.exists()) {
-			// Try to resolve from classpath
-			URL url = ClassLoader.getSystemResource(configFile);
-			if (url!=null) {
-				f = new File(url.getFile());
-			} else {
-				f = null;
-			}
-			if (f==null || !f.exists()) {
-				logger.warn("Configuration file {} not found.", configFile);
-				return; // Don't configure from file.
-			}
-		}
-
-		if (f==null) {
-			logger.debug("Not using configuration file to init FortnoxClient");
-			return;
+		ErrorInformation err = checkIfError(result);
+		if (err!=null) {
+			throw new FortnoxException(err);
 		}
 		
-		try {
-			logger.debug("Using configuration file {}.", configFile);
-			clientList = FortnoxUtil.readFortnoxClientListFromFile(configFile);
-		} catch (Exception e) {
-			logger.error("Problem with reading configuration file {}.", configFile);
-			e.printStackTrace();
-			return;
-		}
-
-		FortnoxClientInfo fc = clientList.getFirstClient();
+		Authorization auth = JAXB.unmarshal(strReader, Authorization.class);
 		
-		m_clientId = fc.getClientId();
-		m_clientSecret = fc.getClientSecret();
-		
+		return auth.getAccessToken();
 		
 	}
 	
@@ -665,7 +641,9 @@ public class FortnoxClient3 {
 			logger.debug((put ? "Putting" : (delete ? "Deleting " : "Getting url")) + ": " + urlStr);
 		}
 
-		headers.putAll(getAuthorizationHeaders());
+		if(headers.get("Authorization-Code") == null) {
+			headers.putAll(getAuthorizationHeaders());
+		}
 
 		// Set headers
 		if (headers!=null) {
@@ -700,7 +678,9 @@ public class FortnoxClient3 {
 			// Mark that the content is consumed.
 			EntityUtils.consume(entity);
 		
-			logger.debug("Received reply: \n" + result.toString());			
+			// Max size of log (in case sent to syslog) is 64 K
+			logger.debug("Received reply: \n" + result.substring(0, Math.min(50000, result.length())));
+			
 		} else {
 			logger.debug("No content");
 		}
@@ -714,26 +694,47 @@ public class FortnoxClient3 {
 		return(result);
 	}
 
-	private Map<? extends String, ? extends String> getAuthorizationHeaders() throws Exception {
+	public FortnoxCredentials getCurrentCredentials() throws Exception {
 		FortnoxCredentials credentials = credentialsProvider.getCredentials();
-		if(credentials.getAuthorizationCode() != null) {
-			credentials = FortnoxOAuth2Client.getAccessToken(m_clientId, m_clientSecret, credentials.getAuthorizationCode());
-			credentialsProvider.setCredentials(credentials);
+		
+		if (credentials!=null) {
+			
+			if(credentials.getAuthorizationCode() != null) {
+				credentials = FortnoxOAuth2Client.getAccessToken(credentials.getClientId(), credentials.getClientSecret(), credentials.getAuthorizationCode(), m_redirectUri);
+				credentialsProvider.setCredentials(credentials);
+			}
+			
 		}
+		
+		
+		return credentials;
+	}
+	
+	private Map<? extends String, ? extends String> getAuthorizationHeaders() throws Exception {
+		FortnoxCredentials credentials = getCurrentCredentials();
+		if (credentials==null) {
+			logger.error("No credentials found for " + credentialsProvider.getOrgNo());
+			return new TreeMap<String, String>();
+		}
+		if (!credentials.hasLegacyToken() && credentials.hasAccessToken()) {
+			credentials = updateCredentials(credentials);
+		}
+		logger.debug("Got credential: " + credentials.toString());
 
 		if(credentials.getLegacyToken() != null) {
-			return getLegacyAuthorizationHeaders(credentials.getLegacyToken());
+			return getLegacyAuthorizationHeaders(credentials.getLegacyToken(), credentials.getClientSecret());
 		} 
 		else if(credentials.getAccessToken() != null) {
-			credentials = updateCredentials(credentials);
 			return getBearerTokenHeader(credentials);
 		}
-		return null;
+		logger.warn("No authorization headers created.");
+		return new TreeMap<String, String>();
 	}
 
-	private FortnoxCredentials updateCredentials(FortnoxCredentials credentials) throws Exception {
+	private FortnoxCredentials updateCredentials(FortnoxCredentials credentials) throws FortnoxAuthenticationException, Exception {
 		if(credentials.getLastRefresh() + (credentials.getExpiresIn() * 1000) < new Date().getTime()) {
-			credentials = FortnoxOAuth2Client.refreshAccessToken(m_clientId, m_clientSecret, credentials.getRefreshToken());
+			logger.info("Refreshing credentials for " + credentials.getOrgNo());
+			credentials = FortnoxOAuth2Client.refreshAccessToken(credentials.getClientId(), credentials.getClientSecret(), credentials.getRefreshToken());
 			credentialsProvider.setCredentials(credentials);
 		}
 		return credentials;
@@ -745,10 +746,10 @@ public class FortnoxClient3 {
 		return headers;
 	}
 
-	private Map<? extends String, ? extends String> getLegacyAuthorizationHeaders(String accessToken) {
+	private Map<? extends String, ? extends String> getLegacyAuthorizationHeaders(String accessToken, String clientSecret) {
 		Map<String, String> headers = new HashMap<String, String>();
 		headers.put("Access-Token", accessToken);
-		headers.put("Client-Secret", m_clientSecret);
+		headers.put("Client-Secret", clientSecret);
 		return headers;
 	}
 	
@@ -831,10 +832,18 @@ public class FortnoxClient3 {
 	 * @param invoiceNo			The invoice to mark as warehouse ready
 	 * @return					True if the action was successful.
 	 * @throws Exception		If something goes wrong.
+	 * @throws FortnoxInvoiceException	If something goes wrong.
 	 */
-	public Invoice warehouseReadyInvoice(String invoiceNo) throws Exception {
+	public Invoice warehouseReadyInvoice(String invoiceNo) throws Exception, FortnoxInvoiceException {
 		
-		String invoiceXml = performAction(true, "invoice", invoiceNo, FortnoxClient3.ACTION_WAREHOUSE_READY);
+		String invoiceXml = null;
+		
+		try {
+			invoiceXml = performAction(true, "invoice", invoiceNo, FortnoxClient3.ACTION_WAREHOUSE_READY);
+		} catch (FortnoxException eee) {
+			throw new FortnoxInvoiceException(eee.getErrorInformation(), invoiceNo);
+		}
+		
 		StringBuffer result = new StringBuffer(invoiceXml);
 		
 		ErrorInformation e = checkIfError(result);
@@ -849,7 +858,7 @@ public class FortnoxClient3 {
 			if (FortnoxClient3.ERROR_CANT_FIND_INVOICE.equals(e.getCode())) {
 				return null;
 			}
-			throw new FortnoxException(e);
+			throw new FortnoxInvoiceException(e, invoiceNo);
 		}
 		
 	}
@@ -1205,7 +1214,14 @@ public class FortnoxClient3 {
 		}
 		
 	}
+
+	public void setRedirectUri(String uri) {
+		m_redirectUri = uri;
+	}
 	
+	public String getRedirectUri() {
+		return m_redirectUri;
+	}
 
 	/**
 	 * Reads a specific account.
@@ -1302,6 +1318,7 @@ public class FortnoxClient3 {
 	        result = (org.notima.api.fortnox.entities3.PreDefinedAccount)JAXB.unmarshal(in, PreDefinedAccount.class); //NOI18N
 	        return(result); 
 		} else {
+			e.appendMessage("Predefined account name " + pname);
 			throw new FortnoxException(e);
 		}
 		
@@ -1398,7 +1415,9 @@ public class FortnoxClient3 {
 	 * @see	getPreDefinedAccount
 	 * 
 	 * @param 		year		The year to use for COA.
-	 * @return					A map of revenue accounts.
+	 * @return					A map of revenue accounts. The key is the predefined account.
+	 * 							If Easy VAT is enabled, remaps to old VAT predefined accounts are
+	 * 							made for backwards compatibility.
 	 * @throws Exception 		If something goes wrong.
 	 */
 	public Map<String, Integer> getRevenueAccountMap(int year) throws Exception {
@@ -1408,12 +1427,49 @@ public class FortnoxClient3 {
 		PreDefinedAccount pa;
 		
 		for (String s : PREDEFINED_REV_ACCT) {
-			pa = this.getPreDefinedAccount(s);
-			if (pa!=null) {
-				result.put(s, pa.getAccount());
+			try {
+				pa = this.getPreDefinedAccount(s);
+				if (pa!=null) {
+					result.put(s, pa.getAccount());
+				}
+			} catch (FortnoxException ee) {
+				if (ee.getErrorInformation()!=null 
+						&& ee.getErrorInformation().getCode()!=null 
+						&& ERROR_CANT_FIND_PREDEFINED_ACCOUNT.equals(ee.getErrorInformation().getCode().toString())) {
+					logger.info(ee.getMessage());
+				} else {
+					throw ee;
+				}
 			}
 		}
 
+		boolean easyVatMp2 = false;
+		boolean easyVatMp3 = false;
+		boolean easyVatMp0 = false;
+		
+		// Check if there are easy VAT settings
+		if (result.containsKey(ACCT_SALES_MP1_EASY_VAT)) {
+			result.put(ACCT_SALES_MP1, result.get(ACCT_SALES_MP1_EASY_VAT));
+			result.put(ACCT_SALES_SERVICE_MP1, result.get(ACCT_SALES_MP1_SERVICE_EASY_VAT));
+		}
+		
+		if (result.containsKey(ACCT_SALES_MP2_EASY_VAT)) {
+			result.put(PREDEFINED_REVENUE_VAT_ACCT[0], result.get(ACCT_SALES_MP2_EASY_VAT));
+			easyVatMp2 = true;
+		}
+
+		if (result.containsKey(ACCT_SALES_MP3_EASY_VAT)) {
+			result.put(PREDEFINED_REVENUE_VAT_ACCT[1], result.get(ACCT_SALES_MP3_EASY_VAT));
+			easyVatMp3 = true;
+		}
+
+		if (result.containsKey(ACCT_SALES_MP0_EASY_VAT)) {
+			result.put(PREDEFINED_REVENUE_VAT_ACCT[2], result.get(ACCT_SALES_MP0_EASY_VAT));
+			easyVatMp0 = true;
+		}
+		// End of easy VAT remap
+		
+		
 		// Look for VAT accounts
 		Accounts accounts = getAccounts(year);
 		
@@ -1446,13 +1502,13 @@ public class FortnoxClient3 {
 			
 		}
 		
-		if (mp2.size()>0) {
+		if (!easyVatMp2 && mp2.size()>0) {
 			result.put(PREDEFINED_REVENUE_VAT_ACCT[0], mp2.first());
 		}
-		if (mp3.size()>0) {
+		if (!easyVatMp3 && mp3.size()>0) {
 			result.put(PREDEFINED_REVENUE_VAT_ACCT[1], mp3.first());
 		}
-		if (mp0.size()>0) {
+		if (!easyVatMp0 && mp0.size()>0) {
 			result.put(PREDEFINED_REVENUE_VAT_ACCT[2], mp0.first());
 		}
 		if (mpNoVAT.size()>0) {
@@ -1477,7 +1533,7 @@ public class FortnoxClient3 {
 	 * @return					The result of the action.
 	 * @throws Exception		If something goes wrong.
 	 */
-	public String performAction(boolean put, String document, String documentNo, String action) throws Exception {
+	public String performAction(boolean put, String document, String documentNo, String action) throws Exception, FortnoxException {
 		
 		if (!document.endsWith("s"))
 			document += "s";
@@ -2312,17 +2368,33 @@ public class FortnoxClient3 {
 		
 	}
 	
+	/**
+	 * Removes non-writable fields. Use to purge data before writing 
+	 * an invoice to Fortnox.
+	 * 
+	 * @param invoice
+	 */
+	private void removeNonWritableFields(Invoice invoice) {
+		if (invoice.getBasisTaxReduction()!=null) {
+			invoice.setBasisTaxReduction(null);
+		}
+		if (invoice.getTotalToPay()!=null) {
+			invoice.setTotalToPay(null);
+		}
+	}
 	
 	/**
 	 * Creates or updates an invoice.
 	 * 
 	 * @param invoice			The invoice to be updated.
 	 * @throws Exception		If something goes wrong.
+	 * @throws FortnoxScopeException		If this is not allowed. 
 	 * @return	The invoice.
 	 */
-	public Invoice setInvoice(Invoice invoice) throws Exception {
+	public Invoice setInvoice(Invoice invoice) throws FortnoxScopeException, FortnoxInvoiceException, Exception {
 		
 		StringWriter result = new StringWriter();
+		String invoiceDocumentNo = null;
         
         // Remove totals from invoice lines (read only)
         for (InvoiceRow ir : invoice.getInvoiceRows().getInvoiceRow()) {
@@ -2338,14 +2410,19 @@ public class FortnoxClient3 {
         	}
         }
         
+        // Remove any fields that are non-writable but still is here
+        removeNonWritableFields(invoice);
+        
 		JAXB.marshal(invoice, result);
        
+		invoiceDocumentNo = invoice.getDocumentNumber()!=null ? invoice.getDocumentNumber().trim() : null;
+		
         StringBuffer output = callFortnox("/invoices" + 
-        		(invoice.getDocumentNumber()!=null && invoice.getDocumentNumber().trim().length()>0 ? "/" + invoice.getDocumentNumber().trim() : ""), 
+        		(invoiceDocumentNo!=null && invoiceDocumentNo.length()>0 ? "/" + invoiceDocumentNo : ""), 
         		null, 
         		result.getBuffer(),
         		null, // Headers
-        		(invoice.getDocumentNumber()!=null && invoice.getDocumentNumber().trim().length()>0 ? "put" : null) // method
+        		(invoiceDocumentNo!=null && invoiceDocumentNo.length()>0 ? "put" : null) // method
         		);
 		
         Invoice out = null;
@@ -2354,7 +2431,11 @@ public class FortnoxClient3 {
         
         if (e!=null) {
         	logger.error(result.toString() + " : " + e.getMessage());
-        	throw new FortnoxException(e);
+        	if (ERROR_NO_CUSTOMER_INVOICE_SCOPE.equals(e.getCode())) {
+        		throw new FortnoxScopeException(e);
+        	} else {
+        		throw new FortnoxInvoiceException(e, invoiceDocumentNo);
+        	}
         } else {
 	        StringReader reader = new StringReader(output.toString());
 	        if (output!=null && output.length()>0) {
@@ -2372,9 +2453,10 @@ public class FortnoxClient3 {
 	 * @param voucher			The voucher to be updated / created.
 	 * @throws Exception		If something goes wrong.
 	 * @throws FortnoxException	Fortnox error if occured.
+	 * @throws FortnoxScopeException		If this is not allowed. 
 	 * @return 					The voucher created / updated.
 	 */
-	public Voucher setVoucher(Voucher voucher) throws FortnoxException, Exception {
+	public Voucher setVoucher(Voucher voucher) throws FortnoxScopeException, FortnoxException, Exception {
 		
 		StringWriter result = new StringWriter();
 
@@ -2393,7 +2475,11 @@ public class FortnoxClient3 {
         Voucher out = null;
         if (e!=null) {
         	logger.error(result.toString() + " : " + e.getMessage());
-        	throw new FortnoxException(e);
+        	if (ERROR_NO_VOUCHER_SCOPE.equals(e.getCode())) {
+        		throw new FortnoxScopeException(e);
+        	} else {
+        		throw new FortnoxException(e);
+        	}
         } else {
 	        StringReader reader = new StringReader(output.toString());
 	        if (output!=null && output.length()>0) {
@@ -3138,7 +3224,7 @@ public class FortnoxClient3 {
 		m_supplierTaxIdLookupMap = null;
 	}
 	
-	public String formatTaxId(String taxId, boolean isCompany) {
+	public static String formatTaxId(String taxId, boolean isCompany) {
 		if (taxId==null) return null;
 		if (!taxId.contains("-")) {
 			String lastDigits = taxId.substring(taxId.length()-4, taxId.length());
@@ -3214,7 +3300,10 @@ public class FortnoxClient3 {
 	        cs = JAXB.unmarshal(in, cs.getClass());
 	        return(cs); 
 		} else {
-			throw new FortnoxException(e);
+			if (e.getCode().equals(FortnoxClient3.ERROR_NOT_AUTH_FOR_SCOPE)) {
+				throw new FortnoxScopeException(e);
+			} else 
+				throw new FortnoxException(e);
 		}
 	}
 	
@@ -3334,13 +3423,24 @@ public class FortnoxClient3 {
 				.addBinaryBody("file", f, ContentType.DEFAULT_BINARY, f.getName())
 				.build();
 		
+		Map<String,String> headers = new TreeMap<String, String>();		
+		
+		headers.put("Accept", "application/xml");
+		headers.putAll(getAuthorizationHeaders());
+		
 		// Build http request and assign multipart upload data
 		HttpUriRequest request = RequestBuilder
 				.post(m_baseUrl + "/3/inbox?folderid=" + folderId)
-				.setHeader("Accept", "application/xml")
 				.setEntity(data)
 				.build();
 
+		// Set headers
+		if (headers!=null) {
+			for (String s : headers.keySet()) {
+				request.setHeader(s, headers.get(s));
+			}
+		}
+		
 		ResponseHandler<String> responseHandler = response -> {
 			int status = response.getStatusLine().getStatusCode();
 			HttpEntity entity = response.getEntity();
@@ -3380,14 +3480,23 @@ public class FortnoxClient3 {
 	 */
 	public Invoices getAllCustomerInvoicesByDateRange(Date fromDate, Date untilDate) throws Exception {
 		
-		String filter = "fromdate=" + FortnoxClient3.s_dfmt.format(fromDate);
-		if (untilDate!=null) {
-			filter += "&todate=" + FortnoxClient3.s_dfmt.format(untilDate);
+		StringBuffer filter = new StringBuffer();
+		
+		if (fromDate!=null) {
+			filter.append("fromdate=" + FortnoxClient3.s_dfmt.format(fromDate));
 		}
-		Invoices result = getInvoices(filter);
+		if (untilDate!=null) {
+			if (filter.length()>0) {
+				filter.append("&");
+			}
+			filter.append("todate=" + FortnoxClient3.s_dfmt.format(untilDate) );
+		}
+		Invoices result = getInvoices(filter.toString());
+		
 		return result;
 		
 	}
+	
 	
 	/**
 	 * Returns a list of unpaid customer invoices

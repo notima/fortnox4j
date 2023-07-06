@@ -2,7 +2,7 @@ package org.notima.api.fortnox.entities3;
 
 import javax.xml.bind.annotation.XmlElement;
 
-public class OrderSubset {
+public class OrderSubset implements OrderInterface {
 
 	private boolean	cancelled;
 	private String	currency;
