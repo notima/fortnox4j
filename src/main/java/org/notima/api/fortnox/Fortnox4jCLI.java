@@ -159,6 +159,13 @@ public class Fortnox4jCLI {
         rt.exec(new String[] { "sh", "-c", cmd.toString() });
 	}
 
+	private void setAuthCode(String authCode) {
+		if (fc.getApiKey()==null) {
+			fc.setApiKey(new FortnoxCredentials());
+		}
+		fc.getApiKey().setAuthorizationCode(authCode);
+	}
+	
 	private void startWebserver() throws IOException {
 		HttpServer server = HttpServer.create(new InetSocketAddress(8008), 0);
         server.createContext("/login", new HttpHandler() {
@@ -171,11 +178,13 @@ public class Fortnox4jCLI {
 					sendResponse(ex, 200, response);
 					System.out.println("Authentication Code:");
 					System.out.println(authCode);
-					fc.getApiKey().setAuthorizationCode(authCode);
+					setAuthCode(authCode);
 					clientManager.updateAndSaveClientInfo(fc);
+					System.exit(0);
 				} catch (Exception e) {
 					e.printStackTrace();
 					sendResponse(ex, 400, e.getMessage());
+					System.exit(1);
 				}
 			}
 
