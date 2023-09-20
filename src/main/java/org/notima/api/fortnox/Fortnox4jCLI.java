@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 
 import org.notima.api.fortnox.clients.FortnoxClientInfo;
 import org.notima.api.fortnox.clients.FortnoxClientList;
+import org.notima.api.fortnox.clients.FortnoxClientManager;
 import org.notima.api.fortnox.clients.FortnoxCredentials;
 import org.notima.api.fortnox.oauth2.FortnoxOAuth2Client;
 
@@ -19,11 +20,31 @@ import com.sun.net.httpserver.HttpServer;
 
 public class Fortnox4jCLI {
 
-	private static String clientId;
-	private static String clientSecret;
+	private String clientId;
+	private String clientSecret;
+
+	private String[] args;
+	private File configFile;
+	private FortnoxClientList	clientList;
+	private FortnoxClientInfo	fc;
+	private FortnoxCredentials  credentials;
+	private FortnoxClientManager	clientManager;
+
 	
+	public static void main(String[] argv) {
+		
+		Fortnox4jCLI cli = new Fortnox4jCLI();
+		cli.readArgs(argv);
+
+		cli.initFortnoxClientInfo();
+
+		cli.initClientIdAndSecret();
+
+		cli.determineCommandToRun();
+		
+	}
 	
-	public static void main(String[] args) {
+	private void readArgs(String [] args) {
 		
 		if (args==null || args.length < 2) {
 			System.out.println("Usage: Fortnox4jCLI configfile command orgNo");
@@ -31,17 +52,22 @@ public class Fortnox4jCLI {
 			System.out.println("Possible commands are: getAuthenticationCode, getAccessToken");
 			System.exit(1);
 		}
+
+		this.args = args;
 		
-		File configFile = new File(args[0]);
+		configFile = new File(args[0]);
 		if (!configFile.exists() || configFile.isDirectory()) {
 			System.out.println(args[0] + " is not a configuration file.");
 			System.exit(1);
 		}
+		
+	}
 
-		FortnoxClientList clientList = null;
-		FortnoxClientInfo fc = null;
+	private void initFortnoxClientInfo() {
+
 		try {
-			clientList = FortnoxUtil.readFortnoxClientListFromFile(configFile.getCanonicalPath());
+			clientManager = new FortnoxClientManager(configFile.getCanonicalPath());
+			clientList = clientManager.getClientList();
 			if(args.length >= 3) {
 				fc = clientList.getClientInfoByOrgNo(args[2]);
 			} else {
@@ -51,7 +77,11 @@ public class Fortnox4jCLI {
 			e.printStackTrace();
 			System.exit(1);
 		}
+		
+	}
 
+	private void initClientIdAndSecret() {
+		
 		if (fc!=null && fc.getClientId()!=null) {
 			clientId = fc.getClientId();
 		} else {
@@ -65,6 +95,10 @@ public class Fortnox4jCLI {
 			clientSecret = clientList.getApiClients().getApiClient().get(0).getClientSecret();
 		}
 		
+	}
+	
+	private void determineCommandToRun() {
+
 		if ("getAccessToken".equalsIgnoreCase(args[1])) {
 			
 			try {
@@ -74,6 +108,7 @@ public class Fortnox4jCLI {
 				String redirectUri = null;
 
 				getAccessToken(clientId, clientSecret, authCode, redirectUri);
+				saveAccessAndRefreshToken();
 				
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -94,14 +129,22 @@ public class Fortnox4jCLI {
 		}
 		
 	}
+	
+	private void saveAccessAndRefreshToken() throws Exception {
+		if (credentials!=null) {
+			fc.getApiKey().setAccessToken(credentials.getAccessToken());
+			fc.getApiKey().setRefreshToken(credentials.getRefreshToken());
+			clientManager.updateAndSaveClientInfo(fc);
+		}
+	}
 
-    private static void signIn(String clientId) throws IOException {
+    private void signIn(String clientId) throws IOException {
 		startWebserver();
         String url = getLoginUrl(clientId);
 		openInBrowser(url);
     }
 
-	private static void openInBrowser(String url) throws IOException {
+	private void openInBrowser(String url) throws IOException {
         Runtime rt = Runtime.getRuntime();
         String[] browsers = { "google-chrome", "firefox", "mozilla", "epiphany", "konqueror",
                                         "netscape", "opera", "links", "lynx" };
@@ -116,7 +159,7 @@ public class Fortnox4jCLI {
         rt.exec(new String[] { "sh", "-c", cmd.toString() });
 	}
 
-	private static void startWebserver() throws IOException {
+	private void startWebserver() throws IOException {
 		HttpServer server = HttpServer.create(new InetSocketAddress(8008), 0);
         server.createContext("/login", new HttpHandler() {
 
@@ -128,11 +171,11 @@ public class Fortnox4jCLI {
 					sendResponse(ex, 200, response);
 					System.out.println("Authentication Code:");
 					System.out.println(authCode);
-					System.exit(0);
+					fc.getApiKey().setAuthorizationCode(authCode);
+					clientManager.updateAndSaveClientInfo(fc);
 				} catch (Exception e) {
 					e.printStackTrace();
 					sendResponse(ex, 400, e.getMessage());
-					System.exit(1);
 				}
 			}
 
@@ -149,24 +192,23 @@ public class Fortnox4jCLI {
         server.start();
 	}
 
-	private static void getAccessToken(String clientId, String clientSecret, String authCode, String redirectUri) {
+	private void getAccessToken(String clientId, String clientSecret, String authCode, String redirectUri) {
 		try {
 			if (redirectUri==null) {
 				redirectUri="http://localhost:8008/login";
 			}
-			FortnoxCredentials credentials = FortnoxOAuth2Client.getAccessToken(clientId, clientSecret, authCode, redirectUri);
+			credentials = FortnoxOAuth2Client.getAccessToken(clientId, clientSecret, authCode, redirectUri);
 			System.out.println("Access Token:");
 			System.out.println(credentials.getAccessToken() + "\n");
 			System.out.println("Refresh Token:");
 			System.out.println(credentials.getRefreshToken());
-			System.exit(0);
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.exit(1);
+			credentials = null;
 		}
 	}
 
-	private static String getAuthCodeFromURL(String url) throws Exception {
+	private String getAuthCodeFromURL(String url) throws Exception {
 		Pattern pattern = Pattern.compile("code=([0-9a-f-]*)");
 		Matcher matcher = pattern.matcher(url);
 		if(matcher.find()) {
@@ -176,7 +218,7 @@ public class Fortnox4jCLI {
 		}
 	}
 
-	private static String getLoginUrl(String clientId) {
+	private String getLoginUrl(String clientId) {
 		StringBuffer buf = new StringBuffer("https://apps.fortnox.se/oauth-v1/auth?");
 		buf.append("client_id=");
 		buf.append(clientId);
