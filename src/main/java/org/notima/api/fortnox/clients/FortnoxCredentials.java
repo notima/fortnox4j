@@ -131,6 +131,25 @@ public class FortnoxCredentials {
     	
     }
     
+    /**
+     * Return true if this token is good for another 'minutes' minutes.
+     * 
+     * @param minutes	Number of minutes we need at least.
+     * @return			True if the token is good for the given minutes.
+     */
+    public boolean goodForAnotherMinutes(int minutes) {
+
+    	if (hasLegacyToken())
+    		return true;
+    	
+    	long expiresAt = lastRefresh + (expiresIn * 1000);
+    	long currentTime = System.currentTimeMillis();
+    	long milliSecondsLeft = expiresAt - currentTime;
+    	
+    	return milliSecondsLeft > (minutes*1000);
+    	
+    }
+    
     public void setLastRefresh(long lastRefresh) {
         this.lastRefresh = lastRefresh;
     }
