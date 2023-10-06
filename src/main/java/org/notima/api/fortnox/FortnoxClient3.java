@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -326,6 +327,12 @@ public class FortnoxClient3 {
 	 * Flag to say if articles should be used on invoices / orders
 	 */
 	private boolean		useArticles = true;
+	
+	
+	public static Date getAsDate(String dateString) throws ParseException {
+		if (dateString==null) return null;
+		return s_dfmt.parse(dateString);
+	}
 	
 	/**
 	 * Create FortnoxClient using default configuration file (if found).
