@@ -49,7 +49,7 @@ public class Fortnox4jCLI {
 		if (args==null || args.length < 2) {
 			System.out.println("Usage: Fortnox4jCLI configfile command orgNo");
 			System.out.println("");
-			System.out.println("Possible commands are: getAuthenticationCode, getAccessToken");
+			System.out.println("Possible commands are: getAuthenticationCode, getAccessToken, getAllTokens");
 			System.exit(1);
 		}
 
@@ -118,11 +118,19 @@ public class Fortnox4jCLI {
 
 			
 			try {
-				signIn(clientId);
+				signIn(clientId, false);
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
 			
+		} else if("getAllTokens".equalsIgnoreCase(args[1])){
+
+			try {
+				signIn(clientId, true);
+			} catch (Exception e2){
+				e2.printStackTrace();
+			}
+
 		} else {
 			System.out.println(args[1] + ": unknown command.");
 			System.exit(1);
@@ -138,8 +146,8 @@ public class Fortnox4jCLI {
 		}
 	}
 
-    private void signIn(String clientId) throws IOException {
-		startWebserver();
+    private void signIn(String clientId, Boolean giveAccessToken) throws IOException {
+		startWebserver(giveAccessToken);
         String url = getLoginUrl(clientId);
 		openInBrowser(url);
     }
@@ -166,7 +174,7 @@ public class Fortnox4jCLI {
 		fc.getApiKey().setAuthorizationCode(authCode);
 	}
 	
-	private void startWebserver() throws IOException {
+	private void startWebserver(Boolean giveAccessToken) throws IOException {
 		HttpServer server = HttpServer.create(new InetSocketAddress(8008), 0);
         server.createContext("/login", new HttpHandler() {
 
@@ -180,6 +188,10 @@ public class Fortnox4jCLI {
 					System.out.println(authCode);
 					setAuthCode(authCode);
 					clientManager.updateAndSaveClientInfo(fc);
+					if (giveAccessToken){
+						getAccessToken(clientId, clientSecret, authCode, null);
+						saveAccessAndRefreshToken();
+					}
 					System.exit(0);
 				} catch (Exception e) {
 					e.printStackTrace();
