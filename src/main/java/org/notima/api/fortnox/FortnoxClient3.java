@@ -2388,6 +2388,9 @@ public class FortnoxClient3 {
 		if (invoice.getTotalToPay()!=null) {
 			invoice.setTotalToPay(null);
 		}
+		if (invoice.getWarehouseReady()!=null) {
+			invoice.setWarehouseReady(null);
+		}
 	}
 	
 	/**
