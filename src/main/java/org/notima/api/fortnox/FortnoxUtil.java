@@ -376,4 +376,19 @@ public class FortnoxUtil {
 	}
 	
 	
+	public static String convertTaxIdToFortnoxFormat(String taxId) {
+		String result = taxId;
+		if (taxId==null) return null;
+		
+		if (taxId.length()==11 && !(taxId.startsWith("550")||taxId.startsWith("551"))) {
+			if (taxId.startsWith("0") || taxId.startsWith("1")) // Assume 21 th century
+				result = "20" + taxId;
+			else
+				result = "19" + taxId;
+		}
+		
+		return result;
+	}
+	
+	
 }
