@@ -2,6 +2,7 @@ package org.notima.api.fortnox.entities3;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 @XmlRootElement(name = "Customer")
 public class Customer {
@@ -23,6 +24,7 @@ public class Customer {
 	private String currency;
 	private String costCenter;
 	private String countryCode;
+	private Boolean active;
 	private String customerNumber;
 	private DefaultDeliveryTypes defaultDeliveryTypes;
 	private DefaultTemplates defaultTemplates;
@@ -146,7 +148,21 @@ public class Customer {
 	public void setCountryCode(String countryCode) {
 		this.countryCode = countryCode;
 	}
+	
+	@XmlElement(name="Active")
+	public Boolean getActive() {
+		return active;
+	}
 
+	public void setActive(Boolean active) {
+		this.active = active;
+	}
+
+	@XmlTransient
+	public boolean isActive() {
+		return active!=null && active.booleanValue();
+	}
+	
 	@XmlElement(name="CustomerNumber")
 	public String getCustomerNumber() {
 		return customerNumber;

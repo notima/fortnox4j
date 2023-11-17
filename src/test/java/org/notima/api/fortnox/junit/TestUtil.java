@@ -27,6 +27,11 @@ public class TestUtil {
 
 			@Override
 			public FortnoxCredentials getCredentials() throws Exception {
+				
+				if (file==null) {
+					throw new Exception("No FortnoxCredentials.json found. Check and adjust FortnoxCredentialsSample.json");
+				}
+				
 				JsonReader reader = new JsonReader(new FileReader(file.getPath()));
         		FortnoxCredentials credentials = gson.fromJson(reader, FortnoxCredentials.class);
 				return credentials;

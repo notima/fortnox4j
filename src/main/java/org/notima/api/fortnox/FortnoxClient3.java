@@ -1656,6 +1656,10 @@ public class FortnoxClient3 {
 		return getCustomers(null);
 	}
 
+	public Customers getCustomersActiveOnly() throws Exception {
+		return getCustomers("filter=active");
+	}
+	
 	/**
 	 * Read all customers with given filter(s) applied.
 	 *

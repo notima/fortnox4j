@@ -87,6 +87,7 @@
 				<excludes>
 					<exclude>test-config*</exclude>
 					<exclude>*.xml</exclude>
+					<exclude>FortnoxProperties.properties</exclude>
 				</excludes>
 			</resource>
 			<resource>
