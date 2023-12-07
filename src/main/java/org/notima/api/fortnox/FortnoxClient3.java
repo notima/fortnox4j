@@ -2592,7 +2592,7 @@ public class FortnoxClient3 {
 	 * @return 			The customer created / updated.
 	 */
 	public Customer setCustomer(Customer customer) throws Exception {
-		
+
 		StringWriter result = new StringWriter();
         JAXB.marshal(customer, result);
         
@@ -2607,8 +2607,8 @@ public class FortnoxClient3 {
 			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(output.toString().getBytes()), "UTF-8"));
 	        c = JAXB.unmarshal(in, c.getClass());
 	        
-	        // If there's an existing customer map, add/put this customer to that map
-	        if (m_customerTaxIdLookupMap!=null) {
+	        // If there's an existing customer map based on org number, add/put this customer to that map
+	        if (m_customerTaxIdLookupMap!=null && c.getOrganisationNumber()!=null && c.getOrganisationNumber().trim().length()>0) {
 	        	CustomerSubset cs = m_customerTaxIdLookupMap.get(c.getOrganisationNumber());
 	        	if (cs==null) {
 	        		cs = new CustomerSubset(c);
