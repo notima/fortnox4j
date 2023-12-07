@@ -103,6 +103,7 @@ import org.notima.api.fortnox.entities3.VoucherSeriesSubset;
 import org.notima.api.fortnox.entities3.Vouchers;
 import org.notima.api.fortnox.entities3.WareHouseTenant;
 import org.notima.api.fortnox.entities3.WriteOffs;
+import org.notima.api.fortnox.exception.ArticleNotFoundException;
 import org.notima.api.fortnox.oauth2.FortnoxOAuth2Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -2770,8 +2771,9 @@ public class FortnoxClient3 {
 	 * @param articleNo			The article's article number (in Fortnox).
 	 * @return					The article.
 	 * @throws Exception		If something goes wrong.
+	 * @throws ArticleNotFoundException	if the article is not found
 	 */
-	public Article getArticleByArticleNo(String articleNo) throws Exception {
+	public Article getArticleByArticleNo(String articleNo) throws ArticleNotFoundException, Exception {
 
 		if (articleNo==null)
 			return null;
@@ -2789,7 +2791,7 @@ public class FortnoxClient3 {
 			return(c);
 		} else {
 			if (ERROR_ARTICLE_NOT_FOUND.equals(e.getCode())) {
-				return null;
+				throw new ArticleNotFoundException(articleNo);
 			} else {
 				throw new FortnoxException(e);
 			}

@@ -2,7 +2,7 @@ package org.notima.api.fortnox.entities3;
 
 import javax.xml.bind.annotation.XmlElement;
 
-public class ArticleSubset {
+public class ArticleSubset implements ArticleInterface {
 
 	private String articleNumber;
 	private String description;

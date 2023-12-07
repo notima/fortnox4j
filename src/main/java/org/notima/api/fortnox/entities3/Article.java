@@ -4,7 +4,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name="Article")
-public class Article {
+public class Article implements ArticleInterface {
 
 	public static final String TYPE_STOCK = "STOCK";
 	public static final String TYPE_SERVICE = "SERVICE";
