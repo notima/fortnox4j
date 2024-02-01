@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.notima.api</groupId>
 	<artifactId>fortnox4j</artifactId>
-	<version>2.0.1-SNAPSHOT</version>
+	<version>2.0.1</version>
 	<packaging>bundle</packaging>
 	<name>Fortnox Java API</name>
 
@@ -212,7 +212,7 @@
 					<execution>
 						<id>sign-artifacts</id>
 						<!--change phase to verify when uploading to nexus -->
-						<phase>deploy</phase>
+						<phase>verify</phase>
 						<goals>
 							<goal>sign</goal>
 						</goals>
