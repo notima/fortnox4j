@@ -2396,6 +2396,9 @@ public class FortnoxClient3 {
 		if (invoice.getWarehouseReady()!=null) {
 			invoice.setWarehouseReady(null);
 		}
+		if (invoice.getVoucherNumber()!=null) {
+			invoice.setVoucherNumber(null);
+		}
 	}
 	
 	/**
