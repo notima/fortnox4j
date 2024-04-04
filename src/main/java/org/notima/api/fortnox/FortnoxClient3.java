@@ -22,9 +22,7 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import javax.xml.bind.JAXB;
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -95,6 +93,7 @@ import org.notima.api.fortnox.entities3.TermsOfDeliveries;
 import org.notima.api.fortnox.entities3.TermsOfDelivery;
 import org.notima.api.fortnox.entities3.TermsOfPayment;
 import org.notima.api.fortnox.entities3.TermsOfPayments;
+import org.notima.api.fortnox.entities3.VatInfo;
 import org.notima.api.fortnox.entities3.Voucher;
 import org.notima.api.fortnox.entities3.VoucherFileConnection;
 import org.notima.api.fortnox.entities3.VoucherSeries;
@@ -1242,7 +1241,7 @@ public class FortnoxClient3 {
 	 * @return				A map of revenue accounts.
 	 * @throws Exception	If something goes wrong.
 	 */
-	public Map<String, Integer> getRevenueAccountMap(Date acctDate) throws Exception {
+	public Map<String, VatInfo> getRevenueAccountMap(Date acctDate) throws Exception {
 
 		return vatManager.getRevenueAccountMap(acctDate);
 		
@@ -1263,7 +1262,7 @@ public class FortnoxClient3 {
 	 * 							made for backwards compatibility.
 	 * @throws Exception 		If something goes wrong.
 	 */
-	public Map<String, Integer> getRevenueAccountMap(int year) throws Exception {
+	public Map<String, VatInfo> getRevenueAccountMap(int year) throws Exception {
 		
 		return vatManager.getRevenueAccountMap(year);
 		

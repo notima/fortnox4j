@@ -1,6 +1,8 @@
 package org.notima.api.fortnox;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -9,7 +11,8 @@ import java.util.TreeSet;
 import org.notima.api.fortnox.entities3.AccountSubset;
 import org.notima.api.fortnox.entities3.Accounts;
 import org.notima.api.fortnox.entities3.FinancialYearSubset;
-import org.notima.api.fortnox.entities3.PreDefinedAccount;
+import org.notima.api.fortnox.entities3.PreDefinedAccountSubset;
+import org.notima.api.fortnox.entities3.VatInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +24,22 @@ public class FortnoxVATManager {
 
 	// Get logger
 	private Logger	logger = LoggerFactory.getLogger(FortnoxVATManager.class);
+	
+	// Chart of accounts
+	private Accounts 			chartOfAccounts;
+	
+	// Predefined accounts
+	private Map<String,PreDefinedAccountSubset> 	predefinedAccounts;	
+	
+	// VAT code mappings
+	private Map<String, List<AccountSubset>>	vatCodeMappings;
+	
+	// Revenue account map
+	private Map<String, VatInfo> revenueAccountMap;
+	// Current fiscal year
+	private	int		currentFiscalYear = 0;
+	
+	
 	
 	private FortnoxClient3 fortnoxClient;
 	
@@ -36,7 +55,7 @@ public class FortnoxVATManager {
 	 * @return				A map of revenue accounts.
 	 * @throws Exception	If something goes wrong.
 	 */
-	public Map<String, Integer> getRevenueAccountMap(Date acctDate) throws Exception {
+	public Map<String, VatInfo> getRevenueAccountMap(Date acctDate) throws Exception {
 		FinancialYearSubset fy = fortnoxClient.getFinancialYear(acctDate);
 		return getRevenueAccountMap(fy.getId());
 	}
@@ -51,32 +70,36 @@ public class FortnoxVATManager {
 	 * 
 	 * @see	getPreDefinedAccount
 	 * 
-	 * @param 		year		The year to use for COA.
+	 * @param 		year		The year to use for COA. Consecutive calls to the same fiscal year is cached.
 	 * @return					A map of revenue accounts. The key is the predefined account.
 	 * 							If Easy VAT is enabled, remaps to old VAT predefined accounts are
 	 * 							made for backwards compatibility.
 	 * @throws Exception 		If something goes wrong.
 	 */
-	public Map<String, Integer> getRevenueAccountMap(int year) throws Exception {
+	public Map<String, VatInfo> getRevenueAccountMap(int year) throws Exception {
 
-		Map<String,Integer> result = new TreeMap<String, Integer>();
+		if (year!=currentFiscalYear) {
+			revenueAccountMap = null;
+			chartOfAccounts = null;
+		}
 		
-		PreDefinedAccount pa;
+		if (revenueAccountMap==null) {
+			revenueAccountMap = new TreeMap<String, VatInfo>();
+			currentFiscalYear = year;
+		} else {
+			return revenueAccountMap;
+		}
+
+		initPredefinedAccounts();
+		
+		PreDefinedAccountSubset pa;
 		
 		for (String s : FortnoxConstants.PREDEFINED_REV_ACCT) {
-			try {
-				pa = fortnoxClient.getPreDefinedAccount(s);
-				if (pa!=null) {
-					result.put(s, pa.getAccount());
-				}
-			} catch (FortnoxException ee) {
-				if (ee.getErrorInformation()!=null 
-						&& ee.getErrorInformation().getCode()!=null 
-						&& FortnoxConstants.ERROR_CANT_FIND_PREDEFINED_ACCOUNT.equals(ee.getErrorInformation().getCode().toString())) {
-					log(ee.getMessage());
-				} else {
-					throw ee;
-				}
+			pa = predefinedAccounts.get(s);
+			if (pa!=null) {
+				revenueAccountMap.put(s, new VatInfo(pa));
+			} else {
+				log("Can't find predefined account for " + s);
 			}
 		}
 
@@ -85,30 +108,30 @@ public class FortnoxVATManager {
 		boolean easyVatMp0 = false;
 		
 		// Check if there are easy VAT settings
-		if (result.containsKey(FortnoxConstants.ACCT_SALES_MP1_EASY_VAT)) {
-			result.put(FortnoxConstants.ACCT_SALES_MP1, result.get(FortnoxConstants.ACCT_SALES_MP1_EASY_VAT));
-			result.put(FortnoxConstants.ACCT_SALES_SERVICE_MP1, result.get(FortnoxConstants.ACCT_SALES_MP1_SERVICE_EASY_VAT));
+		if (revenueAccountMap.containsKey(FortnoxConstants.ACCT_SALES_MP1_EASY_VAT)) {
+			revenueAccountMap.put(FortnoxConstants.ACCT_SALES_MP1, revenueAccountMap.get(FortnoxConstants.ACCT_SALES_MP1_EASY_VAT));
+			revenueAccountMap.put(FortnoxConstants.ACCT_SALES_SERVICE_MP1, revenueAccountMap.get(FortnoxConstants.ACCT_SALES_MP1_SERVICE_EASY_VAT));
 		}
 		
-		if (result.containsKey(FortnoxConstants.ACCT_SALES_MP2_EASY_VAT)) {
-			result.put(FortnoxConstants.PREDEFINED_REVENUE_VAT_ACCT[0], result.get(FortnoxConstants.ACCT_SALES_MP2_EASY_VAT));
+		if (revenueAccountMap.containsKey(FortnoxConstants.ACCT_SALES_MP2_EASY_VAT)) {
+			revenueAccountMap.put(FortnoxConstants.PREDEFINED_REVENUE_VAT_ACCT[0], revenueAccountMap.get(FortnoxConstants.ACCT_SALES_MP2_EASY_VAT));
 			easyVatMp2 = true;
 		}
 
-		if (result.containsKey(FortnoxConstants.ACCT_SALES_MP3_EASY_VAT)) {
-			result.put(FortnoxConstants.PREDEFINED_REVENUE_VAT_ACCT[1], result.get(FortnoxConstants.ACCT_SALES_MP3_EASY_VAT));
+		if (revenueAccountMap.containsKey(FortnoxConstants.ACCT_SALES_MP3_EASY_VAT)) {
+			revenueAccountMap.put(FortnoxConstants.PREDEFINED_REVENUE_VAT_ACCT[1], revenueAccountMap.get(FortnoxConstants.ACCT_SALES_MP3_EASY_VAT));
 			easyVatMp3 = true;
 		}
 
-		if (result.containsKey(FortnoxConstants.ACCT_SALES_MP0_EASY_VAT)) {
-			result.put(FortnoxConstants.PREDEFINED_REVENUE_VAT_ACCT[2], result.get(FortnoxConstants.ACCT_SALES_MP0_EASY_VAT));
+		if (revenueAccountMap.containsKey(FortnoxConstants.ACCT_SALES_MP0_EASY_VAT)) {
+			revenueAccountMap.put(FortnoxConstants.PREDEFINED_REVENUE_VAT_ACCT[2], revenueAccountMap.get(FortnoxConstants.ACCT_SALES_MP0_EASY_VAT));
 			easyVatMp0 = true;
 		}
 		// End of easy VAT remap
 		
 		
 		// Look for VAT accounts
-		Accounts accounts = fortnoxClient.getAccounts(year);
+		initChartOfAccounts();
 		
 		SortedSet<Integer> mp2 = new TreeSet<Integer>();
 		SortedSet<Integer> mp3 = new TreeSet<Integer>();
@@ -116,7 +139,7 @@ public class FortnoxVATManager {
 		SortedSet<Integer> mpNoVAT = new TreeSet<Integer>(); // No VAT
 		SortedSet<Integer> exportServices = new TreeSet<Integer>();	
 		
-		for (AccountSubset as : accounts.getAccountSubset()) {
+		for (AccountSubset as : chartOfAccounts.getAccountSubset()) {
 
 			// Only check revenue accounts
 			if (!as.getNumber().toString().startsWith("3")) {
@@ -140,22 +163,55 @@ public class FortnoxVATManager {
 		}
 		
 		if (!easyVatMp2 && mp2.size()>0) {
-			result.put(FortnoxConstants.PREDEFINED_REVENUE_VAT_ACCT[0], mp2.first());
+			revenueAccountMap.put(FortnoxConstants.PREDEFINED_REVENUE_VAT_ACCT[0], new VatInfo(FortnoxConstants.PREDEFINED_REVENUE_VAT_ACCT[0], mp2.first()));
 		}
 		if (!easyVatMp3 && mp3.size()>0) {
-			result.put(FortnoxConstants.PREDEFINED_REVENUE_VAT_ACCT[1], mp3.first());
+			revenueAccountMap.put(FortnoxConstants.PREDEFINED_REVENUE_VAT_ACCT[1], new VatInfo(FortnoxConstants.PREDEFINED_REVENUE_VAT_ACCT[1], mp3.first()));
 		}
 		if (!easyVatMp0 && mp0.size()>0) {
-			result.put(FortnoxConstants.PREDEFINED_REVENUE_VAT_ACCT[2], mp0.first());
+			revenueAccountMap.put(FortnoxConstants.PREDEFINED_REVENUE_VAT_ACCT[2], new VatInfo(FortnoxConstants.PREDEFINED_REVENUE_VAT_ACCT[2], mp0.first()));
 		}
 		if (mpNoVAT.size()>0) {
-			result.put(FortnoxConstants.PREDEFINED_REVENUE_VAT_ACCT[3], mpNoVAT.first());
+			revenueAccountMap.put(FortnoxConstants.PREDEFINED_REVENUE_VAT_ACCT[3], new VatInfo(FortnoxConstants.PREDEFINED_REVENUE_VAT_ACCT[3], mpNoVAT.first()));
 		}
 		if (exportServices.size()>0) {
-			result.put(FortnoxConstants.PREDEFINED_REVENUE_VAT_ACCT[4], exportServices.first());
+			revenueAccountMap.put(FortnoxConstants.PREDEFINED_REVENUE_VAT_ACCT[4], new VatInfo(FortnoxConstants.PREDEFINED_REVENUE_VAT_ACCT[4], exportServices.first()));
 		}
 		
-		return result;
+		return revenueAccountMap;
+		
+	}
+	
+	private void initPredefinedAccounts() throws Exception {
+		if (predefinedAccounts==null) {
+			predefinedAccounts = fortnoxClient.getPredefinedAccountMap();			
+		}
+	}
+	
+	
+	private void initChartOfAccounts() throws Exception {
+		if (chartOfAccounts==null) {
+			chartOfAccounts = fortnoxClient.getAccounts(currentFiscalYear);
+			initVatCodeMappings();
+		}
+	}
+	
+	private void initVatCodeMappings() throws Exception {
+		
+		vatCodeMappings = new TreeMap<String, List<AccountSubset>>();
+		String vatCode;
+		List<AccountSubset> accountList;
+		for (AccountSubset a : chartOfAccounts.getAccountSubset()) {
+			vatCode = a.getVATCode();
+			if (vatCode!=null && vatCode.trim().length()>0) {
+				accountList = vatCodeMappings.get(vatCode.trim());
+				if (accountList==null) {
+					accountList = new ArrayList<AccountSubset>();
+					vatCodeMappings.put(vatCode.trim(), accountList);
+				}
+				accountList.add(a);
+			}
+		}
 		
 	}
 	

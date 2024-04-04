@@ -86,69 +86,37 @@ public class FortnoxConstants {
 	 * Predefined accounts
 	 */
 	public static final String ACCT_SALES_MP1 = "SALES";
-
 	public static final String ACCT_SALES_SERVICE_MP1 = "SALES2";
-
 	public static final String ACCT_SALES_MP1_EASY_VAT = "SALES_25_SE";
-
 	public static final String ACCT_SALES_MP1_SERVICE_EASY_VAT = "SALES_25_SE2";
-
 	public static final String ACCT_SALES_MP2 = "SALES_MP2";
-
 	public static final String ACCT_SALES_MP2_EASY_VAT = "SALES_12_SE";
-
 	public static final String ACCT_SALES_MP2_SERVICE_EASY_VAT = "SALES_12_SE2";
-
 	public static final String ACCT_SALES_MP3 = "SALES_MP3";
-
 	public static final String ACCT_SALES_MP3_EASY_VAT = "SALES_6_SE";
-
 	public static final String ACCT_SALES_MP3_SERVICE_EASY_VAT = "SALES_6_SE2";
-
 	public static final String ACCT_SALES_MP0 = "SALES_MP0";
-
 	public static final String ACCT_SALES_MP0_EASY_VAT = "SALES_0_SE";
-
 	public static final String ACCT_SALES_MP0_SERVICE_EASY_VAT = "SALES_0_SE2";
-
 	public static final String ACCT_SALES_NO_VAT = "SALES_NOVAT";
-
 	public static final String ACCT_SALES_EU = "SALESEUREV";
-
 	public static final String ACCT_SALES_EU_SERVICE = "SALESEUREV2";
-
 	public static final String ACCT_SALES_EXPORT = "SALESEXPORT";
-
 	public static final String ACCT_SALES_EXPORT_SERVICE = "SALESEXPORT2";
-
 	public static final String ACCT_SALES_EU_W_VAT = "SALESEUVAT";
-
 	public static final String ACCT_SALES_EU_W_VAT_SERVICE = "SALESEUVAT2";
-
 	public static final String ACCT_SALES_SE_REV = "SALESCONSTR2";
-
 	public static final String ACCT_ROUNDING = "ROUNDOFF";
-
 	public static final String ACCT_CURRENCYGAIN = "CURRENCYWIN";
-
 	public static final String ACCT_CURRENCYLOSS = "CURRENCYLOSS";
-
 	public static final String ACCT_ADMFEE = "ADMFEE";
-
 	public static final String ACCT_FREIGHT_REVENUE = "FREIGHT";
-
 	public static final String ACCT_INVAT = "INVAT";
-
 	public static final String ACCT_OUTVAT_MP1 = "OUTVAT_MP1";
-
 	public static final String ACCT_OUTVAT_MP2 = "OUTVAT_MP2";
-
 	public static final String ACCT_OUTVAT_MP3 = "OUTVAT_MP3";
-
 	public static final String ACCT_OUTVAT_MP4 = "OUTVAT_MP4";
-
 	public static final String ACCT_CASHBYCARD = "CASHBYCARD";
-
 	public static final String ACCT_INTEREST = "INTEREST"; 		// Normally interest income
 
 	/**
@@ -258,11 +226,8 @@ public class FortnoxConstants {
 	 * VAT codes
 	 */
 	public static final String VAT_MP0 = "MP0";
-
 	public static final String VAT_MP1 = "MP1";
-
 	public static final String VAT_MP2 = "MP2";
-
 	public static final String VAT_MP3 = "MP3";
 
 	// TODO: Add more below

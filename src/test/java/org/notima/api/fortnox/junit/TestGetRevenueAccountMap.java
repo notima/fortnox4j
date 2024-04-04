@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.junit.Test;
 import org.notima.api.fortnox.entities3.FinancialYearSubset;
+import org.notima.api.fortnox.entities3.VatInfo;
 
 public class TestGetRevenueAccountMap extends FortnoxTest {
 
@@ -25,7 +26,7 @@ public class TestGetRevenueAccountMap extends FortnoxTest {
 		
 		fy = client.getFinancialYear(cal.getTime());
 
-		Map<String, Integer> accountMap = client.getRevenueAccountMap(fy.getId());
+		Map<String, VatInfo> accountMap = client.getRevenueAccountMap(fy.getId());
 		
 		if (accountMap!=null) {
 			Set<String> keys = accountMap.keySet();
