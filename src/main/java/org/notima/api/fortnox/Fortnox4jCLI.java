@@ -30,6 +30,8 @@ public class Fortnox4jCLI {
 	private FortnoxCredentials  credentials;
 	private FortnoxClientManager	clientManager;
 
+	private Boolean getAllTokens = false;
+
 	
 	public static void main(String[] argv) {
 		
@@ -118,15 +120,17 @@ public class Fortnox4jCLI {
 
 			
 			try {
-				signIn(clientId, false);
+				signIn(clientId);
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
 			
 		} else if("getAllTokens".equalsIgnoreCase(args[1])){
 
+			getAllTokens = true;
+
 			try {
-				signIn(clientId, true);
+				signIn(clientId);
 			} catch (Exception e2){
 				e2.printStackTrace();
 			}
@@ -146,8 +150,8 @@ public class Fortnox4jCLI {
 		}
 	}
 
-    private void signIn(String clientId, Boolean giveAccessToken) throws IOException {
-		startWebserver(giveAccessToken);
+    private void signIn(String clientId) throws IOException {
+		startWebserver();
         String url = getLoginUrl(clientId);
 		openInBrowser(url);
     }
@@ -174,7 +178,7 @@ public class Fortnox4jCLI {
 		fc.getApiKey().setAuthorizationCode(authCode);
 	}
 	
-	private void startWebserver(Boolean giveAccessToken) throws IOException {
+	private void startWebserver() throws IOException {
 		HttpServer server = HttpServer.create(new InetSocketAddress(8008), 0);
         server.createContext("/login", new HttpHandler() {
 
@@ -188,7 +192,7 @@ public class Fortnox4jCLI {
 					System.out.println(authCode);
 					setAuthCode(authCode);
 					clientManager.updateAndSaveClientInfo(fc);
-					if (giveAccessToken){
+					if (getAllTokens){
 						getAccessToken(clientId, clientSecret, authCode, null);
 						saveAccessAndRefreshToken();
 					}
