@@ -3,7 +3,7 @@ package org.notima.api.fortnox.entities3;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlTransient;
 
-import org.notima.api.fortnox.FortnoxClient3;
+import org.notima.api.fortnox.FortnoxConstants;
 
 public class WriteOff {
 
@@ -81,7 +81,7 @@ public class WriteOff {
 	
 	@XmlTransient
 	public boolean isDefaultAccountingCurrency() {
-		return currency==null || FortnoxClient3.DEFAULT_ACCOUNTING_CURRENCY.equalsIgnoreCase(currency);
+		return currency==null || FortnoxConstants.DEFAULT_ACCOUNTING_CURRENCY.equalsIgnoreCase(currency);
 	}
 	
 }

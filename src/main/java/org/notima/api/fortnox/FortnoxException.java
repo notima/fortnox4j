@@ -93,9 +93,9 @@ public class FortnoxException extends Exception {
 	
 	private boolean isInvalidLoginCode(String code) {
 		if (code==null) return false;
-		return (code.equals(FortnoxClient3.ERROR_INVALID_LOGIN) || 
-				code.equals(FortnoxClient3.ERROR_INVALID_LOGIN_V2) ||
-				code.equals(FortnoxClient3.ERROR_MISSING_CREDENTIALS));
+		return (code.equals(FortnoxConstants.ERROR_INVALID_LOGIN) || 
+				code.equals(FortnoxConstants.ERROR_INVALID_LOGIN_V2) ||
+				code.equals(FortnoxConstants.ERROR_MISSING_CREDENTIALS));
 	}
 	
 	public String toString() {

@@ -4,7 +4,7 @@ import java.beans.Transient;
 
 import javax.xml.bind.annotation.XmlElement;
 
-import org.notima.api.fortnox.FortnoxClient3;
+import org.notima.api.fortnox.FortnoxConstants;
 import org.notima.util.NumberUtils;
 
 public class VoucherRow {
@@ -60,7 +60,7 @@ public class VoucherRow {
 	@Transient
 	public double getAmount() {
 		double result = debit.doubleValue() - credit.doubleValue();
-		return NumberUtils.roundToPrecision(result, FortnoxClient3.DEFAULT_ROUNDING_PRECISION);
+		return NumberUtils.roundToPrecision(result, FortnoxConstants.DEFAULT_ROUNDING_PRECISION);
 	}
 	
 	@Transient

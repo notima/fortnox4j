@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.notima.api.fortnox.FortnoxClient3;
+import org.notima.api.fortnox.FortnoxConstants;
 import org.notima.util.NumberUtils;
 
 @XmlRootElement(name="Voucher")
@@ -98,7 +98,7 @@ public class Voucher extends VoucherSubset {
 	public Voucher currencyConvert(Currency sourceCurrency) {
 
 		if (sourceCurrency==null) return this;
-		if (sourceCurrency.getCode().equalsIgnoreCase(FortnoxClient3.DEFAULT_ACCOUNTING_CURRENCY)) {
+		if (sourceCurrency.getCode().equalsIgnoreCase(FortnoxConstants.DEFAULT_ACCOUNTING_CURRENCY)) {
 			return this;
 		}
 		
@@ -145,7 +145,7 @@ public class Voucher extends VoucherSubset {
 			balance += vr.getAmount();
 		}
 
-		balance = NumberUtils.roundToPrecision(balance, FortnoxClient3.DEFAULT_ROUNDING_PRECISION);
+		balance = NumberUtils.roundToPrecision(balance, FortnoxConstants.DEFAULT_ROUNDING_PRECISION);
 		
 		return Double.valueOf(balance);
 	}
@@ -155,8 +155,8 @@ public class Voucher extends VoucherSubset {
 		double rate = srcCurrency.getBuyRate();
 		
 		vr.appendTransactionInformation(Currency.currencyRateToString(vr.getAbsoluteAmount(), rate, srcCurrency.getCode()));
-		vr.setCredit(NumberUtils.roundToPrecision(vr.getCredit() * rate, FortnoxClient3.DEFAULT_ROUNDING_PRECISION));
-		vr.setDebit(NumberUtils.roundToPrecision(vr.getDebit() * rate, FortnoxClient3.DEFAULT_ROUNDING_PRECISION));
+		vr.setCredit(NumberUtils.roundToPrecision(vr.getCredit() * rate, FortnoxConstants.DEFAULT_ROUNDING_PRECISION));
+		vr.setDebit(NumberUtils.roundToPrecision(vr.getDebit() * rate, FortnoxConstants.DEFAULT_ROUNDING_PRECISION));
 		
 	}
 	

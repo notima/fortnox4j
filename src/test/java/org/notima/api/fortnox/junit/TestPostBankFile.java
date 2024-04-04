@@ -1,7 +1,7 @@
 package org.notima.api.fortnox.junit;
 
 import org.junit.Test;
-import org.notima.api.fortnox.FortnoxClient3;
+import org.notima.api.fortnox.FortnoxConstants;
 import org.notima.api.fortnox.entities3.FortnoxFile;
 
 /**
@@ -19,7 +19,7 @@ public class TestPostBankFile extends FortnoxTest {
 			
 			String filePath = getFile("BGMax200121.IN").getAbsolutePath();
 			
-			FortnoxFile result = client.uploadFile(filePath, FortnoxClient3.INBOX_BANK_FILES);
+			FortnoxFile result = client.uploadFile(filePath, FortnoxConstants.INBOX_BANK_FILES);
 			
 			log.info("{} response.", result.getUrl());
 			

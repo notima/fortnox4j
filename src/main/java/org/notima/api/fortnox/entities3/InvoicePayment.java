@@ -4,7 +4,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
-import org.notima.api.fortnox.FortnoxClient3;
+import org.notima.api.fortnox.FortnoxConstants;
 import org.notima.api.fortnox.FortnoxException;
 import org.notima.util.NumberUtils;
 
@@ -184,7 +184,7 @@ public class InvoicePayment extends InvoicePaymentSubset {
 	
 	@XmlTransient
 	public boolean isDefaultAccountingCurrency() {
-		return this.getCurrency()==null || FortnoxClient3.DEFAULT_ACCOUNTING_CURRENCY.equalsIgnoreCase(getCurrency());
+		return this.getCurrency()==null || FortnoxConstants.DEFAULT_ACCOUNTING_CURRENCY.equalsIgnoreCase(getCurrency());
 	}
 	
 	/**

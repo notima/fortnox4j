@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
 import org.notima.api.fortnox.FortnoxClient3;
+import org.notima.api.fortnox.FortnoxConstants;
 import org.notima.util.NumberUtils;
 
 public class Currency {
@@ -42,7 +43,7 @@ public class Currency {
 	 */
 	public static String currencyRateToString(double amount, double rate, String currency) {
 		
-		return NumberUtils.roundToPrecision(amount, FortnoxClient3.DEFAULT_ROUNDING_PRECISION) + " " + currency + "=>" + FortnoxClient3.DEFAULT_ACCOUNTING_CURRENCY + "@" + rate;
+		return NumberUtils.roundToPrecision(amount, FortnoxConstants.DEFAULT_ROUNDING_PRECISION) + " " + currency + "=>" + FortnoxConstants.DEFAULT_ACCOUNTING_CURRENCY + "@" + rate;
 		
 	}
 	

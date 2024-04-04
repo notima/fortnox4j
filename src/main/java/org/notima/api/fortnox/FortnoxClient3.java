@@ -132,177 +132,6 @@ import com.google.gson.Gson;
  */
 public class FortnoxClient3 {
 
-	public static final String DEFAULT_ACCOUNTING_CURRENCY = "SEK";
-	public static final int	   DEFAULT_ROUNDING_PRECISION = 2;
-	
-	/**
-	 * Filters
-	 */
-	public static final String FILTER_CANCELLED = "cancelled";
-	public static final String FILTER_FULLY_PAID = "fullypaid";
-	public static final String FILTER_UNPAID = "unpaid";
-	public static final String FILTER_UNPAID_OVERDUE = "unpaidoverdue";
-	public static final String FILTER_UNBOOKED = "unbooked";
-	public static final String	FILTER_EXPIRED = "expired";
-	public static final String FILTER_INVOICECREATED = "invoicecreated";
-	public static final String	FILTER_INVOICENOTCREATED = "invoicenotcreated";
-	public static final String FILTER_ACTIVE = "active";
-	public static final String FILTER_INACTIVE = "inactive";
-	
-	/**
-	 * Invoice actions
-	 */
-	public static final String ACTION_INVOICE_BOOKKEEP = "bookkeep";
-	public static final String ACTION_INVOICE_CANCEL = "cancel";
-	public static final String ACTION_INVOICE_CREDIT = "credit";
-	public static final String ACTION_INVOICE_EMAIL = "email";
-	public static final String ACTION_INVOICE_PRINT = "print";
-	public static final String ACTION_INVOICE_PRINTREMINDER = "printreminder";
-	public static final String ACTION_INVOICE_EXTERNALPRINT = "externalprint";
-	public static final String ACTION_INVOICE_PREVIEW = "preview";
-	public static final String ACTION_WAREHOUSE_READY = "warehouseready";
-	
-	/**
-	 * Order actions
-	 */
-	public static final String ACTION_ORDER_CREATEINVOICE = "createinvoice";
-	public static final String ACTION_ORDER_CANCEL = "cancel";
-	public static final String ACTION_ORDER_EMAIL = "email";
-	public static final String ACTION_ORDER_PRINT = "print";
-	public static final String ACTION_ORDER_EXTERNALPRINT = "externalprint";
-	public static final String ACTION_ORDER_PREVIEW = "preview";
-	
-	/**
-	 * Predefined accounts
-	 */
-	public static final String ACCT_SALES_MP1 = "SALES";
-	public static final String ACCT_SALES_SERVICE_MP1 = "SALES2";
-	public static final String ACCT_SALES_MP1_EASY_VAT = "SALES_25_SE";
-	public static final String ACCT_SALES_MP1_SERVICE_EASY_VAT = "SALES_25_SE2";
-	
-	public static final String ACCT_SALES_MP2 = "SALES_MP2";
-	public static final String ACCT_SALES_MP2_EASY_VAT = "SALES_12_SE";
-	public static final String ACCT_SALES_MP2_SERVICE_EASY_VAT = "SALES_12_SE2";
-	
-	public static final String ACCT_SALES_MP3 = "SALES_MP3";
-	public static final String ACCT_SALES_MP3_EASY_VAT = "SALES_6_SE";
-	public static final String ACCT_SALES_MP3_SERVICE_EASY_VAT = "SALES_6_SE2";
-	
-	public static final String ACCT_SALES_MP0 = "SALES_MP0";
-	public static final String ACCT_SALES_MP0_EASY_VAT = "SALES_0_SE";
-	public static final String ACCT_SALES_MP0_SERVICE_EASY_VAT = "SALES_0_SE2";
-	
-	public static final String ACCT_SALES_NO_VAT = "SALES_NOVAT";
-	public static final String ACCT_SALES_EU = "SALESEUREV";
-	public static final String ACCT_SALES_EU_SERVICE = "SALESEUREV2";
-	public static final String ACCT_SALES_EXPORT = "SALESEXPORT";
-	public static final String ACCT_SALES_EXPORT_SERVICE = "SALESEXPORT2";
-	public static final String ACCT_SALES_EU_W_VAT = "SALESEUVAT";
-	public static final String ACCT_SALES_EU_W_VAT_SERVICE = "SALESEUVAT2";
-	public static final String ACCT_SALES_SE_REV = "SALESCONSTR2";
-	public static final String ACCT_ROUNDING = "ROUNDOFF";
-	public static final String ACCT_CURRENCYGAIN = "CURRENCYWIN";
-	public static final String ACCT_CURRENCYLOSS = "CURRENCYLOSS";
-	public static final String ACCT_ADMFEE = "ADMFEE";
-	public static final String ACCT_FREIGHT_REVENUE = "FREIGHT";
-	public static final String ACCT_INVAT = "INVAT";
-	public static final String ACCT_OUTVAT_MP1 = "OUTVAT_MP1";
-	public static final String ACCT_OUTVAT_MP2 = "OUTVAT_MP2";
-	public static final String ACCT_OUTVAT_MP3 = "OUTVAT_MP3";
-	public static final String ACCT_OUTVAT_MP4 = "OUTVAT_MP4";
-	public static final String ACCT_CASHBYCARD = "CASHBYCARD";
-	public static final String ACCT_INTEREST = "INTEREST"; 		// Normally interest income
-	
-
-	/**
-	 * Predefined revenue accounts
-	 * These exist as predefined accounts in Fortnox.
-	 * Not all may exist at the same time (Easy VAT).
-	 */
-	public static String[] PREDEFINED_REV_ACCT = new String[] {
-		ACCT_CURRENCYGAIN,
-		ACCT_CURRENCYLOSS,
-		ACCT_ADMFEE,
-		ACCT_FREIGHT_REVENUE,
-		ACCT_ROUNDING,
-		ACCT_SALES_MP1,
-		ACCT_SALES_SERVICE_MP1,
-		ACCT_SALES_EU,
-		ACCT_SALES_EU_SERVICE,
-		ACCT_SALES_EXPORT,
-		ACCT_SALES_EU_W_VAT,
-		ACCT_SALES_EU_W_VAT_SERVICE,
-		ACCT_SALES_SE_REV,
-		ACCT_SALES_MP1_EASY_VAT,
-		ACCT_SALES_MP1_SERVICE_EASY_VAT,
-		ACCT_SALES_MP2_EASY_VAT,
-		ACCT_SALES_MP2_SERVICE_EASY_VAT,
-		ACCT_SALES_MP3_EASY_VAT,
-		ACCT_SALES_MP3_SERVICE_EASY_VAT,
-		ACCT_SALES_MP0_EASY_VAT,
-		ACCT_SALES_MP0_SERVICE_EASY_VAT
-	};
-
-	/**
-	 * Revenue accounts for other VAT that MP1
-	 */
-	public static String[] PREDEFINED_REVENUE_VAT_ACCT = new String[] {
-		ACCT_SALES_MP2,
-		ACCT_SALES_MP3,
-		ACCT_SALES_MP0,		// Same as MF in Fortnox
-		ACCT_SALES_NO_VAT,
-		ACCT_SALES_EXPORT_SERVICE
-	};
-	
-	/**
-	 * VAT codes
-	 */
-	public static final String VAT_MP0 = "MP0";
-	public static final String VAT_MP1 = "MP1";
-	public static final String VAT_MP2 = "MP2";
-	public static final String VAT_MP3 = "MP3";
-	
-	public static String[] VAT_DOMESTIC_SWEDEN = new String[] {
-			VAT_MP0, VAT_MP1, VAT_MP2, VAT_MP3
-	};
-	
-	/**
-	 * Error Codes
-	 */
-	public static final String ERROR_CANT_FIND_CUSTOMER = "2000433";
-	public static final String ERROR_CANT_FIND_CURRENCY = "2000427";
-	public static final String ERROR_CANT_FIND_INVOICE = "2000434";
-	public static final String ERROR_NOT_AUTH_FOR_SCOPE = "2000663";
-	public static final String ERROR_INVALID_LOGIN = "2000310";
-	public static final String ERROR_INVALID_LOGIN_V2 = "2004054";
-	public static final String ERROR_MISSING_CREDENTIALS = "2000311";
-	public static final String ERROR_ACCOUNT_NOT_ACTIVE = "2000550";
-	public static final String ERROR_ACCOUNT_NOT_FOUND = "2000423";
-	public static final String ERROR_ARTICLE_NOT_FOUND = "2000428";
-	public static final String ERROR_TERMS_OF_PAYMENT_FOUND = "2000429";
-	public static final String ERROR_PRICE_NOT_FOUND = "2000430";
-	public static final String ERROR_PRICE_LIST_NOT_FOUND = "2000431";
-	public static final String ERROR_TERMS_OF_DELIVERY_NOT_FOUND = "2000435";
-	public static final String ERROR_PROJECT_NOT_FOUND = "2001161";
-	public static final String ERROR_NO_CUSTOMER_INVOICE_SCOPE = "2001393";
-	public static final String ERROR_NO_VOUCHER_SCOPE = "2002455";
-	public static final String ERROR_CANT_FIND_PREDEFINED_ACCOUNT = "2001403";
-	
-	/**
-	 * Inbox folders
-	 */
-	public static final String	INBOX_SUPPLIER_INVOICES = "inbox_s";
-	public static final String	INBOX_VOUCHERS = "inbox_v";
-	public static final String	INBOX_DAILY_TAKINGS = "inbox_d";
-	public static final String	INBOX_ASSET_REGISTER = "inbox_a";
-	public static final String	INBOX_BANK_FILES = "inbox_b";
-	
-	/**
-	 * Default values
-	 */
-	public static final String DFortnox4JFile = "Fortnox4JFile";
-	public static final String ENV_CONFIG_FILE = DFortnox4JFile.toUpperCase();
-	
 	private String		m_baseUrl = "https://api.fortnox.se";
 	private String		m_redirectUri = null;
 	private FortnoxCredentialsProvider credentialsProvider;
@@ -314,6 +143,8 @@ public class FortnoxClient3 {
 	private Map<String, CustomerSubset>	m_customerTaxIdLookupMap;
 	// A map used to quickly lookup a supplier using tax id
 	private Map<String, SupplierSubset> m_supplierTaxIdLookupMap;
+	// Class to help manage VAT rules and settings
+	private FortnoxVATManager			vatManager;
 
 	// Get logger
 	protected Logger	logger = LoggerFactory.getLogger(FortnoxClient3.class);
@@ -349,16 +180,19 @@ public class FortnoxClient3 {
 	 * @param credentialsProvider			The key provider that will be used to retrieve the access token
 	 */
 	public FortnoxClient3(FortnoxCredentialsProvider credentialsProvider) {
-		this.credentialsProvider = credentialsProvider;
+		setKeyProvider(credentialsProvider);
 	}
 
 	/**
-	 * Set a new key provider for the client
+	 * Set a new key provider for the client and inits the client.
 	 * 
 	 * @param credentialsProvider	The new key provider
 	 */
-	public void setKeyProvider(FortnoxCredentialsProvider credentialsProvider) {
+	private void setKeyProvider(FortnoxCredentialsProvider credentialsProvider) {
 		this.credentialsProvider = credentialsProvider;
+		m_customerTaxIdLookupMap = null;
+		m_supplierTaxIdLookupMap = null;
+		vatManager = new FortnoxVATManager(this);
 	}
 	
 	public boolean hasClientSecret() {
@@ -830,7 +664,7 @@ public class FortnoxClient3 {
 	 */
 	public String bookkeepInvoice(String invoiceNo) throws Exception {
 		
-		return performAction(true, "invoice", invoiceNo, FortnoxClient3.ACTION_INVOICE_BOOKKEEP);		
+		return performAction(true, "invoice", invoiceNo, FortnoxConstants.ACTION_INVOICE_BOOKKEEP);		
 		
 	}
 
@@ -847,7 +681,7 @@ public class FortnoxClient3 {
 		String invoiceXml = null;
 		
 		try {
-			invoiceXml = performAction(true, "invoice", invoiceNo, FortnoxClient3.ACTION_WAREHOUSE_READY);
+			invoiceXml = performAction(true, "invoice", invoiceNo, FortnoxConstants.ACTION_WAREHOUSE_READY);
 		} catch (FortnoxException eee) {
 			throw new FortnoxInvoiceException(eee.getErrorInformation(), invoiceNo);
 		}
@@ -863,7 +697,7 @@ public class FortnoxClient3 {
 	        c = (org.notima.api.fortnox.entities3.Invoice)JAXB.unmarshal(in, Invoice.class); //NOI18N
 	        return(c); 
 		} else {
-			if (FortnoxClient3.ERROR_CANT_FIND_INVOICE.equals(e.getCode())) {
+			if (FortnoxConstants.ERROR_CANT_FIND_INVOICE.equals(e.getCode())) {
 				return null;
 			}
 			throw new FortnoxInvoiceException(e, invoiceNo);
@@ -933,7 +767,7 @@ public class FortnoxClient3 {
 		
 		// Book the payment directly if account and mode of payment is set.
 		if (bookkeepPayment && pmt!=null && pmt.getModeOfPayment()!=null && pmt.getModeOfPaymentAccount()!=null && pmt.getModeOfPaymentAccount()>0) {
-			performAction(true, "invoicepayment", Integer.toString(pmt.getNumber()), FortnoxClient3.ACTION_INVOICE_BOOKKEEP);
+			performAction(true, "invoicepayment", Integer.toString(pmt.getNumber()), FortnoxConstants.ACTION_INVOICE_BOOKKEEP);
 		}
 		
 		return pmt;
@@ -962,7 +796,7 @@ public class FortnoxClient3 {
 	        c = (org.notima.api.fortnox.entities3.Invoice)JAXB.unmarshal(in, Invoice.class); //NOI18N
 	        return(c); 
 		} else {
-			if (FortnoxClient3.ERROR_CANT_FIND_INVOICE.equals(e.getCode())) {
+			if (FortnoxConstants.ERROR_CANT_FIND_INVOICE.equals(e.getCode())) {
 				return null;
 			}
 			throw new FortnoxException(e);
@@ -1254,7 +1088,7 @@ public class FortnoxClient3 {
 	        result = (org.notima.api.fortnox.entities3.Account)JAXB.unmarshal(in, Account.class); //NOI18N
 	        return(result); 
 		} else {
-			if (ERROR_ACCOUNT_NOT_FOUND.equals(e.getCode())) {
+			if (FortnoxConstants.ERROR_ACCOUNT_NOT_FOUND.equals(e.getCode())) {
 				return null;
 			} else {
 				throw new FortnoxException(e);
@@ -1409,8 +1243,9 @@ public class FortnoxClient3 {
 	 * @throws Exception	If something goes wrong.
 	 */
 	public Map<String, Integer> getRevenueAccountMap(Date acctDate) throws Exception {
-		FinancialYearSubset fy = getFinancialYear(acctDate);
-		return getRevenueAccountMap(fy.getId());
+
+		return vatManager.getRevenueAccountMap(acctDate);
+		
 	}
 	
 	/**
@@ -1429,104 +1264,8 @@ public class FortnoxClient3 {
 	 * @throws Exception 		If something goes wrong.
 	 */
 	public Map<String, Integer> getRevenueAccountMap(int year) throws Exception {
-
-		Map<String,Integer> result = new TreeMap<String, Integer>();
 		
-		PreDefinedAccount pa;
-		
-		for (String s : PREDEFINED_REV_ACCT) {
-			try {
-				pa = this.getPreDefinedAccount(s);
-				if (pa!=null) {
-					result.put(s, pa.getAccount());
-				}
-			} catch (FortnoxException ee) {
-				if (ee.getErrorInformation()!=null 
-						&& ee.getErrorInformation().getCode()!=null 
-						&& ERROR_CANT_FIND_PREDEFINED_ACCOUNT.equals(ee.getErrorInformation().getCode().toString())) {
-					logger.info(ee.getMessage());
-				} else {
-					throw ee;
-				}
-			}
-		}
-
-		boolean easyVatMp2 = false;
-		boolean easyVatMp3 = false;
-		boolean easyVatMp0 = false;
-		
-		// Check if there are easy VAT settings
-		if (result.containsKey(ACCT_SALES_MP1_EASY_VAT)) {
-			result.put(ACCT_SALES_MP1, result.get(ACCT_SALES_MP1_EASY_VAT));
-			result.put(ACCT_SALES_SERVICE_MP1, result.get(ACCT_SALES_MP1_SERVICE_EASY_VAT));
-		}
-		
-		if (result.containsKey(ACCT_SALES_MP2_EASY_VAT)) {
-			result.put(PREDEFINED_REVENUE_VAT_ACCT[0], result.get(ACCT_SALES_MP2_EASY_VAT));
-			easyVatMp2 = true;
-		}
-
-		if (result.containsKey(ACCT_SALES_MP3_EASY_VAT)) {
-			result.put(PREDEFINED_REVENUE_VAT_ACCT[1], result.get(ACCT_SALES_MP3_EASY_VAT));
-			easyVatMp3 = true;
-		}
-
-		if (result.containsKey(ACCT_SALES_MP0_EASY_VAT)) {
-			result.put(PREDEFINED_REVENUE_VAT_ACCT[2], result.get(ACCT_SALES_MP0_EASY_VAT));
-			easyVatMp0 = true;
-		}
-		// End of easy VAT remap
-		
-		
-		// Look for VAT accounts
-		Accounts accounts = getAccounts(year);
-		
-		SortedSet<Integer> mp2 = new TreeSet<Integer>();
-		SortedSet<Integer> mp3 = new TreeSet<Integer>();
-		SortedSet<Integer> mp0 = new TreeSet<Integer>(); // VAT but zero rate 0%
-		SortedSet<Integer> mpNoVAT = new TreeSet<Integer>(); // No VAT
-		SortedSet<Integer> exportServices = new TreeSet<Integer>();	
-		
-		for (AccountSubset as : accounts.getAccountSubset()) {
-
-			// Only check revenue accounts
-			if (!as.getNumber().toString().startsWith("3")) {
-				continue;
-			}
-			if (!as.getActive().booleanValue())
-				continue;
-			
-			if ("MP2".equals(as.getVATCode())) {
-				mp2.add(as.getNumber());
-			} else if ("MP3".equals(as.getVATCode())) {
-				mp3.add(as.getNumber());
-			} else if ("MF".equals(as.getVATCode())) {
-				mp0.add(as.getNumber());
-			} else if (as.getVATCode()==null || as.getVATCode().trim().length()==0) {
-				mpNoVAT.add(as.getNumber());
-			} else if ("ÖTEU".equals(as.getVATCode())) {
-				exportServices.add(as.getNumber());
-			}
-			
-		}
-		
-		if (!easyVatMp2 && mp2.size()>0) {
-			result.put(PREDEFINED_REVENUE_VAT_ACCT[0], mp2.first());
-		}
-		if (!easyVatMp3 && mp3.size()>0) {
-			result.put(PREDEFINED_REVENUE_VAT_ACCT[1], mp3.first());
-		}
-		if (!easyVatMp0 && mp0.size()>0) {
-			result.put(PREDEFINED_REVENUE_VAT_ACCT[2], mp0.first());
-		}
-		if (mpNoVAT.size()>0) {
-			result.put(PREDEFINED_REVENUE_VAT_ACCT[3], mpNoVAT.first());
-		}
-		if (exportServices.size()>0) {
-			result.put(PREDEFINED_REVENUE_VAT_ACCT[4], exportServices.first());
-		}
-		
-		return result;
+		return vatManager.getRevenueAccountMap(year);
 		
 	}
 	
@@ -2235,7 +1974,7 @@ public class FortnoxClient3 {
 	        c = JAXB.unmarshal(in, c.getClass());
 	        return(c); 
 		} else {
-			if (ERROR_CANT_FIND_CUSTOMER.equals(e.getCode())) {
+			if (FortnoxConstants.ERROR_CANT_FIND_CUSTOMER.equals(e.getCode())) {
 				return null;
 			} else {
 				throw new FortnoxException(e);
@@ -2269,7 +2008,7 @@ public class FortnoxClient3 {
 	        c = JAXB.unmarshal(in, c.getClass());
 	        return(c); 
 		} else {
-			if (ERROR_CANT_FIND_CUSTOMER.equals(e.getCode())) {
+			if (FortnoxConstants.ERROR_CANT_FIND_CUSTOMER.equals(e.getCode())) {
 				return null;
 			} else {
 				throw new FortnoxException(e);
@@ -2449,7 +2188,7 @@ public class FortnoxClient3 {
         
         if (e!=null) {
         	logger.error(result.toString() + " : " + e.getMessage());
-        	if (ERROR_NO_CUSTOMER_INVOICE_SCOPE.equals(e.getCode())) {
+        	if (FortnoxConstants.ERROR_NO_CUSTOMER_INVOICE_SCOPE.equals(e.getCode())) {
         		throw new FortnoxScopeException(e);
         	} else {
         		throw new FortnoxInvoiceException(e, invoiceDocumentNo);
@@ -2493,7 +2232,7 @@ public class FortnoxClient3 {
         Voucher out = null;
         if (e!=null) {
         	logger.error(result.toString() + " : " + e.getMessage());
-        	if (ERROR_NO_VOUCHER_SCOPE.equals(e.getCode())) {
+        	if (FortnoxConstants.ERROR_NO_VOUCHER_SCOPE.equals(e.getCode())) {
         		throw new FortnoxScopeException(e);
         	} else {
         		throw new FortnoxException(e);
@@ -2577,7 +2316,7 @@ public class FortnoxClient3 {
 	        c = JAXB.unmarshal(in, c.getClass());
 	        return(c); 
 		} else {
-			if (ERROR_CANT_FIND_CURRENCY.equals(e.getCode())) {
+			if (FortnoxConstants.ERROR_CANT_FIND_CURRENCY.equals(e.getCode())) {
 				return null;
 			} else {
 				throw new FortnoxException(e);
@@ -2622,7 +2361,7 @@ public class FortnoxClient3 {
 	        
 	        return(c); 
 		} else {
-			if (ERROR_CANT_FIND_CUSTOMER.equals(e.getCode())) {
+			if (FortnoxConstants.ERROR_CANT_FIND_CUSTOMER.equals(e.getCode())) {
 				return null;
 			} else {
 				throw new FortnoxException(e);
@@ -2656,7 +2395,7 @@ public class FortnoxClient3 {
 	        c = JAXB.unmarshal(in, c.getClass());
 	        return(c); 
 		} else {
-			if (ERROR_CANT_FIND_CUSTOMER.equals(e.getCode())) {
+			if (FortnoxConstants.ERROR_CANT_FIND_CUSTOMER.equals(e.getCode())) {
 				return null;
 			} else {
 				throw new FortnoxException(e);
@@ -2793,7 +2532,7 @@ public class FortnoxClient3 {
 			c = JAXB.unmarshal(in, c.getClass());
 			return(c);
 		} else {
-			if (ERROR_ARTICLE_NOT_FOUND.equals(e.getCode())) {
+			if (FortnoxConstants.ERROR_ARTICLE_NOT_FOUND.equals(e.getCode())) {
 				throw new ArticleNotFoundException(articleNo);
 			} else {
 				throw new FortnoxException(e);
@@ -2872,7 +2611,7 @@ public class FortnoxClient3 {
 			c = JAXB.unmarshal(in, c.getClass());
 			return(c);
 		} else {
-			if (ERROR_PRICE_LIST_NOT_FOUND.equals(e.getCode())) {
+			if (FortnoxConstants.ERROR_PRICE_LIST_NOT_FOUND.equals(e.getCode())) {
 				return null;
 			} else {
 				throw new FortnoxException(e);
@@ -2956,7 +2695,7 @@ public class FortnoxClient3 {
 			c = JAXB.unmarshal(in, c.getClass());
 			return(c);
 		} else {
-			if (ERROR_PRICE_NOT_FOUND.equals(e.getCode())) {
+			if (FortnoxConstants.ERROR_PRICE_NOT_FOUND.equals(e.getCode())) {
 				return null;
 			} else {
 				throw new FortnoxException(e);
@@ -3035,7 +2774,7 @@ public class FortnoxClient3 {
 			c = JAXB.unmarshal(in, c.getClass());
 			return(c);
 		} else {
-			if (ERROR_PROJECT_NOT_FOUND.equals(e.getCode())) {
+			if (FortnoxConstants.ERROR_PROJECT_NOT_FOUND.equals(e.getCode())) {
 				return null;
 			} else {
 				throw new FortnoxException(e);
@@ -3075,7 +2814,7 @@ public class FortnoxClient3 {
 			c = JAXB.unmarshal(in, c.getClass());
 			return(c);
 		} else {
-			if (ERROR_PROJECT_NOT_FOUND.equals(e.getCode())) {
+			if (FortnoxConstants.ERROR_PROJECT_NOT_FOUND.equals(e.getCode())) {
 				return null;
 			} else {
 				throw new FortnoxException(e);
@@ -3084,6 +2823,16 @@ public class FortnoxClient3 {
 
 	}
 
+	/**
+	 * 
+	 * @return	The orgno of the current tenant (the Fortnox client we're working with).
+	 */
+	public String getTenantOrgNo() {
+		if (!hasCredentials()) 
+			return null;
+		return (credentialsProvider.getOrgNo());
+	}
+	
 	/**
 	 * Read all terms of deliveries.
 	 *
@@ -3132,7 +2881,7 @@ public class FortnoxClient3 {
 			c = JAXB.unmarshal(in, c.getClass());
 			return(c);
 		} else {
-			if (ERROR_TERMS_OF_DELIVERY_NOT_FOUND.equals(e.getCode())) {
+			if (FortnoxConstants.ERROR_TERMS_OF_DELIVERY_NOT_FOUND.equals(e.getCode())) {
 				return null;
 			} else {
 				throw new FortnoxException(e);
@@ -3211,7 +2960,7 @@ public class FortnoxClient3 {
 			c = JAXB.unmarshal(in, c.getClass());
 			return(c);
 		} else {
-			if (ERROR_TERMS_OF_PAYMENT_FOUND.equals(e.getCode())) {
+			if (FortnoxConstants.ERROR_TERMS_OF_PAYMENT_FOUND.equals(e.getCode())) {
 				return null;
 			} else {
 				throw new FortnoxException(e);
@@ -3319,7 +3068,7 @@ public class FortnoxClient3 {
 	        cs = JAXB.unmarshal(in, cs.getClass());
 	        return(cs); 
 		} else {
-			if (e.getCode().equals(FortnoxClient3.ERROR_NOT_AUTH_FOR_SCOPE)) {
+			if (e.getCode().equals(FortnoxConstants.ERROR_NOT_AUTH_FOR_SCOPE)) {
 				throw new FortnoxScopeException(e);
 			} else 
 				throw new FortnoxException(e);
@@ -3331,7 +3080,7 @@ public class FortnoxClient3 {
 	}
 	
 	public boolean markReminderAsSent(String documentNo) throws Exception {
-		invoiceGetAction(documentNo, ACTION_INVOICE_PRINTREMINDER);
+		invoiceGetAction(documentNo, FortnoxConstants.ACTION_INVOICE_PRINTREMINDER);
 		return true;
 	}
 
@@ -3524,7 +3273,7 @@ public class FortnoxClient3 {
 	 * @throws Exception	if something goes wrong
 	 */
 	public Invoices getUnpaidCustomerInvoices() throws Exception {
-		Invoices result = getInvoices(FortnoxClient3.FILTER_UNPAID);
+		Invoices result = getInvoices(FortnoxConstants.FILTER_UNPAID);
 		return result;
 	}
 
@@ -3535,8 +3284,8 @@ public class FortnoxClient3 {
 	 */
 	public Invoices getUnpaidAndUnbookedCustomerInvoices() throws Exception {
 		
-		Invoices unpaid = getInvoices(FortnoxClient3.FILTER_UNPAID);
-		Invoices unbooked = getInvoices(FortnoxClient3.FILTER_UNBOOKED);
+		Invoices unpaid = getInvoices(FortnoxConstants.FILTER_UNPAID);
+		Invoices unbooked = getInvoices(FortnoxConstants.FILTER_UNBOOKED);
 		Invoices result = new Invoices();
 		result.setInvoiceSubset(new ArrayList<InvoiceSubset>());
 		if (unpaid!=null && unpaid.getInvoiceSubset()!=null) {

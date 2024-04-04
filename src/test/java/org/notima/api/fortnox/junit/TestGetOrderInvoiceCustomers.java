@@ -5,7 +5,7 @@ import static org.junit.Assert.fail;
 import java.util.List;
 
 import org.junit.Test;
-import org.notima.api.fortnox.FortnoxClient3;
+import org.notima.api.fortnox.FortnoxConstants;
 import org.notima.api.fortnox.FortnoxException;
 import org.notima.api.fortnox.entities3.CustomerSubset;
 import org.notima.api.fortnox.entities3.Customers;
@@ -73,7 +73,7 @@ public class TestGetOrderInvoiceCustomers extends FortnoxTest {
 	
 	@Test
 	public void testGetOrders() throws Exception {
-		Orders orders = client.getOrders(FortnoxClient3.FILTER_INVOICENOTCREATED);
+		Orders orders = client.getOrders(FortnoxConstants.FILTER_INVOICENOTCREATED);
 		int orderCount = 0;
 		if (orders!=null) {
 			for (OrderSubset os : orders.getOrderSubset()) {

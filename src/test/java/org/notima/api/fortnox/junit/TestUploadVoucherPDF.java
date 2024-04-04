@@ -1,7 +1,7 @@
 package org.notima.api.fortnox.junit;
 
 import org.junit.Test;
-import org.notima.api.fortnox.FortnoxClient3;
+import org.notima.api.fortnox.FortnoxConstants;
 import org.notima.api.fortnox.entities3.FortnoxFile;
 
 /**
@@ -19,7 +19,7 @@ public class TestUploadVoucherPDF extends FortnoxTest {
 			
 			String filePath = getFile("SamplePDF.pdf").getAbsolutePath();
 			
-			FortnoxFile result = client.uploadFile(filePath, FortnoxClient3.INBOX_VOUCHERS);
+			FortnoxFile result = client.uploadFile(filePath, FortnoxConstants.INBOX_VOUCHERS);
 			
 			log.info("{} response.", result.getUrl());
 			
