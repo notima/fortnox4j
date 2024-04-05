@@ -1,5 +1,8 @@
 package org.notima.api.fortnox;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class FortnoxConstants {
 
 	public static final String PREDEFACCT_ROUNDOFF = "ROUNDOFF";
@@ -20,66 +23,44 @@ public class FortnoxConstants {
 	public static final String YOURREF = "YourReference";
 
 	public static final String DEFAULT_ACCOUNTING_CURRENCY = "SEK";
-
+	public static final String DEFAULT_TAX_DOMICILE = "SE";
 	public static final int	   DEFAULT_ROUNDING_PRECISION = 2;
 
 	/**
 	 * Filters
 	 */
 	public static final String FILTER_CANCELLED = "cancelled";
-
 	public static final String FILTER_FULLY_PAID = "fullypaid";
-
 	public static final String FILTER_UNPAID = "unpaid";
-
 	public static final String FILTER_UNPAID_OVERDUE = "unpaidoverdue";
-
 	public static final String FILTER_UNBOOKED = "unbooked";
-
 	public static final String	FILTER_EXPIRED = "expired";
-
 	public static final String FILTER_INVOICECREATED = "invoicecreated";
-
 	public static final String	FILTER_INVOICENOTCREATED = "invoicenotcreated";
-
 	public static final String FILTER_ACTIVE = "active";
-
 	public static final String FILTER_INACTIVE = "inactive";
 
 	/**
 	 * Invoice actions
 	 */
 	public static final String ACTION_INVOICE_BOOKKEEP = "bookkeep";
-
 	public static final String ACTION_INVOICE_CANCEL = "cancel";
-
 	public static final String ACTION_INVOICE_CREDIT = "credit";
-
 	public static final String ACTION_INVOICE_EMAIL = "email";
-
 	public static final String ACTION_INVOICE_PRINT = "print";
-
 	public static final String ACTION_INVOICE_PRINTREMINDER = "printreminder";
-
 	public static final String ACTION_INVOICE_EXTERNALPRINT = "externalprint";
-
 	public static final String ACTION_INVOICE_PREVIEW = "preview";
-
 	public static final String ACTION_WAREHOUSE_READY = "warehouseready";
 
 	/**
 	 * Order actions
 	 */
 	public static final String ACTION_ORDER_CREATEINVOICE = "createinvoice";
-
 	public static final String ACTION_ORDER_CANCEL = "cancel";
-
 	public static final String ACTION_ORDER_EMAIL = "email";
-
 	public static final String ACTION_ORDER_PRINT = "print";
-
 	public static final String ACTION_ORDER_EXTERNALPRINT = "externalprint";
-
 	public static final String ACTION_ORDER_PREVIEW = "preview";
 
 	/**
@@ -123,71 +104,76 @@ public class FortnoxConstants {
 	 * Error Codes
 	 */
 	public static final String ERROR_CANT_FIND_CUSTOMER = "2000433";
-
 	public static final String ERROR_CANT_FIND_CURRENCY = "2000427";
-
 	public static final String ERROR_CANT_FIND_INVOICE = "2000434";
-
 	public static final String ERROR_NOT_AUTH_FOR_SCOPE = "2000663";
-
 	public static final String ERROR_INVALID_LOGIN = "2000310";
-
 	public static final String ERROR_INVALID_LOGIN_V2 = "2004054";
-
 	public static final String ERROR_MISSING_CREDENTIALS = "2000311";
-
 	public static final String ERROR_ACCOUNT_NOT_ACTIVE = "2000550";
-
 	public static final String ERROR_ACCOUNT_NOT_FOUND = "2000423";
-
 	public static final String ERROR_ARTICLE_NOT_FOUND = "2000428";
-
 	public static final String ERROR_TERMS_OF_PAYMENT_FOUND = "2000429";
-
 	public static final String ERROR_PRICE_NOT_FOUND = "2000430";
-
 	public static final String ERROR_PRICE_LIST_NOT_FOUND = "2000431";
-
 	public static final String ERROR_TERMS_OF_DELIVERY_NOT_FOUND = "2000435";
-
 	public static final String ERROR_PROJECT_NOT_FOUND = "2001161";
-
 	public static final String ERROR_NO_CUSTOMER_INVOICE_SCOPE = "2001393";
-
 	public static final String ERROR_NO_VOUCHER_SCOPE = "2002455";
-
 	public static final String ERROR_CANT_FIND_PREDEFINED_ACCOUNT = "2001403";
 
 	/**
 	 * Inbox folders
 	 */
 	public static final String	INBOX_SUPPLIER_INVOICES = "inbox_s";
-
 	public static final String	INBOX_VOUCHERS = "inbox_v";
-
 	public static final String	INBOX_DAILY_TAKINGS = "inbox_d";
-
 	public static final String	INBOX_ASSET_REGISTER = "inbox_a";
-
 	public static final String	INBOX_BANK_FILES = "inbox_b";
 
 	/**
 	 * Default values
 	 */
 	public static final String DFortnox4JFile = "Fortnox4JFile";
-
 	public static final String ENV_CONFIG_FILE = DFortnox4JFile.toUpperCase();
 
 	/**
-	 * Revenue accounts for other VAT that MP1
+	 * Revenue accounts for High VAT
 	 */
-	public static String[] PREDEFINED_REVENUE_VAT_ACCT = new String[] {
-		ACCT_SALES_MP2,
-		ACCT_SALES_MP3,
-		ACCT_SALES_MP0,		// Same as MF in Fortnox
-		ACCT_SALES_NO_VAT,
-		ACCT_SALES_EXPORT_SERVICE
+	@SuppressWarnings("serial")
+	public static Set<String> PREDEFINED_SE_REVENUE_VAT_HI = new HashSet<String>() {
+		{
+		add(ACCT_SALES_MP1);
+		add(ACCT_SALES_SERVICE_MP1);
+		add(ACCT_SALES_MP1_EASY_VAT);
+		add(ACCT_SALES_MP1_SERVICE_EASY_VAT);
+		}
 	};
+	
+	/**
+	 * Revenue accounts for Medium VAT
+	 */
+	@SuppressWarnings("serial")
+	public static Set<String> PREDEFINED_SE_REVENUE_VAT_MEDIUM = new HashSet<String>() {
+		{
+		add(ACCT_SALES_MP2);
+		add(ACCT_SALES_MP2_EASY_VAT);
+		add(ACCT_SALES_MP2_SERVICE_EASY_VAT);
+		}
+	};
+	
+	/**
+	 * Revenue accounts for Low VAT
+	 */
+	@SuppressWarnings("serial")
+	public static Set<String> PREDEFINED_SE_REVENUE_VAT_LOW = new HashSet<String>() {
+		{
+		add(ACCT_SALES_MP3);
+		add(ACCT_SALES_MP3_EASY_VAT);
+		add(ACCT_SALES_MP3_SERVICE_EASY_VAT);
+		}
+	};
+	
 
 	/**
 	 * Predefined revenue accounts
