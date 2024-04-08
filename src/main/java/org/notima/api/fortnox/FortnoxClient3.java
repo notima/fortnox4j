@@ -3297,6 +3297,14 @@ public class FortnoxClient3 {
 	}
 	
 	/**
+	 * 
+	 * @return	The VAT manager for this client.
+	 */
+	public FortnoxVATManager getVatManager() {
+		return vatManager;
+	}
+
+	/**
 	 * Compares the key provider.
 	 * 
 	 * @param that		The client to compare
