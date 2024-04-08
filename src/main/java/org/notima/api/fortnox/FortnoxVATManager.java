@@ -104,7 +104,7 @@ public class FortnoxVATManager {
 		for (String s : FortnoxConstants.PREDEFINED_REV_ACCT) {
 			pa = predefinedAccounts.get(s);
 			if (pa!=null) {
-				revenueAccountMap.put(s, new VatInfo(pa));
+				addPredefinedAccountToRevenueAccountMap(pa);
 			} else {
 				log("Can't find predefined account for " + s);
 			}
@@ -160,6 +160,23 @@ public class FortnoxVATManager {
 		
 	}
 
+	private void addPredefinedAccountToRevenueAccountMap(PreDefinedAccountSubset pa) {
+		VatInfo vatInfo = createVATInfoFromPredefinedAccount(pa);
+		revenueAccountMap.put(pa.getName(), vatInfo);
+	}
+	
+	private VatInfo createVATInfoFromPredefinedAccount(PreDefinedAccountSubset pa) {
+		VatInfo vatInfo = new VatInfo(pa.getName(), pa.getAccount());
+		if (FortnoxConstants.PREDEFINED_SE_REVENUE_VAT_HI.contains(pa.getName())) {
+			vatInfo.setVatRate(25);
+		} else if (FortnoxConstants.PREDEFINED_SE_REVENUE_VAT_MEDIUM.contains(pa.getName())) {
+			vatInfo.setVatRate(12);
+		} else if (FortnoxConstants.PREDEFINED_SE_REVENUE_VAT_LOW.contains(pa.getName())) {
+			vatInfo.setVatRate(6);
+		}
+		return vatInfo;
+	}
+	
 	/**
 	 * 
 	 * @param predefinedCode
