@@ -3,6 +3,8 @@ API to communicate with Fortnox (https://www.fortnox.se)
 
 After cloning this repository from git, use Import Existing Maven Project to work with it in eclipse.
 
+If you're working on a non-release version, you'll also need to build the dependency [NotimaUtil](https://github.com/notima/NotimaUtil).
+
 To successfully run `mvn test`
 
 Copy file 
