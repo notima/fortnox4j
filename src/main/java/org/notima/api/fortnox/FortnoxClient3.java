@@ -2137,6 +2137,9 @@ public class FortnoxClient3 {
 		if (invoice.getVoucherNumber()!=null) {
 			invoice.setVoucherNumber(null);
 		}
+		if (invoice.getRoundOff()!=null) {
+			invoice.setRoundOff(null);
+		}
 	}
 	
 	/**
