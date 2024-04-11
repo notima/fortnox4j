@@ -13,6 +13,13 @@
     	
     	There can be many ApiClients with different purposes and access rights. This is
     	why it's a list.  
+    	
+    	Before proceeding the values in FortnoxApiClient must be set and you get the
+    	values from your integration.
+    	
+    	NOTE!! You'll also need to set the clientId in the FortnoxClientInfo-structure,
+    	search and replace "TestClientId" to your integration's clientId.
+    	
      -->
     
         <FortnoxApiClient>
