@@ -15,9 +15,9 @@ to
 
 src/test/resources/FortnoxClientList.xml
 
-and set your own credentials.
+and set your own credentials (such as clientId and client secret for your integration). See the Sample.xml for instructions.
 
-See the [CLI guide](#cli-guide) If you need help getting the credentials
+When the necessary credentials are set in the FortnoxClientList.xml file you can use the [CLI guide](#cli-guide) to get access token(s).
 
 ## Usage
 
@@ -88,11 +88,11 @@ If you have created the assembly you would type something like
 
 	java -jar target/fortnox4j-2.0.1-SNAPSHOT-jar-with-dependencies.jar src/main/resources/FortnoxClientList.xml getAuthenticationCode 555555-5555
 
-
 Arguments:
 - `configfile`: The Fortnox client list xml file to get client information from. The file should look like the `FortnoxClientListSample.xml` file in `src/test/resources/`
 - `command`: The command to execute. Possible commands are: `getAuthenticationCode`, `getAccessToken`, `getAllTokens`. They are described below.
 - `orgNo`: The organization number of the client to perform the operation on. This is optional. The first client in the list will be used if this is omitted.
+
 
 ### getAuthenticationCode
 
