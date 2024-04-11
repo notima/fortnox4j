@@ -1,5 +1,5 @@
 # fortnox4j
-API to communicate with Fortnox (https://www.fortnox.se)
+API to communicate with Fortnox (https://www.fortnox.se). Currently written for Java 8.
 
 After cloning this repository from git, use Import Existing Maven Project to work with it in eclipse.
 
