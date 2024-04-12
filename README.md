@@ -86,7 +86,11 @@ Usage: `org.notima.api.fortnox.Fortnox4jCLI configfile command orgNo`
 
 If you have created the assembly you would type something like
 
-	java -jar target/fortnox4j-2.0.1-SNAPSHOT-jar-with-dependencies.jar src/main/resources/FortnoxClientList.xml getAuthenticationCode 555555-5555
+	java -jar target/fortnox4j-2.0.2-SNAPSHOT-jar-with-dependencies.jar src/main/resources/FortnoxClientList.xml getAuthenticationCode 555555-5555
+ 
+ This will bring up a browser where you can login to Fortnox and choose which end client / tenant to authenticate. After that you get an access token using below command.
+  
+  	java -jar target/fortnox4j-2.0.2-SNAPSHOT-jar-with-dependencies.jar src/main/resources/FortnoxClientList.xml getAccessToken 555555-5555
 
 Arguments:
 - `configfile`: The Fortnox client list xml file to get client information from. The file should look like the `FortnoxClientListSample.xml` file in `src/test/resources/`
