@@ -40,7 +40,9 @@ public class FortnoxTest {
 	@BeforeClass
 	public static void setUp() throws Exception {
 
-		client = TestUtil.getFortnoxClient();
+		TestUtil testUtil = new TestUtil(); 
+		
+		client = testUtil.getFortnoxClient();
 		if (client==null) {
 			fail("Missing FortnoxClientList.xml. Please rename FortnoxClientListSample.xml and fill in your authorization details.");
 		}

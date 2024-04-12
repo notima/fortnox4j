@@ -1,77 +1,55 @@
 package org.notima.api.fortnox.junit;
 
-import java.io.FileReader;
-import java.net.URL;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.stream.JsonReader;
 
 import org.notima.api.fortnox.FortnoxClient3;
 import org.notima.api.fortnox.FortnoxCredentialsProvider;
-import org.notima.api.fortnox.clients.FortnoxCredentials;
+import org.notima.api.fortnox.clients.FortnoxClientInfo;
+import org.notima.api.fortnox.clients.FortnoxClientManager;
+import org.notima.api.fortnox.oauth2.FileCredentialsProvider;
 
 public class TestUtil {
 
+	private FortnoxClientManager clientManager;
+	private FortnoxClientInfo	 testClientInfo;
+	private FortnoxCredentialsProvider	credentialsProvider;
+	
+	private void getFirstClientToTest() throws FileNotFoundException {
+		
+		clientManager = new FortnoxClientManager("FortnoxClientList.xml");
+		
+		List<FortnoxClientInfo> clients = clientManager.getFortnoxClients();
+		if (clients.size()>0) {
+			testClientInfo = clients.get(0);
+		}
+		
+	}
+
+	private void makeSureThereAreCredentials() throws IOException {
+		
+		if (testClientInfo!=null) {
+			setDefaultCredentialsProvider();
+		}
+		
+	}
+	
+	private void setDefaultCredentialsProvider() throws IOException {
+		credentialsProvider = new FileCredentialsProvider(testClientInfo.getOrgNo());	
+	}
+	
 	/**
 	 * Returns a Fortnox-client (if a configuration file exists and is valid)
 	 * 
 	 * @return
 	 * @throws Exception 
 	 */
-	public static FortnoxClient3 getFortnoxClient() throws Exception {
-		FortnoxClient3 client = new FortnoxClient3(new FortnoxCredentialsProvider("") {
-			URL file = Thread.currentThread().getContextClassLoader().getResource("FortnoxCredentials.json");
-			private Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-			@Override
-			public FortnoxCredentials getCredentials() throws Exception {
-				
-				if (file==null) {
-					throw new Exception("No FortnoxCredentials.json found. Check and adjust FortnoxCredentialsSample.json");
-				}
-				
-				JsonReader reader = new JsonReader(new FileReader(file.getPath()));
-        		FortnoxCredentials credentials = gson.fromJson(reader, FortnoxCredentials.class);
-				return credentials;
-			}
-
-
-			@Override
-			public void setCredentials(FortnoxCredentials credentials) throws Exception {
-				// TODO Auto-generated method stub
-				
-			}
-
-
-			@Override
-			public void removeAllCredentials() throws Exception {
-				// TODO Auto-generated method stub
-				
-			}
-
-
-			@Override
-			public List<FortnoxCredentials> getAllCredentials() throws Exception {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-
-			@Override
-			public void removeCredential(FortnoxCredentials removeThis) throws Exception {
-				// TODO Auto-generated method stub
-				
-			}
-
-
-			@Override
-			public int removeCredentials(List<FortnoxCredentials> removeThese) throws Exception {
-				// TODO Auto-generated method stub
-				return 0;
-			}
-		});
+	public FortnoxClient3 getFortnoxClient() throws Exception {
+		
+		getFirstClientToTest();
+		makeSureThereAreCredentials();
+		FortnoxClient3 client = new FortnoxClient3(credentialsProvider);
 		
 		return client;
 		
