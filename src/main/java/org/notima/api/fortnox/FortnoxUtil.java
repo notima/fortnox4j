@@ -96,9 +96,9 @@ public class FortnoxUtil {
 	 */
 	public static FortnoxClientList readFortnoxClientListFromFile(String fileName) throws JAXBException, FileNotFoundException {
 		
-		FortnoxClientList result = null;
-
-		URL url = ClassLoader.getSystemResource(fileName);
+		FortnoxClientList result = new FortnoxClientList();
+		
+		URL url = result.getClass().getClassLoader().getResource(fileName);
 		
 		if (url!=null) {
 			fileName = url.getFile();

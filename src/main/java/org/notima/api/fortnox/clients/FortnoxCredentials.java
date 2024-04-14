@@ -154,6 +154,10 @@ public class FortnoxCredentials {
         this.lastRefresh = lastRefresh;
     }
 
+    public void setLastRefreshToNow() {
+    	lastRefresh = new Date().getTime();
+    }
+    
     public String getLegacyToken() {
         return legacyToken;
     }

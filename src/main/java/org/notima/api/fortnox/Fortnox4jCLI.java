@@ -146,6 +146,8 @@ public class Fortnox4jCLI {
 		if (credentials!=null) {
 			fc.getApiKey().setAccessToken(credentials.getAccessToken());
 			fc.getApiKey().setRefreshToken(credentials.getRefreshToken());
+			fc.getApiKey().setLastRefreshToNow();
+			fc.getApiKey().setExpiresIn(credentials.getExpiresIn());
 			clientManager.updateAndSaveClientInfo(fc);
 		}
 	}
