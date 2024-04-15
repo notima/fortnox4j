@@ -8,8 +8,6 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import org.notima.api.fortnox.entities3.CompanySetting;
 
-import com.google.gson.annotations.SerializedName;
-
 /**
  * Class containing information about a Fortnox client
  * 

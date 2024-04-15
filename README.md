@@ -1,7 +1,9 @@
 # fortnox4j
-API to communicate with Fortnox (https://www.fortnox.se)
+API to communicate with Fortnox (https://www.fortnox.se). Currently written for Java 8.
 
 After cloning this repository from git, use Import Existing Maven Project to work with it in eclipse.
+
+If you're working on a non-release version, you'll also need to build the dependency [NotimaUtil](https://github.com/notima/NotimaUtil).
 
 To successfully run `mvn test`
 
@@ -13,9 +15,9 @@ to
 
 src/test/resources/FortnoxClientList.xml
 
-and set your own credentials.
+and set your own credentials (such as clientId and client secret for your integration). See the Sample.xml for instructions.
 
-See the [CLI guide](#cli-guide) If you need help getting the credentials
+When the necessary credentials are set in the FortnoxClientList.xml file you can use the [CLI guide](#cli-guide) to get access token(s).
 
 ## Usage
 
@@ -84,13 +86,17 @@ Usage: `org.notima.api.fortnox.Fortnox4jCLI configfile command orgNo`
 
 If you have created the assembly you would type something like
 
-	java -jar target/fortnox4j-2.0.1-SNAPSHOT-jar-with-dependencies.jar src/main/resources/FortnoxClientList.xml getAuthenticationCode 555555-5555
-
+	java -jar target/fortnox4j-2.0.2-SNAPSHOT-jar-with-dependencies.jar src/main/resources/FortnoxClientList.xml getAuthenticationCode 555555-5555
+ 
+ This will bring up a browser where you can login to Fortnox and choose which end client / tenant to authenticate. After that you get an access token using below command.
+  
+  	java -jar target/fortnox4j-2.0.2-SNAPSHOT-jar-with-dependencies.jar src/main/resources/FortnoxClientList.xml getAccessToken 555555-5555
 
 Arguments:
 - `configfile`: The Fortnox client list xml file to get client information from. The file should look like the `FortnoxClientListSample.xml` file in `src/test/resources/`
 - `command`: The command to execute. Possible commands are: `getAuthenticationCode`, `getAccessToken`, `getAllTokens`. They are described below.
 - `orgNo`: The organization number of the client to perform the operation on. This is optional. The first client in the list will be used if this is omitted.
+
 
 ### getAuthenticationCode
 
