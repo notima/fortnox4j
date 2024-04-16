@@ -42,7 +42,7 @@ public class VatInfo {
 	 * The predefined code in Fortnox (if any).
 	 * 
 	 * @return
-	 * @see FortnoxConstants.ACCT_SALES_MP1 as example
+	 * @see org.notima.api.fortnox.FortnoxConstants.ACCT_SALES_MP1 as example
 	 */
 	public String getFortnoxPredefinedCode() {
 		return fortnoxPredefinedCode;
