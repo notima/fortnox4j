@@ -75,8 +75,6 @@ public class FortnoxVATManager {
 	 * is looked through to find the first available accounts with VAT-codes for
 	 * revenue.
 	 * 
-	 * @see	getPreDefinedAccount
-	 * 
 	 * @param 		year		The year to use for COA. Consecutive calls to the same fiscal year is cached.
 	 * @return					A map of revenue accounts. The key is the predefined account.
 	 * 							If Easy VAT is enabled, remaps to old VAT predefined accounts are
