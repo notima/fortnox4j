@@ -25,6 +25,7 @@ public class Fortnox4jCLI {
 
 	private String[] args;
 	private File configFile;
+	private String orgNo;
 	private FortnoxClientList	clientList;
 	private FortnoxClientInfo	fc;
 	private FortnoxCredentials  credentials;
@@ -72,8 +73,12 @@ public class Fortnox4jCLI {
 			clientList = clientManager.getClientList();
 			if(args.length >= 3) {
 				fc = clientList.getClientInfoByOrgNo(args[2]);
+				orgNo = args[2];
 			} else {
 				fc = clientList.getFirstClient();
+				if (fc!=null) {
+					orgNo = fc.getOrgNo();
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -174,6 +179,10 @@ public class Fortnox4jCLI {
 	}
 
 	private void setAuthCode(String authCode) {
+		if (fc==null) {
+			fc = new FortnoxClientInfo();
+			fc.setOrgNo(orgNo);
+		}
 		if (fc.getApiKey()==null) {
 			fc.setApiKey(new FortnoxCredentials());
 		}
