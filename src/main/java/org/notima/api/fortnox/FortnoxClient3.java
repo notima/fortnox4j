@@ -1108,9 +1108,6 @@ public class FortnoxClient3 {
 		PreDefinedAccount result = null;
 		PreDefinedAccount pda = new PreDefinedAccount();
 		pda.setAccount(accountNo);
-		pda.setName(name);
-		
-		String putStr = name;
 		
 		StringWriter xml = new StringWriter();
 		JAXB.marshal(pda, xml);
