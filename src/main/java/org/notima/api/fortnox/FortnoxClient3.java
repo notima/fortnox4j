@@ -1097,6 +1097,42 @@ public class FortnoxClient3 {
 	}
 
 	/**
+	 * Updates a predefined account for a client.
+	 * 
+	 * @param name				The predefined name
+	 * @param accountNo			The account no to be predefined.
+	 * @return					The updated predefined account.
+	 * @throws Exception
+	 */
+	public PreDefinedAccount updatePreDefinedAccount(String name, Integer accountNo) throws Exception {
+		PreDefinedAccount result = null;
+		PreDefinedAccount pda = new PreDefinedAccount();
+		pda.setAccount(accountNo);
+		pda.setName(name);
+		
+		String putStr = name;
+		
+		StringWriter xml = new StringWriter();
+		JAXB.marshal(pda, xml);
+		
+		StringBuffer out = null;
+		
+		out = putFortnox("/predefinedaccounts/" + name, xml.getBuffer());
+		
+		ErrorInformation e = checkIfError(out);
+		
+		if (e==null) {
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(out.toString().getBytes()), "UTF-8"));
+	        result = (org.notima.api.fortnox.entities3.PreDefinedAccount)JAXB.unmarshal(in, PreDefinedAccount.class); //NOI18N
+	        return(result); 
+		} else {
+			throw new FortnoxException(e);
+		}		
+		
+	}
+	
+	/**
 	 * Updates given account.
 	 * 
 	 * @param yearId			The year id to use for the chart of the accounts.
