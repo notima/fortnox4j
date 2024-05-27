@@ -30,6 +30,9 @@ public class Fortnox4jCLI {
 	private FortnoxClientInfo	fc;
 	private FortnoxCredentials  credentials;
 	private FortnoxClientManager	clientManager;
+	
+	private boolean getAccessToken = false;
+	private boolean getAuthenticationCode = false;
 
 	private Boolean getAllTokens = false;
 
@@ -63,6 +66,10 @@ public class Fortnox4jCLI {
 			System.out.println(args[0] + " is not a configuration file.");
 			System.exit(1);
 		}
+		
+		getAccessToken = "getAccessToken".equalsIgnoreCase(args[1]);
+		getAuthenticationCode = "getAuthenticationCode".equalsIgnoreCase(args[1]);
+		getAllTokens = "getAllTokens".equalsIgnoreCase(args[1]);
 		
 	}
 
@@ -104,9 +111,9 @@ public class Fortnox4jCLI {
 		
 	}
 	
-	private void determineCommandToRun() {
+	public void determineCommandToRun() {
 
-		if ("getAccessToken".equalsIgnoreCase(args[1])) {
+		if (getAccessToken) {
 			
 			try {
 				
@@ -121,8 +128,7 @@ public class Fortnox4jCLI {
 				e.printStackTrace();
 			}
 
-		} else if("getAuthenticationCode".equalsIgnoreCase(args[1])) {
-
+		} else if(getAuthenticationCode) {
 			
 			try {
 				signIn(clientId);
@@ -130,9 +136,7 @@ public class Fortnox4jCLI {
 				e1.printStackTrace();
 			}
 			
-		} else if("getAllTokens".equalsIgnoreCase(args[1])){
-
-			getAllTokens = true;
+		} else if(getAllTokens){
 
 			try {
 				signIn(clientId);
@@ -147,6 +151,22 @@ public class Fortnox4jCLI {
 		
 	}
 	
+	public String getClientId() {
+		return clientId;
+	}
+
+	public void setClientId(String clientId) {
+		this.clientId = clientId;
+	}
+
+	public String getClientSecret() {
+		return clientSecret;
+	}
+
+	public void setClientSecret(String clientSecret) {
+		this.clientSecret = clientSecret;
+	}
+
 	private void saveAccessAndRefreshToken() throws Exception {
 		if (credentials!=null) {
 			fc.getApiKey().setAccessToken(credentials.getAccessToken());
