@@ -73,6 +73,23 @@ public class Fortnox4jCLI {
 		
 	}
 
+	public void setFortnoxClientManager(FortnoxClientManager mgr, String initialOrgNo) {
+		
+		clientManager = mgr;
+		clientList = mgr.getClientList();
+		fc = clientList.getClientInfoByOrgNo(initialOrgNo);
+		orgNo = initialOrgNo;
+		
+	}
+
+	/**
+	 * 
+	 * @return	True if authentication code is available
+	 */
+	public boolean hasAuthenticationCode() {
+		return (fc!=null && fc.getApiKey()!=null && fc.getApiKey().hasAuthorizationCode());
+	}
+	
 	private void initFortnoxClientInfo() {
 
 		try {
@@ -146,7 +163,6 @@ public class Fortnox4jCLI {
 
 		} else {
 			System.out.println(args[1] + ": unknown command.");
-			System.exit(1);
 		}
 		
 	}
@@ -286,5 +302,13 @@ public class Fortnox4jCLI {
 		buf.append("&response_type=code");
 		buf.append("&state=state");
 		return buf.toString();
+	}
+
+	public void setGetAccessToken(boolean getAccessToken) {
+		this.getAccessToken = getAccessToken;
+	}
+
+	public void setGetAllTokens(Boolean getAllTokens) {
+		this.getAllTokens = getAllTokens;
 	}
 }
