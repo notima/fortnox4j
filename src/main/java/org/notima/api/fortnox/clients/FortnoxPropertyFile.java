@@ -9,6 +9,7 @@ public class FortnoxPropertyFile {
 	private String	defaultClientSecret;
 	private String	defaultClientId;
 	
+	public final static String DONT_STORE_HERE = "DONT_STORE_HERE";
 	
 	public FortnoxPropertyFile() {};
 	
@@ -44,6 +45,7 @@ public class FortnoxPropertyFile {
 
 
 	public String getDefaultClientSecret() {
+		if (DONT_STORE_HERE.equals(defaultClientSecret)) return null;
 		return defaultClientSecret;
 	}
 
@@ -54,6 +56,7 @@ public class FortnoxPropertyFile {
 
 
 	public String getDefaultClientId() {
+		if (DONT_STORE_HERE.equals(defaultClientId)) return null;
 		return defaultClientId;
 	}
 
