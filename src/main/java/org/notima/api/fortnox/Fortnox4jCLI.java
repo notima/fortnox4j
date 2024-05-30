@@ -243,11 +243,11 @@ public class Fortnox4jCLI {
 						getAccessToken(clientId, clientSecret, authCode, null);
 						saveAccessAndRefreshToken();
 					}
-					System.exit(0);
+					server.stop(0);
 				} catch (Exception e) {
 					e.printStackTrace();
 					sendResponse(ex, 400, e.getMessage());
-					System.exit(1);
+					server.stop(1);
 				}
 			}
 
