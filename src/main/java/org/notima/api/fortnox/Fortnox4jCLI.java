@@ -2,8 +2,7 @@ package org.notima.api.fortnox;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,9 +12,13 @@ import org.notima.api.fortnox.clients.FortnoxClientManager;
 import org.notima.api.fortnox.clients.FortnoxCredentials;
 import org.notima.api.fortnox.oauth2.FortnoxOAuth2Client;
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
+import org.apache.http.*;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.bootstrap.HttpServer;
+import org.apache.http.impl.bootstrap.ServerBootstrap;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpRequestHandler;
 
 
 public class Fortnox4jCLI {
@@ -226,42 +229,44 @@ public class Fortnox4jCLI {
 	}
 	
 	private void startWebserver() throws IOException {
-		HttpServer server = HttpServer.create(new InetSocketAddress(8008), 0);
-        server.createContext("/login", new HttpHandler() {
-
-			@Override
-			public void handle(HttpExchange ex) throws IOException {
-				try {
-					String authCode = getAuthCodeFromURL(ex.getRequestURI().toString());
-					String response = "Login successful! You can now close this page.";
-					sendResponse(ex, 200, response);
-					System.out.println("Authentication Code:");
-					System.out.println(authCode);
-					setAuthCode(authCode);
-					clientManager.updateAndSaveClientInfo(fc);
-					if (getAllTokens){
-						getAccessToken(clientId, clientSecret, authCode, null);
-						saveAccessAndRefreshToken();
-					}
-					server.stop(0);
-				} catch (Exception e) {
-					e.printStackTrace();
-					sendResponse(ex, 400, e.getMessage());
-					server.stop(1);
-				}
-			}
-
-			private void sendResponse(HttpExchange ex, int status, String body) throws IOException {
-				byte[] response = body.getBytes();
-				ex.sendResponseHeaders(status, response.length);
-				OutputStream os = ex.getResponseBody();
-				os.write(response);
-				os.close();
-			}
 		
-		});
-        server.setExecutor(null); // creates a default executor
-        server.start();
+		final HttpServer[] serverHolder = new HttpServer[1];
+		
+	    HttpServer server = ServerBootstrap.bootstrap()
+                .setListenerPort(8008)
+                .registerHandler("/login", new HttpRequestHandler() {
+                    @Override
+                    public void handle(HttpRequest request, HttpResponse response, HttpContext context) throws IOException {
+                        try {
+                            String requestUri = request.getRequestLine().getUri();
+                            String authCode = getAuthCodeFromURL(requestUri);
+                            String responseBody = "Login successful! You can now close this page.";
+                            sendResponse(response, 200, responseBody);
+                            System.out.println("Authentication Code:");
+                            System.out.println(authCode);
+                            setAuthCode(authCode);
+                            clientManager.updateAndSaveClientInfo(fc);
+                            if (getAllTokens) {
+                                getAccessToken(clientId, clientSecret, authCode, null);
+                                saveAccessAndRefreshToken();
+                            }
+                            serverHolder[0].shutdown(0, TimeUnit.SECONDS);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            sendResponse(response, 400, e.getMessage());
+                            serverHolder[0].shutdown(1, TimeUnit.SECONDS);
+                        }
+                    }
+
+                    private void sendResponse(HttpResponse response, int status, String body) {
+                        response.setStatusCode(status);
+                        response.setEntity(new StringEntity(body, ContentType.TEXT_PLAIN));
+                    }
+                })
+                .create();
+        
+	    serverHolder[0] = server;
+        server.start();		
 	}
 
 	private void getAccessToken(String clientId, String clientSecret, String authCode, String redirectUri) {
