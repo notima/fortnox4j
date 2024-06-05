@@ -2,6 +2,9 @@ package org.notima.api.fortnox;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -197,9 +200,9 @@ public class Fortnox4jCLI {
 	}
 
     private void signIn(String clientId) throws IOException {
-		startWebserver();
         String url = getLoginUrl(clientId);
-		openInBrowser(url);
+    	openInBrowser(url);
+		startWebserver();
     }
 
 	private void openInBrowser(String url) throws IOException {
@@ -231,6 +234,7 @@ public class Fortnox4jCLI {
 	private void startWebserver() throws IOException {
 		
 		final HttpServer[] serverHolder = new HttpServer[1];
+		final CountDownLatch latch = new CountDownLatch(1);
 		
 	    HttpServer server = ServerBootstrap.bootstrap()
                 .setListenerPort(8008)
@@ -250,11 +254,13 @@ public class Fortnox4jCLI {
                                 getAccessToken(clientId, clientSecret, authCode, null);
                                 saveAccessAndRefreshToken();
                             }
-                            serverHolder[0].shutdown(0, TimeUnit.SECONDS);
+                            latch.countDown();
+                            scheduleShutdown(serverHolder[0], 5); // Schedule server shutdown with delay
                         } catch (Exception e) {
                             e.printStackTrace();
                             sendResponse(response, 400, e.getMessage());
-                            serverHolder[0].shutdown(1, TimeUnit.SECONDS);
+                            latch.countDown();
+                            scheduleShutdown(serverHolder[0], 5); // Schedule server shutdown with delay
                         }
                     }
 
@@ -262,11 +268,27 @@ public class Fortnox4jCLI {
                         response.setStatusCode(status);
                         response.setEntity(new StringEntity(body, ContentType.TEXT_PLAIN));
                     }
+                    
+                    private void scheduleShutdown(HttpServer server, int delaySeconds) {
+                        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+                        scheduler.schedule(() -> {
+                            server.shutdown(0, TimeUnit.SECONDS);
+                            scheduler.shutdown();
+                        }, delaySeconds, TimeUnit.SECONDS);
+                    }                    
+                    
                 })
                 .create();
         
 	    serverHolder[0] = server;
-        server.start();		
+        server.start();	
+        
+        try {
+            latch.await(); // Wait until the first request is processed
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        
 	}
 
 	private void getAccessToken(String clientId, String clientSecret, String authCode, String redirectUri) {
