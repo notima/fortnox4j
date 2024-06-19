@@ -215,6 +215,14 @@ public class FortnoxConstants {
 	public static final String VAT_MP1 = "MP1";
 	public static final String VAT_MP2 = "MP2";
 	public static final String VAT_MP3 = "MP3";
+	
+	/** 
+	 * Predefined VAT rates. Shouldn't be a constant since it can change, but it seems to be constants in Fortnox
+	 */
+	public static final double VAT_MP0_RATE = 0.0;
+	public static final double VAT_MP1_RATE = 25.0;
+	public static final double VAT_MP2_RATE = 12.0;
+	public static final double VAT_MP3_RATE = 6.0;
 
 	// TODO: Add more below
 	/*

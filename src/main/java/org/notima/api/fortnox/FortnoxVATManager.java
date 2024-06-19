@@ -138,20 +138,20 @@ public class FortnoxVATManager {
 		// If there are no easyVAT settings, use the first suitable accounts from the chart of accounts.
 		
 		if (!easyVatMp2 && accountsWithVatCodeMP2.size()>0) {
-			putSEVatInfoToRevenueAccountMap(FortnoxConstants.ACCT_SALES_MP2, accountsWithVatCodeMP2.first());
+			putSEVatInfoToRevenueAccountMap(FortnoxConstants.ACCT_SALES_MP2, accountsWithVatCodeMP2.first(), FortnoxConstants.VAT_MP2_RATE);
 		}
 		if (!easyVatMp3 && accountsWithVatCodeMP3.size()>0) {
-			putSEVatInfoToRevenueAccountMap(FortnoxConstants.ACCT_SALES_MP3, accountsWithVatCodeMP3.first());
+			putSEVatInfoToRevenueAccountMap(FortnoxConstants.ACCT_SALES_MP3, accountsWithVatCodeMP3.first(), FortnoxConstants.VAT_MP3_RATE);
 		}
 		if (!easyVatMp0 && mp0.size()>0) {
-			putSEVatInfoToRevenueAccountMap(FortnoxConstants.ACCT_SALES_MP0, mp0.first());
+			putSEVatInfoToRevenueAccountMap(FortnoxConstants.ACCT_SALES_MP0, mp0.first(), FortnoxConstants.VAT_MP0_RATE);
 		}
 		
 		if (mpNoVAT.size()>0) {
-			putSEVatInfoToRevenueAccountMap(FortnoxConstants.ACCT_SALES_NO_VAT, mpNoVAT.first());
+			putSEVatInfoToRevenueAccountMap(FortnoxConstants.ACCT_SALES_NO_VAT, mpNoVAT.first(), FortnoxConstants.VAT_MP0_RATE);
 		}
 		if (exportServices.size()>0) {
-			putSEVatInfoToRevenueAccountMap(FortnoxConstants.ACCT_SALES_EXPORT_SERVICE, exportServices.first());
+			putSEVatInfoToRevenueAccountMap(FortnoxConstants.ACCT_SALES_EXPORT_SERVICE, exportServices.first(), FortnoxConstants.VAT_MP0_RATE);
 		}
 		
 		return revenueAccountMap;
@@ -180,9 +180,10 @@ public class FortnoxVATManager {
 	 * @param predefinedCode
 	 * @param accountNo
 	 */
-	private void putSEVatInfoToRevenueAccountMap(String predefinedCode, Integer accountNo) {
+	private void putSEVatInfoToRevenueAccountMap(String predefinedCode, Integer accountNo, double vatRate) {
 		VatInfo vatInfo = new VatInfo(predefinedCode, accountNo);
 		vatInfo.setTaxDomicile(FortnoxConstants.DEFAULT_TAX_DOMICILE);
+		vatInfo.setVatRate(vatRate);
 		revenueAccountMap.put(predefinedCode, vatInfo);
 	}
 	
