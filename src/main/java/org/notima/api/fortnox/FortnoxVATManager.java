@@ -255,22 +255,25 @@ public class FortnoxVATManager {
 		List<AccountSubset> accountList;
 		SortedSet<Integer>  accounts; 
 		for (AccountSubset a : chartOfAccounts.getAccountSubset()) {
-			vatCode = a.getVATCode();
-			if (vatCode!=null && vatCode.trim().length()>0) {
-				// Add to account list
-				accountList = vatCodeMappings.get(vatCode.trim());
-				if (accountList==null) {
-					accountList = new ArrayList<AccountSubset>();
-					vatCodeMappings.put(vatCode.trim(), accountList);
+			// Only consider active accounts
+			if (Boolean.TRUE.equals(a.getActive())) {
+				vatCode = a.getVATCode();
+				if (vatCode!=null && vatCode.trim().length()>0) {
+					// Add to account list
+					accountList = vatCodeMappings.get(vatCode.trim());
+					if (accountList==null) {
+						accountList = new ArrayList<AccountSubset>();
+						vatCodeMappings.put(vatCode.trim(), accountList);
+					}
+					accountList.add(a);
+					// Add to set
+					accounts = vatCodeAccounts.get(vatCode.trim());
+					if (accounts==null) {
+						accounts = new TreeSet<Integer>();
+						vatCodeAccounts.put(vatCode.trim(), accounts);
+					}
+					accounts.add(a.getNumber());
 				}
-				accountList.add(a);
-				// Add to set
-				accounts = vatCodeAccounts.get(vatCode.trim());
-				if (accounts==null) {
-					accounts = new TreeSet<Integer>();
-					vatCodeAccounts.put(vatCode.trim(), accounts);
-				}
-				accounts.add(a.getNumber());
 			}
 		}
 		
