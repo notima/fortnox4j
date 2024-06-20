@@ -2,6 +2,8 @@ package org.notima.api.fortnox;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -13,6 +15,8 @@ import org.notima.api.fortnox.clients.FortnoxClientInfo;
 import org.notima.api.fortnox.clients.FortnoxClientList;
 import org.notima.api.fortnox.clients.FortnoxClientManager;
 import org.notima.api.fortnox.clients.FortnoxCredentials;
+import org.notima.api.fortnox.entities3.CompanySetting;
+import org.notima.api.fortnox.oauth2.FileCredentialsProvider;
 import org.notima.api.fortnox.oauth2.FortnoxOAuth2Client;
 
 import org.apache.http.*;
@@ -40,6 +44,8 @@ public class Fortnox4jCLI {
 	private boolean getAccessToken = false;
 	private boolean getAuthenticationCode = false;
 
+	private boolean isServerRunning = false;
+	
 	private Boolean getAllTokens = false;
 
 	
@@ -274,6 +280,7 @@ public class Fortnox4jCLI {
                         scheduler.schedule(() -> {
                             server.shutdown(0, TimeUnit.SECONDS);
                             scheduler.shutdown();
+                            isServerRunning = false;
                         }, delaySeconds, TimeUnit.SECONDS);
                     }                    
                     
@@ -281,7 +288,8 @@ public class Fortnox4jCLI {
                 .create();
         
 	    serverHolder[0] = server;
-        server.start();	
+        server.start();
+        isServerRunning = true;
         
         try {
             latch.await(); // Wait until the first request is processed
@@ -291,6 +299,28 @@ public class Fortnox4jCLI {
         
 	}
 
+	public FortnoxClientInfo updateFortnoxClientInfo() throws Exception {
+
+		FortnoxCredentialsProvider	credentialsProvider = new FileCredentialsProvider(orgNo);
+		FortnoxCredentials			cred = new FortnoxCredentials();
+		cred.setAccessToken(fc.getApiKey().getAccessToken());
+		cred.setRefreshToken(fc.getApiKey().getRefreshToken());
+		cred.setLastRefreshToNow();
+		credentialsProvider.setCredentials(cred);
+		
+		FortnoxClient3 client3 = new FortnoxClient3(credentialsProvider);
+		try {
+			CompanySetting cs = client3.getCompanySetting();
+			fc.setOrgName(cs.getName());
+		} catch (Exception ee) {
+			
+		}
+		
+		clientManager.updateAndSaveClientInfo(fc);
+		return fc;
+		
+	}
+	
 	private void getAccessToken(String clientId, String clientSecret, String authCode, String redirectUri) {
 		try {
 			if (redirectUri==null) {
@@ -338,4 +368,10 @@ public class Fortnox4jCLI {
 	public void setGetAllTokens(Boolean getAllTokens) {
 		this.getAllTokens = getAllTokens;
 	}
+
+	public boolean isServerRunning() {
+		return isServerRunning;
+	}
+	
+	
 }
