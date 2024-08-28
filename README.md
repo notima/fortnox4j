@@ -1,6 +1,8 @@
 # fortnox4j
 API to communicate with Fortnox (https://www.fortnox.se). Currently written for Java 8.
 
+See also the Karaf module [fortnoxAdapter](https://github.com/notima/businessObjectAdapters/tree/master/fortnoxAdapter).
+
 After cloning this repository from git, use Import Existing Maven Project to work with it in eclipse.
 
 If you're working on a non-release version, you'll also need to build the dependency [NotimaUtil](https://github.com/notima/NotimaUtil).
