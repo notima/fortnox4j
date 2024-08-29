@@ -223,6 +223,11 @@ public class FortnoxConstants {
 	public static final double VAT_MP1_RATE = 25.0;
 	public static final double VAT_MP2_RATE = 12.0;
 	public static final double VAT_MP3_RATE = 6.0;
+	
+	/**
+	 * Currency rates
+	 */
+	public static final double GET_RATE_FROM_FORTNOX = 0.0;
 
 	// TODO: Add more below
 	/*
