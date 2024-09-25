@@ -62,7 +62,7 @@ Releases are found in Maven-Central repository and can easliy be used by adding 
     <dependency>
         <groupId>org.notima.api</groupId>
         <artifactId>fortnox4j</artifactId>
-        <version>2.0.0</version>
+        <version>2.0.2</version>
     </dependency>
 
 Or karaf
