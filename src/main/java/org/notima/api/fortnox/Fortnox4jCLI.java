@@ -213,7 +213,7 @@ public class Fortnox4jCLI {
 
 	private void openInBrowser(String url) throws IOException {
         Runtime rt = Runtime.getRuntime();
-        String[] browsers = { "google-chrome", "firefox", "mozilla", "epiphany", "konqueror",
+        String[] browsers = { "firefox", "google-chrome", "mozilla", "epiphany", "konqueror",
                                         "netscape", "opera", "links", "lynx" };
         StringBuffer cmd = new StringBuffer();
         for (int i = 0; i < browsers.length; i++) {
