@@ -65,7 +65,7 @@
 		<dependency>
 			<groupId>org.notima</groupId>
 			<artifactId>notima-util</artifactId>
-			<version>0.0.6</version>
+			<version>1.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
