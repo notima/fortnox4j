@@ -1,12 +1,22 @@
 package org.notima.api.fortnox.entities3;
 
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
 public class TermsOfPaymentSubset {
 
+	private String	url;
 	private String code;
 	private String description;
 
+	@XmlAttribute(name="url")
+	public String getUrl() {
+		return url;
+	}
+	public void setUrl(String url) {
+		this.url = url;
+	}
+	
 	@XmlElement(name="Code")
 	public String getCode() {
 		return code;

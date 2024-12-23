@@ -1,30 +1,17 @@
 package org.notima.api.fortnox.entities3;
 
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name="TermsOfPayment")
-public class TermsOfPayment {
+public class TermsOfPayment extends TermsOfPaymentSubset {
 
-	private String code;
-	private String description;
-
-	@XmlElement(name="Code")
-	public String getCode() {
-		return code;
+	public TermsOfPayment() {}
+	
+	public TermsOfPayment(TermsOfPaymentSubset ms) {
+		setUrl(ms.getUrl());
+		setCode(ms.getCode());
+		setDescription(ms.getDescription());
 	}
-
-	public void setCode(String code) {
-		this.code = code;
-	}
-
-	@XmlElement(name="Description")
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
+	
 
 }

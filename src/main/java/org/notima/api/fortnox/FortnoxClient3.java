@@ -3009,6 +3009,45 @@ public class FortnoxClient3 {
 		}
 
 	}
+	
+	/**
+	 * Sets a term of payment. Creates it if it doesn't exist.
+	 * 
+	 * @param mp			The term of payment
+	 * @return				The created / updated term of payment.
+	 * @throws Exception	If something goes wrong.
+	 */
+	public TermsOfPayment setTermsOfPayment(TermsOfPayment mp) throws Exception {
+		
+		if (mp==null) return null;
+
+		boolean createNew = mp.getUrl()==null;
+		
+		StringWriter result = new StringWriter();
+		JAXB.marshal(mp, result);
+        
+        StringBuffer output = callFortnox("/termsofpayments" + 
+        		(!createNew ? "/" + mp.getCode() : "")
+        		, null,
+        		result.getBuffer(),
+        		null, // Headers
+        		(!createNew ? "put" : null));
+        
+        ErrorInformation e = checkIfError(output);
+
+        TermsOfPayment c = new TermsOfPayment();
+        
+		if (e==null) {
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(output.toString().getBytes()), "UTF-8"));
+	        c = JAXB.unmarshal(in, c.getClass());
+	        return(c); 
+		} else {
+			throw new FortnoxException(e);
+		}
+		
+	}
+	
 
 	/**
 	 * Resets the tax id / customer map
