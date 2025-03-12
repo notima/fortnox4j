@@ -802,6 +802,38 @@ public class FortnoxClient3 {
 		}
 		
 	}
+	
+
+	/**
+	 * Cancels an customer invoice with specific invoice number
+	 * 
+	 * @param invoiceNo			Fortnox Invoice Number
+	 * @return					The invoice, null if it doesn't exist.
+	 * @throws Exception		If something fails
+	 */
+	public org.notima.api.fortnox.entities3.Invoice cancelInvoice(String invoiceNo) throws Exception { 
+		
+		org.notima.api.fortnox.entities3.Invoice c = new org.notima.api.fortnox.entities3.Invoice();
+		// Create request
+		String getStr = URLEncoder.encode(invoiceNo, "UTF-8");
+		StringBuffer result = putFortnox("/invoices/" + getStr + "/cancel", null);
+		
+		ErrorInformation e = checkIfError(result);
+		
+		if (e==null) {
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(result.toString().getBytes()), "UTF-8"));
+	        c = (org.notima.api.fortnox.entities3.Invoice)JAXB.unmarshal(in, Invoice.class); //NOI18N
+	        return(c); 
+		} else {
+			if (FortnoxConstants.ERROR_CANT_FIND_INVOICE.equals(e.getCode())) {
+				return null;
+			}
+			throw new FortnoxException(e);
+		}
+		
+	}
+
 
 	
 	/**
