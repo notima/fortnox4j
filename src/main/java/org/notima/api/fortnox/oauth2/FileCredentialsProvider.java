@@ -92,7 +92,7 @@ public class FileCredentialsProvider extends FortnoxCredentialsProvider {
         List<FortnoxCredentials> keys = file.getKeyList();
         boolean updated = false;
         for(int i = 0; i < keys.size(); i++) {
-            if(keys.get(i).equals(credentials)) {
+            if(keys.get(i).getOrgNo().equals(credentials.getOrgNo())) {
                 keys.set(i, credentials);
                 updated = true;
                 break;
