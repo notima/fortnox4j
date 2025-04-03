@@ -14,8 +14,10 @@ public class TestCredentialsFileManager {
 
     @Before
     public void setUp() throws Exception {
-        System.setProperty("FortnoxCredentialsFile", System.getProperty("user.home") + File.separator + "fortnox-credentials-test.json");
+        File tempFile = File.createTempFile("test-", "-fortnox-credentials");
+        System.setProperty("FortnoxCredentialsFile", tempFile.getAbsolutePath());
         credentialsProvider = new FileCredentialsProvider("1234567890");
+        System.out.println("Using credentials file: " + tempFile.getAbsolutePath());
     }
 
     @Test
