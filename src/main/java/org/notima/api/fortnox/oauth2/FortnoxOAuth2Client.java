@@ -27,6 +27,7 @@ public class FortnoxOAuth2Client {
 
     private static final String BASE_URL = "https://apps.fortnox.se/oauth-v1/";
     private static final String TOKEN_URL = "token";
+    private static final String MIGRATE_URL = "migrate";
 
     private static final String KEY_GRANT_TYPE = "grant_type";
     private static final String KEY_AUTH_CODE = "code";
@@ -95,6 +96,29 @@ public class FortnoxOAuth2Client {
         	fae.setCredentials(failedCredentials);
         	throw fae;
         }
+    }
+
+    public FortnoxCredentials migrateLegacyToken(String clientId, String clientSecret, String legacyToken) throws FortnoxAuthenticationException, Exception {
+
+    	if (clientSecret==null) {
+    		FortnoxCredentials errorCredentials = new FortnoxCredentials();
+    		errorCredentials.setClientId(clientId);
+    		errorCredentials.setLegacyToken(legacyToken);
+    		throw new FortnoxAuthenticationException(errorCredentials);
+    	}
+    	
+    	Map<String, String> body = new HashMap<>();
+        body.put("access_token", legacyToken);
+
+        OAuthRequest request = new OAuthRequest();
+        request.setUrl(MIGRATE_URL);
+        request.setClientId(clientId);
+        request.setClientSecret(clientSecret);
+        request.setBody(xWWWFormURLEncode(body));
+
+        FortnoxCredentials credentials = callApi(request, FortnoxCredentials.class);
+        credentials.setLastRefresh(new Date().getTime());
+        return credentials;
     }
 
     // TODO: Implement!
