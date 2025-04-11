@@ -1,10 +1,14 @@
 package org.notima.api.fortnox.oauth2;
 
+import java.util.HashMap;
+import java.util.Map;
+
 class OAuthRequest {
     private String url;
     private String clientId;
     private String clientSecret;
     private String body;
+    private Map<String, String> headers = new HashMap<>();
 
     public String getUrl() {
         return url;
@@ -36,5 +40,13 @@ class OAuthRequest {
 
     public void setBody(String body) {
         this.body = body;
+    }
+
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
+
+    public void addHeader(String key, String value) {
+        headers.put(key, value);
     }
 }

@@ -116,6 +116,10 @@ public class FortnoxOAuth2Client {
         request.setClientSecret(clientSecret);
         request.setBody(xWWWFormURLEncode(body));
 
+        request.addHeader("ClientId", clientId);
+        request.addHeader("ClientSecret", clientSecret);
+        request.addHeader("Credentials", getBasicAuthCredentials(request.getClientId(), request.getClientSecret()));
+
         FortnoxCredentials credentials = callApi(request, FortnoxCredentials.class);
         credentials.setLastRefresh(new Date().getTime());
         return credentials;
@@ -130,6 +134,9 @@ public class FortnoxOAuth2Client {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         String credentials = getBasicAuthCredentials(request.getClientId(), request.getClientSecret());
         HttpPost post = new HttpPost(BASE_URL + request.getUrl());
+        for (Map.Entry<String, String> entry : request.getHeaders().entrySet()) {
+            post.setHeader(entry.getKey(), entry.getValue());
+        }
 		post.setHeader("Content-type", "application/x-www-form-urlencoded");
         post.setHeader("Authorization", "Basic " + credentials);
         post.setEntity(new StringEntity(request.getBody()));
