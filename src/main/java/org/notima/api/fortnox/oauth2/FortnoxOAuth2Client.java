@@ -143,7 +143,7 @@ public class FortnoxOAuth2Client {
         HttpResponse response = httpClient.execute(post);
         String entity = EntityUtils.toString(response.getEntity());
         int statusCode = response.getStatusLine().getStatusCode();
-        if(statusCode == 200) {
+        if(statusCode >= 200 && statusCode < 300) {
             return gson.fromJson(entity, classOfT);
         } else {
             throw new FortnoxAuthenticationException(String.format(
