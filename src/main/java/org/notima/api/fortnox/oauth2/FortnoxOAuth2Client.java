@@ -122,6 +122,8 @@ public class FortnoxOAuth2Client {
 
         FortnoxCredentials credentials = callApi(request, FortnoxCredentials.class);
         credentials.setLastRefresh(new Date().getTime());
+        credentials.setClientId(clientId);
+        credentials.setClientSecret(clientSecret);
         return credentials;
     }
 
