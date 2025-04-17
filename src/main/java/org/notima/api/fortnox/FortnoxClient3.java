@@ -575,12 +575,28 @@ public class FortnoxClient3 {
 	private FortnoxCredentials updateCredentials(FortnoxCredentials credentials) throws FortnoxAuthenticationException, Exception {
 		if(credentials.getLastRefresh() + (credentials.getExpiresIn() * 1000) < new Date().getTime()) {
 			logger.info("Refreshing credentials for " + credentials.getOrgNo());
-			credentials = FortnoxOAuth2Client.refreshAccessToken(credentials.getClientId(), credentials.getClientSecret(), credentials.getRefreshToken());
+			credentials = FortnoxOAuth2Client.refreshAccessToken(getClientId(credentials), getClientSecret(credentials), credentials.getRefreshToken());
 			credentialsProvider.setCredentials(credentials);
 		}
 		return credentials;
 	}
 
+	private String getClientId(FortnoxCredentials credentials) {
+		String clientId = credentials.getClientId();
+		if (clientId==null) {
+			clientId = credentialsProvider.getDefaultClientId();
+		}
+		return clientId;
+	}
+	
+	private String getClientSecret(FortnoxCredentials credentials) {
+		String secret = credentials.getClientSecret();
+		if (secret==null) {
+			secret = credentialsProvider.getDefaultClientSecret();
+		}
+		return secret;
+	}
+	
 	private Map<? extends String, ? extends String> getBearerTokenHeader(FortnoxCredentials key) {
 		Map<String, String> headers = new HashMap<String, String>();
 		headers.put("Authorization", "Bearer " + key.getAccessToken());
