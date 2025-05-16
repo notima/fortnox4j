@@ -2415,6 +2415,24 @@ public class FortnoxClient3 {
 		
 	}
 	
+	/**
+	 * Runs validation checks on customer
+	 * 
+	 * @param customer
+	 */
+	private Customer validateCustomer(Customer customer) {
+		
+		// For some reason the value of the name can be too long (error code 2000107)
+		if (customer==null) return customer;
+		
+		if (customer.getYourReference()!=null && customer.getYourReference().length()>50) {
+			customer.setYourReference(customer.getYourReference().substring(0, 50));
+		}
+		
+		return customer;
+		
+	}
+	
 	
 	/**
 	 * Creates or updates a customer
@@ -2425,6 +2443,8 @@ public class FortnoxClient3 {
 	 */
 	public Customer setCustomer(Customer customer) throws Exception {
 
+		validateCustomer(customer);
+		
 		StringWriter result = new StringWriter();
         JAXB.marshal(customer, result);
         
