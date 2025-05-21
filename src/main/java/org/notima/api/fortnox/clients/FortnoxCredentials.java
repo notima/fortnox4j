@@ -33,18 +33,22 @@ public class FortnoxCredentials {
     
     private String legacyToken;
 
-    private boolean refreshLock = true;
+    private boolean refreshLocked = true;
+
+    void setRefreshLocked(boolean refreshLock) {
+        this.refreshLocked = refreshLock;
+    }
 
     public void lockRefresh() {
-        refreshLock = true;
+        refreshLocked = true;
     }
 
     public void unlockRefresh() {
-        refreshLock = false;
+        refreshLocked = false;
     }
 
     public boolean isRefreshLocked() {
-        return refreshLock;
+        return refreshLocked;
     }
 
     public String getOrgNo() {
