@@ -573,6 +573,10 @@ public class FortnoxClient3 {
 	}
 
 	private FortnoxCredentials updateCredentials(FortnoxCredentials credentials) throws FortnoxAuthenticationException, Exception {
+		if(credentials.isRefreshLocked()) {
+			logger.warn("Credentials for " + credentials.getOrgNo() + " will not be refreshed because they are locked.");
+			return credentials;
+		}
 		if(credentials.getLastRefresh() + (credentials.getExpiresIn() * 1000) < new Date().getTime()) {
 			logger.info("Refreshing credentials for " + credentials.getOrgNo());
 			credentials = FortnoxOAuth2Client.refreshAccessToken(credentials.getClientId(), credentials.getClientSecret(), credentials.getRefreshToken());

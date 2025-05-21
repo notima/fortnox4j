@@ -33,6 +33,20 @@ public class FortnoxCredentials {
     
     private String legacyToken;
 
+    private boolean refreshLock = true;
+
+    public void lockRefresh() {
+        refreshLock = true;
+    }
+
+    public void unlockRefresh() {
+        refreshLock = false;
+    }
+
+    public boolean isRefreshLocked() {
+        return refreshLock;
+    }
+
     public String getOrgNo() {
         return orgNo;
     }
@@ -222,6 +236,9 @@ public class FortnoxCredentials {
     		buf.append("No refresh token, ");
     	}
     	buf.append(getLastRefreshAsDate() + " (" + lastRefresh + ")");
+        if(isRefreshLocked()) {
+            buf.append(" [Locked]");
+        }
     	return (buf.toString());
     }
     
