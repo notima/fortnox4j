@@ -52,6 +52,9 @@ public class FortnoxClientInfo {
 	 * @return		The client ID
 	 */
 	public String getClientId() {
+		if (clientId==null && apiKey!=null) {
+			return apiKey.getClientId();
+		}
 		return clientId;
 	}
 
@@ -135,6 +138,9 @@ public class FortnoxClientInfo {
 	 * @return		The client secret if set.
 	 */
 	public String getClientSecret() {
+		if (clientSecret==null && apiKey!=null) {
+			return apiKey.getClientSecret();
+		}
 		return clientSecret;
 	}
 

@@ -26,9 +26,9 @@ public class FortnoxClientManager {
 	private String	clientsFile;
 
 	// The default client id
-	static private String	defaultClientId;
+	private String	defaultClientId;
 	// The default client secret
-	static private String	defaultClientSecret;
+	private String	defaultClientSecret;
 	
 	public FortnoxClientManager() {}
 	
@@ -245,7 +245,7 @@ public class FortnoxClientManager {
 	}
 
 	public void setDefaultClientId(String defaultClientId) {
-		FortnoxClientManager.defaultClientId = defaultClientId;
+		this.defaultClientId = defaultClientId;
 	}
 	
 	/**
@@ -258,7 +258,7 @@ public class FortnoxClientManager {
 	}
 
 	public void setDefaultClientSecret(String defaultClientSecret) {
-		FortnoxClientManager.defaultClientSecret = defaultClientSecret;
+		this.defaultClientSecret = defaultClientSecret;
 	}
 
 	/**
