@@ -33,7 +33,7 @@ public class FortnoxCredentials {
     
     private String legacyToken;
 
-    private boolean refreshLocked = true;
+    private boolean refreshLocked = false;
 
     void setRefreshLocked(boolean refreshLock) {
         this.refreshLocked = refreshLock;
