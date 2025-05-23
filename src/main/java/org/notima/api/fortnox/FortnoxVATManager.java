@@ -154,6 +154,20 @@ public class FortnoxVATManager {
 			putSEVatInfoToRevenueAccountMap(FortnoxConstants.ACCT_SALES_EXPORT_SERVICE, exportServices.first(), FortnoxConstants.VAT_MP0_RATE);
 		}
 		
+		// Check for missing custom vat codes (MPX_KUND) for instance
+		for (String vatCode : vatCodeMappings.keySet()) {
+			
+			if (vatCode.startsWith("MP") && !revenueAccountMap.containsKey(vatCode)) {
+
+				List<AccountSubset> accounts = vatCodeMappings.get(vatCode);
+				if (accounts!=null && accounts.size()>0) {
+					putVatInfoToRevenueAccountMap(vatCode, accounts.get(0).getNumber());
+				}
+				
+			}
+			
+		}
+		
 		return revenueAccountMap;
 		
 	}
@@ -184,6 +198,16 @@ public class FortnoxVATManager {
 		VatInfo vatInfo = new VatInfo(predefinedCode, accountNo);
 		vatInfo.setTaxDomicile(FortnoxConstants.DEFAULT_TAX_DOMICILE);
 		vatInfo.setVatRate(vatRate);
+		revenueAccountMap.put(predefinedCode, vatInfo);
+	}
+	
+	/**
+	 * 
+	 * @param predefinedCode
+	 * @param accountNo
+	 */
+	private void putVatInfoToRevenueAccountMap(String predefinedCode, Integer accountNo) {
+		VatInfo vatInfo = new VatInfo(predefinedCode, accountNo);
 		revenueAccountMap.put(predefinedCode, vatInfo);
 	}
 	
