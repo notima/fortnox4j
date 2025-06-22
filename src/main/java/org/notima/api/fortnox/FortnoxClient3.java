@@ -2260,6 +2260,9 @@ public class FortnoxClient3 {
         	}
         }
         
+        // Check for fields that are too long etc.
+        validateInvoice(invoice);
+        
         // Remove any fields that are non-writable but still is here
         removeNonWritableFields(invoice);
         
@@ -2433,9 +2436,36 @@ public class FortnoxClient3 {
 			customer.setYourReference(customer.getYourReference().substring(0, 50));
 		}
 		
+		if (customer.getOurReference()!=null && customer.getOurReference().length()>50) {
+			customer.setOurReference(customer.getOurReference().substring(0, 50));
+		}
+		
+		
 		return customer;
 		
 	}
+	
+	/**
+	 * Runs validation checks on Invoice
+	 * 
+	 * @param invoice
+	 */
+	private Invoice validateInvoice(Invoice invoice) {
+		
+		if (invoice==null) return invoice;
+		
+		if (invoice.getYourReference()!=null && invoice.getYourReference().length()>50) {
+			invoice.setYourReference(invoice.getYourReference().substring(0, 50));
+		}
+		
+		if (invoice.getOurReference()!=null && invoice.getOurReference().length()>50) {
+			invoice.setOurReference(invoice.getOurReference().substring(0, 50));
+		}
+		
+		return invoice;
+		
+	}
+	
 	
 	
 	/**
