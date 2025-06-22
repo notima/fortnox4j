@@ -2440,6 +2440,20 @@ public class FortnoxClient3 {
 			customer.setOurReference(customer.getOurReference().substring(0, 50));
 		}
 		
+		if (customer.getZipCode()!=null && customer.getZipCode().length()>10) {
+			if (customer.getCity()==null || customer.getCity().trim().length()==0) {
+				String[] parts = customer.getZipCode().split(" ");
+				if (parts!=null) {
+					if (parts.length>1) {
+						customer.setCity(parts[1]);
+						customer.setZipCode(parts[0]);
+					} 
+				}
+			}
+			if (customer.getZipCode().length()>10) {
+				customer.setZipCode(customer.getZipCode().substring(0,10));
+			}
+		}
 		
 		return customer;
 		
