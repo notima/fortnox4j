@@ -1497,10 +1497,23 @@ public class FortnoxClient3 {
 		
 		int currentPage = 1;
 		int totalPages = r.getTotalPages();
+		boolean manyCustomers = totalPages > 10;
+		if (manyCustomers) {
+			logger.info("Reading " + totalPages + " pages of customers for " + getTenantOrgNo());
+		}
 		while (currentPage<totalPages) {
 			Customers subset = getCustomers(filter, currentPage+1);
-			r.getCustomerSubset().addAll(subset.getCustomerSubset());
-			currentPage = subset.getCurrentPage();
+			if (subset!=null && subset.getCustomerSubset()!=null) {
+				r.getCustomerSubset().addAll(subset.getCustomerSubset());
+				currentPage = subset.getCurrentPage();
+				if (manyCustomers) {
+					if (currentPage % 10 == 0) {
+						logger.info("Reading customer page " + currentPage + " of " + totalPages + " for " + getTenantOrgNo());
+					}
+				}
+			} else {
+				currentPage++;
+			}
 		}
 
 		return r;
