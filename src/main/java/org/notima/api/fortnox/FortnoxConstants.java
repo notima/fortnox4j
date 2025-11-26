@@ -174,6 +174,20 @@ public class FortnoxConstants {
 		}
 	};
 	
+	
+	/**
+	 * Revenue accounts for no added VAT
+	 */
+	@SuppressWarnings("serial")
+	public static Set<String> PREDEFINED_SE_NO_VAT = new HashSet<String>() {
+		{
+			add(ACCT_SALES_MP0);
+			add(ACCT_SALES_MP0_EASY_VAT);
+			add(ACCT_SALES_EXPORT);
+			add(ACCT_SALES_EXPORT_SERVICE);
+			add(ACCT_SALES_NO_VAT);
+		}
+	};
 
 	/**
 	 * Predefined revenue accounts
