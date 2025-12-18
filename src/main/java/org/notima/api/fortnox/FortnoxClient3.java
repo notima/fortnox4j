@@ -87,6 +87,8 @@ import org.notima.api.fortnox.entities3.Prices;
 import org.notima.api.fortnox.entities3.Project;
 import org.notima.api.fortnox.entities3.Projects;
 import org.notima.api.fortnox.entities3.Supplier;
+import org.notima.api.fortnox.entities3.SupplierInvoice;
+import org.notima.api.fortnox.entities3.SupplierInvoices;
 import org.notima.api.fortnox.entities3.SupplierSubset;
 import org.notima.api.fortnox.entities3.Suppliers;
 import org.notima.api.fortnox.entities3.TermsOfDeliveries;
@@ -823,6 +825,37 @@ public class FortnoxClient3 {
 		
 	}
 	
+	/**
+	 * Gets an invoice with specific invoice number
+	 * 
+	 * @param invoiceNo			Fortnox Invoice Number
+	 * @return					The invoice, null if it doesn't exist.
+	 * @throws Exception		If something fails
+	 */
+	public org.notima.api.fortnox.entities3.SupplierInvoice getSupplierInvoice(String invoiceNo) throws Exception { 
+		
+		org.notima.api.fortnox.entities3.SupplierInvoice c = new org.notima.api.fortnox.entities3.SupplierInvoice();
+		// Create request
+		String getStr = URLEncoder.encode(invoiceNo, "UTF-8");
+		StringBuffer result = callFortnox("/supplierinvoices/" + getStr, null, null);
+		
+		ErrorInformation e = checkIfError(result);
+		
+		if (e==null) {
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(result.toString().getBytes()), "UTF-8"));
+	        c = (org.notima.api.fortnox.entities3.SupplierInvoice)JAXB.unmarshal(in, SupplierInvoice.class); //NOI18N
+	        return(c); 
+		} else {
+			if (FortnoxConstants.ERROR_CANT_FIND_INVOICE.equals(e.getCode())) {
+				return null;
+			}
+			throw new FortnoxException(e);
+		}
+		
+	}
+	
+	
 
 	/**
 	 * Cancels an customer invoice with specific invoice number
@@ -1468,6 +1501,60 @@ public class FortnoxClient3 {
 			throw new FortnoxException(e);
 		}
 	}
+	
+	/**
+	 * Return customer invoices with the given filter.
+	 * 
+	 * @param filter			The filter to use.
+	 * @return					A list of invoices. If many pages, the result is concatenated.
+	 * @throws Exception		If something goes wrong.
+	 */
+	public SupplierInvoices getSupplierInvoices(String filter) throws Exception {
+		
+		SupplierInvoices r = getSupplierInvoices(filter, 0);
+		
+		int currentPage = 1;
+		int totalPages = r.getTotalPages();
+		while (currentPage<totalPages) {
+			// Pause not to exceed call limit
+			Thread.sleep(100);
+			SupplierInvoices subset = getSupplierInvoices(filter, currentPage+1);
+			r.getSupplierInvoiceSubset().addAll(subset.getSupplierInvoiceSubset());
+			currentPage = subset.getCurrentPage();
+		}
+
+		return r;
+	}
+	
+	
+	/**
+	 * Returns a page of invoices with given filter(s) applied.
+	 * 
+	 * @param filter		Filter
+	 * @param page			The page of the result set
+	 * @return				A page 
+	 * @throws Exception	If something goes wrong.
+	 */
+	public SupplierInvoices getSupplierInvoices(String filter, int page) throws Exception {
+		// Include the filter word if the filter is not a global search (containing key/values)
+		String filterWord = filter!=null && filter.contains("=") ? "" : "filter=";
+		
+		// Create request
+		StringBuffer result = callFortnox("/supplierinvoices/" + (filter!=null&&filter.trim().length()>0 ? "?" + filterWord + filter.trim() : "") , (page>1 ? ((filter!=null&&filter.trim().length()>0 ? "&" : "?") + "page=" + page) : null), null);
+		ErrorInformation e = checkIfError(result);
+		SupplierInvoices r = new SupplierInvoices();
+		if (e==null) {
+
+			// Convert returned result into UTF-8
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(result.toString().getBytes()), "UTF-8"));
+			r = JAXB.unmarshal(in, r.getClass());
+	        return(r);
+	        
+		} else {
+			throw new FortnoxException(e);
+		}
+	}
+	
 	
 
 	/**
@@ -3473,6 +3560,34 @@ public class FortnoxClient3 {
 		return result;
 		
 	}
+	
+	/**
+	 * Returns a list of invoices with invoice date in given date.
+	 * 
+	 * @param fromDate			The from date to use.
+	 * @param untilDate			The until date to use.
+	 * @return		An Invoices struct.
+	 * @throws	Exception	if something goes wrong.
+	 */
+	public SupplierInvoices getAllSupplierInvoicesByDateRange(Date fromDate, Date untilDate) throws Exception {
+		
+		StringBuffer filter = new StringBuffer();
+		
+		if (fromDate!=null) {
+			filter.append("fromdate=" + FortnoxClient3.s_dfmt.format(fromDate));
+		}
+		if (untilDate!=null) {
+			if (filter.length()>0) {
+				filter.append("&");
+			}
+			filter.append("todate=" + FortnoxClient3.s_dfmt.format(untilDate) );
+		}
+		SupplierInvoices result = getSupplierInvoices(filter.toString());
+		
+		return result;
+		
+	}
+	
 	
 	
 	/**
