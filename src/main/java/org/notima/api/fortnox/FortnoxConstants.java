@@ -101,6 +101,67 @@ public class FortnoxConstants {
 	public static final String ACCT_INTEREST = "INTEREST"; 		// Normally interest income
 
 	/**
+	 * Scopes
+	 * https://www.fortnox.se/developer/guides-and-good-to-know/scopes
+	 */
+	public static final String SCOPE_ARCHIVE = "archive";
+	public static final String SCOPE_ARTICLE = "article";
+	public static final String SCOPE_ASSETS = "assets";
+	public static final String SCOPE_BOOKKEEPING = "bookkeeping";
+	public static final String SCOPE_COMPANYINFORMATION = "companyinformation";
+	public static final String SCOPE_CONNECT_FILE = "connectfile";
+	public static final String SCOPE_COST_CENTER = "costcenter";
+	public static final String SCOPE_CURRENCY = "currency";
+	public static final String SCOPE_CUSTOMER = "customer";
+	public static final String SCOPE_DELETEVOUCHER = "deletevoucher";
+	public static final String SCOPE_INBOX = "inbox";
+	public static final String SCOPE_INVOICE = "invoice";
+	public static final String SCOPE_NOX_FINANCE = "noxfinansinvoice";
+	public static final String SCOPE_OFFER = "offer";
+	public static final String SCOPE_ORDER = "order";
+	public static final String SCOPE_PAYMENT = "payment";
+	public static final String SCOPE_PRICE = "price";
+	public static final String SCOPE_PRINT = "print";
+	public static final String SCOPE_PROFILE = "profile";
+	public static final String SCOPE_PROJECT = "project";
+	public static final String SCOPE_SALARY = "salary";
+	public static final String SCOPE_SETTINGS = "settings";
+	public static final String SCOPE_SUPPLIER = "supplier";
+	public static final String SCOPE_SUPPLIERINVOICE = "supplierinvoice";
+	public static final String SCOPE_TIMEREPORTING = "timereporting";
+	
+	public static Set<String> ALL_SCOPES = new HashSet<String>() {
+		private static final long serialVersionUID = -5647802737667122443L;
+		{
+			add(SCOPE_ARCHIVE);
+			add(SCOPE_ARTICLE);
+			add(SCOPE_ASSETS);
+			add(SCOPE_BOOKKEEPING);
+			add(SCOPE_COMPANYINFORMATION);
+			add(SCOPE_CONNECT_FILE);
+			add(SCOPE_COST_CENTER);
+			add(SCOPE_CURRENCY);
+			add(SCOPE_CUSTOMER);
+			add(SCOPE_DELETEVOUCHER);
+			add(SCOPE_INBOX);
+			add(SCOPE_INVOICE);
+			add(SCOPE_NOX_FINANCE);
+			add(SCOPE_OFFER);
+			add(SCOPE_ORDER);
+			add(SCOPE_PAYMENT);
+			add(SCOPE_PRICE);
+			add(SCOPE_PRINT);
+			add(SCOPE_PROFILE);
+			add(SCOPE_PROJECT);
+			add(SCOPE_SALARY);
+			add(SCOPE_SETTINGS);
+			add(SCOPE_SUPPLIER);
+			add(SCOPE_SUPPLIERINVOICE);
+			add(SCOPE_TIMEREPORTING);
+		}
+	};
+	
+	/**
 	 * Error Codes
 	 */
 	public static final String ERROR_CANT_FIND_CUSTOMER = "2000433";

@@ -344,7 +344,7 @@ public class Fortnox4jCLI {
 			throw new Exception("No auth code found in URL \n" + url);
 		}
 	}
-
+	
 	private String getLoginUrl(String clientId) {
 		StringBuffer buf = new StringBuffer("https://apps.fortnox.se/oauth-v1/auth?");
 		buf.append("client_id=");
