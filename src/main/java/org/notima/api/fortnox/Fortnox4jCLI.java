@@ -30,6 +30,7 @@ public class Fortnox4jCLI {
 
 	private String clientId;
 	private String clientSecret;
+	private FortnoxScope scope;
 
 	private String[] args;
 	private File configFile;
@@ -46,6 +47,8 @@ public class Fortnox4jCLI {
 	
 	private Boolean getAllTokens = false;
 
+	// Default scope string, last resort if none is set.
+	private final String defaultScopeStr = "bookkeeping,connectfile,costcenter,companyinformation,currency,customer,inbox,invoice,article,order,payment,profile,project,settings,supplier,supplierinvoice,deletevoucher"; 
 	
 	public static void main(String[] argv) {
 		
@@ -192,6 +195,14 @@ public class Fortnox4jCLI {
 	public void setClientSecret(String clientSecret) {
 		this.clientSecret = clientSecret;
 	}
+	
+	public FortnoxScope getScope() {
+		return scope;
+	}
+
+	public void setScope(FortnoxScope scope) {
+		this.scope = scope;
+	}
 
 	private void saveAccessAndRefreshToken() throws Exception {
 		if (credentials!=null) {
@@ -299,6 +310,10 @@ public class Fortnox4jCLI {
 
 	public FortnoxClientInfo updateFortnoxClientInfo() throws Exception {
 
+		if (fc==null) {
+			System.err.println("Update/create for " + orgNo + " failed.");
+			return null;
+		}
 		FortnoxCredentialsProvider	credentialsProvider = new FileCredentialsProvider(orgNo);
 		FortnoxCredentials			cred = new FortnoxCredentials();
 		cred.setAccessToken(fc.getApiKey().getAccessToken());
@@ -311,7 +326,8 @@ public class Fortnox4jCLI {
 			CompanySetting cs = client3.getCompanySetting();
 			fc.setOrgName(cs.getName());
 		} catch (Exception ee) {
-			
+			System.err.println("Could not get company information for " + orgNo + ": " + ee.getMessage());
+			ee.printStackTrace();
 		}
 		
 		clientManager.updateAndSaveClientInfo(fc);
@@ -345,14 +361,22 @@ public class Fortnox4jCLI {
 		}
 	}
 	
+	private String getScopeUrlString() {
+		if (scope!=null && scope.hasScopes()) {
+			return scope.getScopesAsUrlParameter();
+		} else {
+			return new FortnoxScope(defaultScopeStr).getScopesAsUrlParameter();
+		}
+	}
+	
 	private String getLoginUrl(String clientId) {
+		String scopeStr = getScopeUrlString();
 		StringBuffer buf = new StringBuffer("https://apps.fortnox.se/oauth-v1/auth?");
 		buf.append("client_id=");
 		buf.append(clientId);
 		buf.append("&redirect_uri=");
 		buf.append("http%3A%2F%2Flocalhost%3A8008%2Flogin");
-		buf.append("&scope=");
-		buf.append("bookkeeping%20connectfile%20costcenter%20companyinformation%20currency%20customer%20inbox%20invoice%20article%20order%20payment%20profile%20project%20settings%20supplier%20supplierinvoice%20deletevoucher");
+		buf.append("&" + scopeStr);
 		buf.append("&access_type=offline");
 		buf.append("&response_type=code");
 		buf.append("&state=state");

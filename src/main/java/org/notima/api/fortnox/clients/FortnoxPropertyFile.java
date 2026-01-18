@@ -8,6 +8,7 @@ public class FortnoxPropertyFile {
 	private String	fortnoxCredentialsFile;
 	private String	defaultClientSecret;
 	private String	defaultClientId;
+	private String	defaultScope;
 	
 	public final static String DONT_STORE_HERE = "DONT_STORE_HERE";
 	
@@ -22,6 +23,7 @@ public class FortnoxPropertyFile {
 		fortnoxCredentialsFile = (String)properties.get("fortnoxCredentialsFile");
 	    defaultClientSecret = (String)properties.get("defaultClientSecret");
 	    defaultClientId = (String)properties.get("defaultClientId");
+	    defaultScope = (String)properties.get("defaultScope");
 	}
 
 	public String getFortnoxClientsFile() {
@@ -64,8 +66,14 @@ public class FortnoxPropertyFile {
 	public void setDefaultClientId(String defaultClientId) {
 		this.defaultClientId = defaultClientId;
 	}
-	
-	
+
+	public String getDefaultScope() {
+		return defaultScope;
+	}
+
+	public void setDefaultScope(String defaultScope) {
+		this.defaultScope = defaultScope;
+	}
 	
 	
 }

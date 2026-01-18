@@ -111,7 +111,11 @@ public class FortnoxCredentials {
     	}
     }
     
-
+    /**
+     * The actual scope for this specific credential instance
+     * 
+     * @return
+     */
     public String getScope() {
         return scope;
     }

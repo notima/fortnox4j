@@ -21,6 +21,7 @@ public class FortnoxClientInfo {
 	private String	apiCode;
 	private String	accessToken;
 	private String	clientSecret;
+	private String	defaultScope;
 	private FortnoxCredentials apiKey;
 	
 	private String	orgNo;
@@ -126,7 +127,19 @@ public class FortnoxClientInfo {
 	public void setApiKey(FortnoxCredentials apiKey) {
 		this.apiKey = apiKey;
 	}
-	
+
+	/**
+	 * Default scope for this client (can be needed for initialization)
+	 * @return
+	 */
+	public String getDefaultScope() {
+		return defaultScope;
+	}
+
+	public void setDefaultScope(String defaultScope) {
+		this.defaultScope = defaultScope;
+	}
+
 	/**
 	 * The client secret is used to gain access to the Fortnox organization 
 	 * paired with the access token.

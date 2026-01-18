@@ -201,7 +201,6 @@ public class FortnoxConstants {
 	/**
 	 * Revenue accounts for High VAT
 	 */
-	@SuppressWarnings("serial")
 	public static Set<String> PREDEFINED_SE_REVENUE_VAT_HI = new HashSet<String>() {
 		{
 		add(ACCT_SALES_MP1);
@@ -214,7 +213,6 @@ public class FortnoxConstants {
 	/**
 	 * Revenue accounts for Medium VAT
 	 */
-	@SuppressWarnings("serial")
 	public static Set<String> PREDEFINED_SE_REVENUE_VAT_MEDIUM = new HashSet<String>() {
 		{
 		add(ACCT_SALES_MP2);
@@ -226,7 +224,6 @@ public class FortnoxConstants {
 	/**
 	 * Revenue accounts for Low VAT
 	 */
-	@SuppressWarnings("serial")
 	public static Set<String> PREDEFINED_SE_REVENUE_VAT_LOW = new HashSet<String>() {
 		{
 		add(ACCT_SALES_MP3);
@@ -239,7 +236,6 @@ public class FortnoxConstants {
 	/**
 	 * Revenue accounts for no added VAT
 	 */
-	@SuppressWarnings("serial")
 	public static Set<String> PREDEFINED_SE_NO_VAT = new HashSet<String>() {
 		{
 			add(ACCT_SALES_MP0);

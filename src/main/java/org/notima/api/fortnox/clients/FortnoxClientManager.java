@@ -29,6 +29,8 @@ public class FortnoxClientManager {
 	private String	defaultClientId;
 	// The default client secret
 	private String	defaultClientSecret;
+	// The default scope (comma separated list)
+	private String  defaultScopeString;
 	
 	public FortnoxClientManager() {}
 	
@@ -259,6 +261,14 @@ public class FortnoxClientManager {
 
 	public void setDefaultClientSecret(String defaultClientSecret) {
 		this.defaultClientSecret = defaultClientSecret;
+	}
+	
+	public String getDefaultScopeString() {
+		return defaultScopeString;
+	}
+
+	public void setDefaultScopeString(String defaultScopeString) {
+		this.defaultScopeString = defaultScopeString;
 	}
 
 	/**

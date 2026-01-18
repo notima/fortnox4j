@@ -40,7 +40,7 @@ public class TestFortnoxScope {
 	public void testGetScopeUrlParameter() {
 		
 		FortnoxScope scope = new FortnoxScope(scopesToTest);
-		String urlParameter = scope.getScopeUrlParameter();
+		String urlParameter = scope.getScopesAsUrlParameter();
 		System.out.println("Testing Scope URL parameter: " + urlParameter);
 		assertEquals("scope=companyinformation%20settings%20profile%20project%20article%20supplierinvoice%20connectfile%20bookkeeping%20supplier%20deletevoucher%20currency%20payment%20invoice%20costcenter%20inbox%20customer%20order", urlParameter);
 		

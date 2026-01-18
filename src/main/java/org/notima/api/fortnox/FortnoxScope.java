@@ -12,8 +12,22 @@ public class FortnoxScope {
 
 	public FortnoxScope() {};
 	
-	public FortnoxScope(String initialScope) {
-		addScope(initialScope);
+	/**
+	 * Creates a scope. A scope is defined by a comma or space separated list of strings found in
+	 * FortnoxConstants.SCOPE*
+	 * 
+	 * @param initialScopes
+	 */
+	public FortnoxScope(String initialScopes) {
+		if (initialScopes==null || initialScopes.trim().length()==0)
+			return;
+		if (initialScopes.contains(","))
+			addScopesFromCommaseparatedString(initialScopes);
+		else if (initialScopes.contains(" "))
+			addScopesFromSpaceSeparatedString(initialScopes);
+		else {
+			addScope(initialScopes);
+		}
 	}
 	
 	public FortnoxScope(Set<String> initialScopes) {
@@ -36,23 +50,60 @@ public class FortnoxScope {
 		scopes.remove(scope);
 	}
 	
+	public boolean hasScopes() {
+		return !scopes.isEmpty();
+	}
+	
 	/**
 	 * Returns the scope URL parameter for this scope (including the "scope")
 	 * @return
 	 */
-	public String getScopeUrlParameter() {
-		
+	public String getScopesAsUrlParameter() {
+		return "scope=" + getScopesSeparatedBy("%20");
+	}
+
+	/**
+	 * Returns the scopes separated by spaces
+	 * @return
+	 */
+	public String getScopesSeparatedBySpace() {
+		return getScopesSeparatedBy(" ");
+	}
+	
+	/**
+	 * Get scopes separated by comma
+	 * 
+	 * @return
+	 */
+	public String getScopesSeparatedByComma() {
+		return getScopesSeparatedBy(",");
+	}
+	
+	private String getScopesSeparatedBy(String separator) {
 		StringBuffer buf = new StringBuffer();
 		
 		for (String s : scopes) {
 			if (buf.length()>0) {
-				buf.append("%20");
+				buf.append(separator);
 			}
 			buf.append(s);
 		}
-		
-		return "scope=" + buf.toString();
-		
+
+		return buf.toString();
+	}
+	
+	private void addScopesFromCommaseparatedString(String scopeStr) {
+		String[] scopeArray = scopeStr.split(",");
+		for (String s : scopeArray) {
+			addScope(s);
+		}
+	}
+	
+	private void addScopesFromSpaceSeparatedString(String scopeStr) {
+		String[] scopeArray = scopeStr.split(" ");
+		for (String s : scopeArray) {
+			addScope(s);
+		}
 	}
 	
 	public boolean isArchive() {
