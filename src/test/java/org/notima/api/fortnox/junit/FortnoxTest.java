@@ -1,11 +1,10 @@
 package org.notima.api.fortnox.junit;
 
-import static org.junit.Assert.fail;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URL;
 
+import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.notima.api.fortnox.FortnoxClient3;
 import org.slf4j.Logger;
@@ -40,13 +39,15 @@ public class FortnoxTest {
 	@BeforeClass
 	public static void setUp() throws Exception {
 
-		TestUtil testUtil = new TestUtil(); 
-		
-		client = testUtil.getFortnoxClient();
-		if (client==null) {
-			fail("Missing FortnoxClientList.xml. Please rename FortnoxClientListSample.xml and fill in your authorization details.");
+		TestUtil testUtil = new TestUtil();
+
+		try {
+			client = testUtil.getFortnoxClient();
+		} catch (FileNotFoundException e) {
+			Assume.assumeTrue("Missing FortnoxClientList.xml - skipping test. Please rename FortnoxClientListSample.xml and fill in your authorization details.", false);
 		}
-		
+		Assume.assumeTrue("Missing FortnoxClientList.xml - skipping test. Please rename FortnoxClientListSample.xml and fill in your authorization details.", client != null);
+
 	}
 	
 	/**

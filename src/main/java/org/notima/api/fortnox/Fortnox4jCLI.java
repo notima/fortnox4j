@@ -268,6 +268,7 @@ public class Fortnox4jCLI {
                             if (getAllTokens) {
                                 getAccessToken(clientId, clientSecret, authCode, null);
                                 saveAccessAndRefreshToken();
+                                updateFortnoxClientInfo();
                             }
                             latch.countDown();
                             scheduleShutdown(serverHolder[0], 5); // Schedule server shutdown with delay
@@ -316,6 +317,9 @@ public class Fortnox4jCLI {
 		}
 		FortnoxCredentialsProvider	credentialsProvider = new FileCredentialsProvider(orgNo);
 		FortnoxCredentials			cred = new FortnoxCredentials();
+		cred.setOrgNo(fc.getOrgNo());
+		cred.setClientId(fc.getClientId());
+		cred.setClientSecret(fc.getClientSecret());
 		cred.setAccessToken(fc.getApiKey().getAccessToken());
 		cred.setRefreshToken(fc.getApiKey().getRefreshToken());
 		cred.setLastRefreshToNow();
