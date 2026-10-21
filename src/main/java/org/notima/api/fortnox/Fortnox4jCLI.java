@@ -318,10 +318,13 @@ public class Fortnox4jCLI {
 		FortnoxCredentialsProvider	credentialsProvider = new FileCredentialsProvider(orgNo);
 		FortnoxCredentials			cred = new FortnoxCredentials();
 		cred.setOrgNo(fc.getOrgNo());
-		cred.setClientId(fc.getClientId());
-		cred.setClientSecret(fc.getClientSecret());
+		// Fall back on the client id / secret used for this session if not set on the client.
+		cred.setClientId(fc.getClientId()!=null ? fc.getClientId() : clientId);
+		cred.setClientSecret(fc.getClientSecret()!=null ? fc.getClientSecret() : clientSecret);
 		cred.setAccessToken(fc.getApiKey().getAccessToken());
 		cred.setRefreshToken(fc.getApiKey().getRefreshToken());
+		// Without expiresIn the token is considered expired and an unnecessary refresh is made.
+		cred.setExpiresIn(fc.getApiKey().getExpiresIn());
 		cred.setLastRefreshToNow();
 		credentialsProvider.setCredentials(cred);
 		
@@ -393,6 +396,10 @@ public class Fortnox4jCLI {
 
 	public void setGetAllTokens(Boolean getAllTokens) {
 		this.getAllTokens = getAllTokens;
+	}
+
+	public FortnoxClientInfo getFortnoxClientInfo() {
+		return fc;
 	}
 
 	public boolean isServerRunning() {
