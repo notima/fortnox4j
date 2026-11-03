@@ -1,6 +1,10 @@
 package org.notima.api.fortnox;
 
 import java.io.BufferedReader;
+import org.apache.http.conn.ConnectTimeoutException;
+import java.net.UnknownHostException;
+import java.net.ConnectException;
+import java.io.IOException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -155,6 +159,10 @@ public class FortnoxClient3 {
 	protected Long		lastCall;
 	protected long		totalCalls = 0;
 	protected long		minMillisBetweenCalls = 310;	// Max 3,33 calls / second
+
+	// Retries of calls that fail with a network error (e.g. connection reset), see callFortnox
+	protected int		maxAttempts = 3;
+	protected long		retryDelayMillis = 2000;	// Multiplied by the attempt number
 	
 	/**
 	 * Flag to say if articles should be used on invoices / orders
@@ -431,12 +439,6 @@ public class FortnoxClient3 {
 	 * @see		setDatabase(String)
 	 */
 	private StringBuffer callFortnox(String apiPath, String cmd, String getStr, StringBuffer postContents, Map<String,String> headers, String method) throws Exception {
-		StringBuffer result = new StringBuffer();
-		
-		rateLimit();
-		
-		CloseableHttpClient httpClient = HttpClients.createDefault();
-		
 		// Create url
 		String urlStr = m_baseUrl + apiPath;
 		if (cmd!=null)
@@ -497,18 +499,53 @@ public class FortnoxClient3 {
 		
 		// We want XML in return
 		request.setHeader("Accept", "application/xml");
-		
+
+		// Network errors such as "Connection reset" are retried (maxAttempts). A GET is always retried.
+		// POST, PUT and DELETE only if the connection couldn't be opened: the request hasn't reached
+		// Fortnox then. Otherwise Fortnox may already have done it (e.g. created an invoice).
+		for (int attempt = 1; ; attempt++) {
+			rateLimit();
+			try {
+				return callFortnoxOnce(request);
+			} catch (IOException e) {
+				boolean notSent = e instanceof ConnectException || e instanceof ConnectTimeoutException
+						|| e instanceof UnknownHostException;
+				boolean retry = attempt < maxAttempts && !(e instanceof ClientProtocolException)
+						&& (request instanceof HttpGet || notSent);
+				if (!retry) throw e;
+				long delay = retryDelayMillis * attempt;
+				// Only the method and the exception: the URL may contain customer data
+				logger.warn(request.getMethod() + " to Fortnox failed (" + e + "), attempt " + attempt + " of "
+						+ maxAttempts + ", retrying in " + delay + " ms");
+				Thread.sleep(delay);
+			}
+		}
+	}
+
+	/**
+	 * Executes the request once, with a new HTTP client that is closed afterwards.
+	 *
+	 * @param request		The request (its entity, if any, must be repeatable).
+	 * @return				The reply from the web server.
+	 */
+	private StringBuffer callFortnoxOnce(HttpUriRequest request) throws IOException {
+		StringBuffer result = new StringBuffer();
+
+		// No automatic retries in HttpClient: callFortnox decides (it also covers errors while reading the reply)
+		try (CloseableHttpClient httpClient = HttpClients.custom().disableAutomaticRetries().build()) {
+
 		// Read response
 		HttpResponse response = httpClient.execute(request);
-		
+
 		// Check for too many requests
 		StatusLine sl = response.getStatusLine();
 		if (sl.getStatusCode()==429) {
+			EntityUtils.consumeQuietly(response.getEntity());
 			// Delay for 30 seconds
 			rateLimit(30);
 			response = httpClient.execute(request);
 		}
-		
+
 		HttpEntity entity = response.getEntity();
 		if (entity!=null) { // No content (when deleting for instance)
 
@@ -535,6 +572,7 @@ public class FortnoxClient3 {
 		// Thread.sleep(100);
 		// Return response
 		return(result);
+		}
 	}
 
 	public FortnoxCredentials getCurrentCredentials() throws Exception {
@@ -3701,6 +3739,21 @@ public class FortnoxClient3 {
 	 */
 	public void setMinMillisBetweenCalls(long minMillisBetweenCalls) {
 		this.minMillisBetweenCalls = minMillisBetweenCalls;
+	}
+
+	/**
+	 * @param maxAttempts		How many times a call is made at most when it fails with a network error
+	 * 							(default 3, 1 = no retries). See callFortnox for which calls are retried.
+	 */
+	public void setMaxAttempts(int maxAttempts) {
+		this.maxAttempts = Math.max(1, maxAttempts);
+	}
+
+	/**
+	 * @param retryDelayMillis	Wait before a retry, multiplied by the attempt number (default 2000).
+	 */
+	public void setRetryDelayMillis(long retryDelayMillis) {
+		this.retryDelayMillis = retryDelayMillis;
 	}
 
 	/**
