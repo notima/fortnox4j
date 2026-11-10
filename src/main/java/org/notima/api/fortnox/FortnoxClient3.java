@@ -76,6 +76,8 @@ import org.notima.api.fortnox.entities3.ModeOfPayment;
 import org.notima.api.fortnox.entities3.ModeOfPaymentSubset;
 import org.notima.api.fortnox.entities3.ModesOfPayments;
 import org.notima.api.fortnox.entities3.Order;
+import org.notima.api.fortnox.entities3.OrderRow;
+import org.notima.api.fortnox.entities3.OrderSubset;
 import org.notima.api.fortnox.entities3.Orders;
 import org.notima.api.fortnox.entities3.PreDefinedAccount;
 import org.notima.api.fortnox.entities3.PreDefinedAccountSubset;
@@ -1447,9 +1449,119 @@ public class FortnoxClient3 {
 		} else {
 			throw new FortnoxException(e);
 		}
-		
+
 	}
-	
+
+	/**
+	 * Creates or updates an order. If the order has a document number it is updated,
+	 * otherwise a new order is created.
+	 *
+	 * Read only fields (totals, calculated values etc.) must be null, set only
+	 * what should be written.
+	 *
+	 * @param order				The order to save.
+	 * @return					The order as saved by Fortnox.
+	 * @throws Exception		If something goes wrong.
+	 */
+	public Order setOrder(Order order) throws Exception {
+
+		StringWriter result = new StringWriter();
+		String orderDocumentNo = order.getDocumentNumber()!=null ? order.getDocumentNumber().trim() : null;
+
+		if (order.getOrderRows()!=null && order.getOrderRows().getOrderRow()!=null) {
+			for (OrderRow r : order.getOrderRows().getOrderRow()) {
+				r.setTotal(null);
+				if (r.getDescription()!=null) {
+					r.setDescription(r.getDescription().replace('|', ';'));
+					r.setDescription(r.getDescription().substring(0, Math.min(r.getDescription().length(), 50)));
+					r.setDescription(FortnoxUtil.removeNonAllowedCharacters(r.getDescription()));
+				}
+				if (!useArticles) {
+					r.setArticleNumber(null);
+				}
+			}
+		}
+
+		JAXB.marshal(order, result);
+
+		StringBuffer output = callFortnox("/orders" +
+				(orderDocumentNo!=null && orderDocumentNo.length()>0 ? "/" + orderDocumentNo : ""),
+				null,
+				result.getBuffer(),
+				null,
+				(orderDocumentNo!=null && orderDocumentNo.length()>0 ? "put" : null)
+				);
+
+		ErrorInformation e = checkIfError(output);
+		if (e!=null) {
+			logger.error(result.toString() + " : " + e.getMessage());
+			throw new FortnoxException(e);
+		}
+
+		Order out = null;
+		if (output!=null && output.length()>0) {
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(output.toString().getBytes()), "UTF-8"));
+			out = JAXB.unmarshal(in, Order.class);
+		}
+		return out;
+	}
+
+	/**
+	 * Returns the orders having the given external invoice reference 1.
+	 * The result is verified on the client side so that only exact matches
+	 * are returned.
+	 *
+	 * @param reference			The reference to look for.
+	 * @return					Matching orders. An empty list if none is found.
+	 * @throws Exception		If something goes wrong.
+	 */
+	public List<OrderSubset> getOrdersByExternalInvoiceReference1(String reference) throws Exception {
+
+		List<OrderSubset> matches = new ArrayList<OrderSubset>();
+		if (reference==null || reference.trim().length()==0)
+			return matches;
+
+		String query = "externalinvoicereference1=" + URLEncoder.encode(reference.trim(), "UTF-8");
+		StringBuffer result = callFortnox("/orders/?" + query, null, null);
+		ErrorInformation e = checkIfError(result);
+		if (e!=null) {
+			throw new FortnoxException(e);
+		}
+		BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(result.toString().getBytes()), "UTF-8"));
+		Orders r = JAXB.unmarshal(in, Orders.class);
+		if (r!=null && r.getOrderSubset()!=null) {
+			for (OrderSubset os : r.getOrderSubset()) {
+				if (reference.trim().equals(os.getExternalInvoiceReference1())) {
+					matches.add(os);
+				}
+			}
+		}
+		return matches;
+	}
+
+	/**
+	 * Returns the first customer with the given e-mail address.
+	 *
+	 * @param email				The e-mail address.
+	 * @return					The customer or null if not found.
+	 * @throws Exception		If something goes wrong.
+	 */
+	public Customer getCustomerByEmail(String email) throws Exception {
+
+		if (email==null || email.trim().length()==0)
+			return null;
+
+		Customers customers = getCustomers("email=" + URLEncoder.encode(email.trim(), "UTF-8"), 0);
+		if (customers==null || customers.getCustomerSubset()==null)
+			return null;
+		for (CustomerSubset cs : customers.getCustomerSubset()) {
+			if (cs.getEmail()!=null && email.trim().equalsIgnoreCase(cs.getEmail().trim())) {
+				return getCustomerByCustNo(cs.getCustomerNumber());
+			}
+		}
+		return null;
+	}
+
 	/**
 	 * Return customer invoices with the given filter.
 	 * 

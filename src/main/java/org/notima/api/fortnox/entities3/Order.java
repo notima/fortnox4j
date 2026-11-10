@@ -6,21 +6,21 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name="Order")
 public class Order implements OrderInterface {
 
-	private double administrationFee;
-	private double administrationFeeVat;
+	private Double administrationFee;
+	private Double administrationFeeVat;
 	private String	address1;
 	private String	address2;
-	private double basisTaxReduction;
-	private boolean	cancelled;
+	private Double basisTaxReduction;
+	private Boolean	cancelled;
 	private String	city;
 	private String	comments;
-	private double 	contributionPercent;
-	private double	contributionValue;
-	private boolean	copyRemarks;
+	private Double 	contributionPercent;
+	private Double	contributionValue;
+	private Boolean	copyRemarks;
 	private String	costCenter;
 	private String	currency;
-	private double	currencyRate;
-	private double	currencyUnit;
+	private Double	currencyRate;
+	private Double	currencyUnit;
 	private String	customerName;
 	private String	customerNumber;
 	private String	deliveryAddress1;
@@ -34,15 +34,15 @@ public class Order implements OrderInterface {
 	private EmailInformation emailInformation;
 	private String 	externalInvoiceReference1;
 	private String	externalInvoiceReference2;
-	private double 	freight;
-	private double	freightVAT;
-	private double	gross;
-	private boolean	houseWork;
+	private Double 	freight;
+	private Double	freightVAT;
+	private Double	gross;
+	private Boolean	houseWork;
 	private String	invoiceReference;
 	private String	language;
-	private double	net;
-	private boolean	notCompleted;
-	private int		offerReference;
+	private Double	net;
+	private Boolean	notCompleted;
+	private Integer	offerReference;
 	private String	orderDate;
 	private OrderRows	orderRows;
 	private String	organisationNumber;
@@ -51,35 +51,35 @@ public class Order implements OrderInterface {
 	private String	phone2;
 	private String	priceList;
 	private String	printTemplate;
-	private int		project;
+	private String	project;
 	private String	remarks;
-	private double	roundOff;
-	private boolean	sent;
+	private Double	roundOff;
+	private Boolean	sent;
 	private String	taxReduction;
 	private String	termsOfDelivery;
 	private String	termsOfPayment;
-	private double	total;
-	private double	totalToPay;
-	private double	totalVAT;
-	private boolean	VATIncluded;
+	private Double	total;
+	private Double	totalToPay;
+	private Double	totalVAT;
+	private Boolean	VATIncluded;
 	private String	WayOfDelivery;
 	private String	yourReference;
 	private String	yourOrderNumber;
 	private String	zipCode;
 
 	@XmlElement(name="AdministrationFee")
-	public double getAdministrationFee() {
+	public Double getAdministrationFee() {
 		return administrationFee;
 	}
-	public void setAdministrationFee(double administrationFee) {
+	public void setAdministrationFee(Double administrationFee) {
 		this.administrationFee = administrationFee;
 	}
 	
 	@XmlElement(name="AdministrationFeeVAT")
-	public double getAdministrationFeeVat() {
+	public Double getAdministrationFeeVat() {
 		return administrationFeeVat;
 	}
-	public void setAdministrationFeeVat(double administrationFeeVat) {
+	public void setAdministrationFeeVat(Double administrationFeeVat) {
 		this.administrationFeeVat = administrationFeeVat;
 	}
 	
@@ -100,18 +100,18 @@ public class Order implements OrderInterface {
 	}
 	
 	@XmlElement(name="BasisTaxReduction")
-	public double getBasisTaxReduction() {
+	public Double getBasisTaxReduction() {
 		return basisTaxReduction;
 	}
-	public void setBasisTaxReduction(double basisTaxReduction) {
+	public void setBasisTaxReduction(Double basisTaxReduction) {
 		this.basisTaxReduction = basisTaxReduction;
 	}
 	
 	@XmlElement(name="Cancelled")
-	public boolean isCancelled() {
+	public Boolean isCancelled() {
 		return cancelled;
 	}
-	public void setCancelled(boolean cancelled) {
+	public void setCancelled(Boolean cancelled) {
 		this.cancelled = cancelled;
 	}
 	
@@ -132,26 +132,26 @@ public class Order implements OrderInterface {
 	}
 	
 	@XmlElement(name="ContributionPercent")
-	public double getContributionPercent() {
+	public Double getContributionPercent() {
 		return contributionPercent;
 	}
-	public void setContributionPercent(double contributionPercent) {
+	public void setContributionPercent(Double contributionPercent) {
 		this.contributionPercent = contributionPercent;
 	}
 	
 	@XmlElement(name="ContributionValue")
-	public double getContributionValue() {
+	public Double getContributionValue() {
 		return contributionValue;
 	}
-	public void setContributionValue(double contributionValue) {
+	public void setContributionValue(Double contributionValue) {
 		this.contributionValue = contributionValue;
 	}
 	
 	@XmlElement(name="CopyRemarks")
-	public boolean isCopyRemarks() {
+	public Boolean isCopyRemarks() {
 		return copyRemarks;
 	}
-	public void setCopyRemarks(boolean copyRemarks) {
+	public void setCopyRemarks(Boolean copyRemarks) {
 		this.copyRemarks = copyRemarks;
 	}
 	
@@ -172,18 +172,18 @@ public class Order implements OrderInterface {
 	}
 	
 	@XmlElement(name="CurrencyRate")
-	public double getCurrencyRate() {
+	public Double getCurrencyRate() {
 		return currencyRate;
 	}
-	public void setCurrencyRate(double currencyRate) {
+	public void setCurrencyRate(Double currencyRate) {
 		this.currencyRate = currencyRate;
 	}
 	
 	@XmlElement(name="CurrencyUnit")
-	public double getCurrencyUnit() {
+	public Double getCurrencyUnit() {
 		return currencyUnit;
 	}
-	public void setCurrencyUnit(double currencyUnit) {
+	public void setCurrencyUnit(Double currencyUnit) {
 		this.currencyUnit = currencyUnit;
 	}
 	
@@ -292,34 +292,34 @@ public class Order implements OrderInterface {
 	}
 	
 	@XmlElement(name="Freight")
-	public double getFreight() {
+	public Double getFreight() {
 		return freight;
 	}
-	public void setFreight(double freight) {
+	public void setFreight(Double freight) {
 		this.freight = freight;
 	}
 	
 	@XmlElement(name="FreightVAT")
-	public double getFreightVAT() {
+	public Double getFreightVAT() {
 		return freightVAT;
 	}
-	public void setFreightVAT(double freightVAT) {
+	public void setFreightVAT(Double freightVAT) {
 		this.freightVAT = freightVAT;
 	}
 	
 	@XmlElement(name="Gross")
-	public double getGross() {
+	public Double getGross() {
 		return gross;
 	}
-	public void setGross(double gross) {
+	public void setGross(Double gross) {
 		this.gross = gross;
 	}
 	
 	@XmlElement(name="HouseWork")
-	public boolean isHouseWork() {
+	public Boolean isHouseWork() {
 		return houseWork;
 	}
-	public void setHouseWork(boolean houseWork) {
+	public void setHouseWork(Boolean houseWork) {
 		this.houseWork = houseWork;
 	}
 	
@@ -340,26 +340,26 @@ public class Order implements OrderInterface {
 	}
 	
 	@XmlElement(name="Net")
-	public double getNet() {
+	public Double getNet() {
 		return net;
 	}
-	public void setNet(double net) {
+	public void setNet(Double net) {
 		this.net = net;
 	}
 	
 	@XmlElement(name="NotCompleted")
-	public boolean isNotCompleted() {
+	public Boolean isNotCompleted() {
 		return notCompleted;
 	}
-	public void setNotCompleted(boolean notCompleted) {
+	public void setNotCompleted(Boolean notCompleted) {
 		this.notCompleted = notCompleted;
 	}
 	
 	@XmlElement(name="OfferReference")
-	public int getOfferReference() {
+	public Integer getOfferReference() {
 		return offerReference;
 	}
-	public void setOfferReference(int offerReference) {
+	public void setOfferReference(Integer offerReference) {
 		this.offerReference = offerReference;
 	}
 	
@@ -429,10 +429,10 @@ public class Order implements OrderInterface {
 	}
 	
 	@XmlElement(name="Project")
-	public int getProject() {
+	public String getProject() {
 		return project;
 	}
-	public void setProject(int project) {
+	public void setProject(String project) {
 		this.project = project;
 	}
 	
@@ -445,18 +445,18 @@ public class Order implements OrderInterface {
 	}
 	
 	@XmlElement(name="RoundOff")
-	public double getRoundOff() {
+	public Double getRoundOff() {
 		return roundOff;
 	}
-	public void setRoundOff(double roundOff) {
+	public void setRoundOff(Double roundOff) {
 		this.roundOff = roundOff;
 	}
 	
 	@XmlElement(name="Sent")
-	public boolean isSent() {
+	public Boolean isSent() {
 		return sent;
 	}
-	public void setSent(boolean sent) {
+	public void setSent(Boolean sent) {
 		this.sent = sent;
 	}
 	
@@ -485,34 +485,34 @@ public class Order implements OrderInterface {
 	}
 	
 	@XmlElement(name="Total")
-	public double getTotal() {
+	public Double getTotal() {
 		return total;
 	}
-	public void setTotal(double total) {
+	public void setTotal(Double total) {
 		this.total = total;
 	}
 	
 	@XmlElement(name="TotalToPay")
-	public double getTotalToPay() {
+	public Double getTotalToPay() {
 		return totalToPay;
 	}
-	public void setTotalToPay(double totalToPay) {
+	public void setTotalToPay(Double totalToPay) {
 		this.totalToPay = totalToPay;
 	}
 	
 	@XmlElement(name="TotalVAT")
-	public double getTotalVAT() {
+	public Double getTotalVAT() {
 		return totalVAT;
 	}
-	public void setTotalVAT(double totalVAT) {
+	public void setTotalVAT(Double totalVAT) {
 		this.totalVAT = totalVAT;
 	}
 	
 	@XmlElement(name="VATIncluded")
-	public boolean isVATIncluded() {
+	public Boolean isVATIncluded() {
 		return VATIncluded;
 	}
-	public void setVATIncluded(boolean vATIncluded) {
+	public void setVATIncluded(Boolean vATIncluded) {
 		VATIncluded = vATIncluded;
 	}
 	
