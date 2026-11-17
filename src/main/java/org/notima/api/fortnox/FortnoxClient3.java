@@ -2241,6 +2241,50 @@ public class FortnoxClient3 {
 	
 
 	/**
+	 * Reads all suppliers matching a filter, ie {@link #lastModifiedFilter}.
+	 *
+	 * @param filter		The filter (key=value), or null for all.
+	 * @return				The suppliers.
+	 * @throws Exception	If something fails.
+	 */
+	public Suppliers getSuppliers(String filter) throws Exception {
+		Suppliers r = getSuppliers(filter, 0);
+		int currentPage = 1;
+		int totalPages = r.getTotalPages()!=null ? r.getTotalPages() : 1;
+		while (currentPage<totalPages) {
+			Suppliers subset = getSuppliers(filter, currentPage+1);
+			if (subset!=null && subset.getSupplierSubset()!=null) {
+				if (r.getSupplierSubset()==null) r.setSupplierSubset(new java.util.ArrayList<SupplierSubset>());
+				r.getSupplierSubset().addAll(subset.getSupplierSubset());
+				currentPage = subset.getCurrentPage();
+			} else {
+				currentPage++;
+			}
+		}
+		return r;
+	}
+
+	/**
+	 * A page of suppliers matching a filter.
+	 *
+	 * @param filter		The filter (key=value), or null for all.
+	 * @param page			The page.
+	 * @return				The page.
+	 * @throws Exception	If something fails.
+	 */
+	public Suppliers getSuppliers(String filter, int page) throws Exception {
+		boolean hasFilter = filter!=null && filter.trim().length()>0;
+		String query = (hasFilter ? "?" + filter.trim() : "") + (page>1 ? (hasFilter ? "&" : "?") + "page=" + page : "");
+		StringBuffer result = callFortnox("/suppliers/", query.isEmpty() ? null : query, null);
+		ErrorInformation e = checkIfError(result);
+		if (e==null) {
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(result.toString().getBytes()), "UTF-8"));
+			return JAXB.unmarshal(in, Suppliers.class);
+		}
+		throw new FortnoxException(e);
+	}
+
+	/**
 	 * Creates or updates a supplier
 	 * 
 	 * @param supplier		The supplier to persist.
@@ -2754,6 +2798,41 @@ public class FortnoxClient3 {
         
 	}
 	
+	/**
+	 * Updates an existing customer (PUT). Only the fields that are set are changed.
+	 *
+	 * @param customer		The customer, with its customer number.
+	 * @return				The customer as updated, or null if it doesn't exist.
+	 * @throws Exception	If something goes wrong.
+	 */
+	public Customer updateCustomer(Customer customer) throws Exception {
+		if (customer==null || customer.getCustomerNumber()==null || customer.getCustomerNumber().trim().isEmpty()) {
+			throw new IllegalArgumentException("The customer has no customer number");
+		}
+		validateCustomer(customer);
+		StringWriter result = new StringWriter();
+		JAXB.marshal(customer, result);
+		StringBuffer output = callFortnox("/customers/" + customer.getCustomerNumber().trim(), null, result.getBuffer(), null, "put");
+		ErrorInformation e = checkIfError(output);
+		if (e==null) {
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(output.toString().getBytes()), "UTF-8"));
+			return JAXB.unmarshal(in, Customer.class);
+		}
+		if (FortnoxConstants.ERROR_CANT_FIND_CUSTOMER.equals(e.getCode())) return null;
+		throw new FortnoxException(e);
+	}
+
+	/**
+	 * The filter for customers, suppliers and other registers changed since a time (Fortnox's
+	 * {@code lastmodified}), for {@link #getCustomers(String)} and {@link #getSuppliers(String)}.
+	 *
+	 * @param since		The time, in Swedish time as Fortnox keeps it.
+	 * @return			The filter, ie {@code lastmodified=2026-11-17%2012:00}.
+	 */
+	public static String lastModifiedFilter(java.time.LocalDateTime since) {
+		return "lastmodified=" + since.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'%20'HH:mm"));
+	}
+
 	/**
 	 * Reads a customer / vendor from database using custNo
 	 * If customer doesn't exist, null is returned.
