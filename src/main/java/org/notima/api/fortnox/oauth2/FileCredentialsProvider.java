@@ -23,6 +23,15 @@ public class FileCredentialsProvider extends FortnoxCredentialsProvider {
         super(orgNo);
         file = new CredentialsFile();
     }
+
+    /**
+     * Uses the given credentials file instead of the one named by the system property
+     * {@value CredentialsFile#CREDENTIALS_FILE_PROPERTY}.
+     */
+    public FileCredentialsProvider(String orgNo, java.io.File credentialsFile) throws IOException {
+        super(orgNo);
+        file = new CredentialsFile(credentialsFile);
+    }
     
     public String getClientId() {
 		return clientId;

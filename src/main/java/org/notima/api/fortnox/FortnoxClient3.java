@@ -2522,6 +2522,21 @@ public class FortnoxClient3 {
 	 * @return 					The voucher created / updated.
 	 */
 	public Voucher setVoucher(Voucher voucher) throws FortnoxScopeException, FortnoxException, Exception {
+		return setVoucher(voucher, null);
+	}
+
+	/**
+	 * Creates or updates a voucher in the given financial year.
+	 * 
+	 * @param voucher			The voucher to be updated / created.
+	 * @param financialYearId	The id of the financial year (see getFinancialYear), or null for the
+	 * 							year Fortnox chooses.
+	 * @throws Exception		If something goes wrong.
+	 * @throws FortnoxException	Fortnox error if occured.
+	 * @throws FortnoxScopeException		If this is not allowed. 
+	 * @return 					The voucher created / updated.
+	 */
+	public Voucher setVoucher(Voucher voucher, Integer financialYearId) throws FortnoxScopeException, FortnoxException, Exception {
 		
 		StringWriter result = new StringWriter();
 
@@ -2529,7 +2544,7 @@ public class FortnoxClient3 {
        
         StringBuffer output = callFortnox("/vouchers" + 
         		(voucher.getVoucherNumber()!=null && voucher.getVoucherNumber()>0 ? "/" + voucher.getVoucherNumber() : ""), 
-        		null, 
+        		financialYearId!=null ? "?financialyear=" + financialYearId : null, 
         		result.getBuffer(),
         		null, // Headers
         		(voucher.getVoucherNumber()!=null && voucher.getVoucherNumber()>0 ? "put" : null) // method
