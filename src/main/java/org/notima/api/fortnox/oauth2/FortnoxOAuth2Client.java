@@ -158,7 +158,10 @@ public class FortnoxOAuth2Client {
     }
 
     private static String getBasicAuthCredentials(String username, String password) {
-        return Base64.getEncoder().encodeToString((username + ":" + password).getBytes());
+        // Trim to avoid invalid_client because of stray whitespace in configuration
+        String u = username!=null ? username.trim() : "";
+        String p = password!=null ? password.trim() : "";
+        return Base64.getEncoder().encodeToString((u + ":" + p).getBytes(StandardCharsets.UTF_8));
     }
 
     private static String xWWWFormURLEncode(Map<String, String> data) throws UnsupportedEncodingException {

@@ -19,11 +19,19 @@ public class FortnoxPropertyFile {
 	}
 	
 	public void setFromDictionary(Dictionary<String, Object> properties) {
-	    fortnoxClientsFile = (String)properties.get("fortnoxClientsFile");
-		fortnoxCredentialsFile = (String)properties.get("fortnoxCredentialsFile");
-	    defaultClientSecret = (String)properties.get("defaultClientSecret");
-	    defaultClientId = (String)properties.get("defaultClientId");
-	    defaultScope = (String)properties.get("defaultScope");
+	    fortnoxClientsFile = getTrimmed(properties, "fortnoxClientsFile");
+		fortnoxCredentialsFile = getTrimmed(properties, "fortnoxCredentialsFile");
+	    defaultClientSecret = getTrimmed(properties, "defaultClientSecret");
+	    defaultClientId = getTrimmed(properties, "defaultClientId");
+	    defaultScope = getTrimmed(properties, "defaultScope");
+	}
+	
+	/**
+	 * Values in a Karaf .cfg file keep trailing whitespace, which e.g. makes a client secret invalid.
+	 */
+	private String getTrimmed(Dictionary<String, Object> properties, String key) {
+		Object value = properties.get(key);
+		return value!=null ? value.toString().trim() : null;
 	}
 
 	public String getFortnoxClientsFile() {

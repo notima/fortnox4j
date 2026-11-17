@@ -2,6 +2,8 @@ package org.notima.api.fortnox;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -46,6 +48,12 @@ public class Fortnox4jCLI {
 	private boolean isServerRunning = false;
 	
 	private Boolean getAllTokens = false;
+
+	// Redirect URI that must be registered on the integration in Fortnox Developer Portal.
+	public static final String REDIRECT_URI = "http://localhost:8008/login";
+	
+	// Last error that occurred during the login process (null if none).
+	private String lastError;
 
 	// Default scope string, last resort if none is set.
 	private final String defaultScopeStr = "bookkeeping,connectfile,costcenter,companyinformation,currency,customer,inbox,invoice,article,order,payment,profile,project,settings,supplier,supplierinvoice,deletevoucher"; 
@@ -155,7 +163,8 @@ public class Fortnox4jCLI {
 				saveAccessAndRefreshToken();
 				
 			} catch (Exception e) {
-				e.printStackTrace();
+				lastError = e.getMessage()!=null ? e.getMessage() : e.toString();
+				System.out.println("Could not get access token: " + lastError);
 			}
 
 		} else if(getAuthenticationCode) {
@@ -258,23 +267,38 @@ public class Fortnox4jCLI {
                     public void handle(HttpRequest request, HttpResponse response, HttpContext context) throws IOException {
                         try {
                             String requestUri = request.getRequestLine().getUri();
+                            String redirectError = getErrorFromURL(requestUri);
+                            if (redirectError!=null) {
+                                lastError = redirectError;
+                                System.out.println("Login failed: " + lastError);
+                                sendResponse(response, 400, "Login failed: " + lastError);
+                                latch.countDown();
+                                scheduleShutdown(serverHolder[0], 5);
+                                return;
+                            }
                             String authCode = getAuthCodeFromURL(requestUri);
-                            String responseBody = "Login successful! You can now close this page.";
-                            sendResponse(response, 200, responseBody);
                             System.out.println("Authentication Code:");
                             System.out.println(authCode);
                             setAuthCode(authCode);
                             clientManager.updateAndSaveClientInfo(fc);
                             if (getAllTokens) {
                                 getAccessToken(clientId, clientSecret, authCode, null);
-                                saveAccessAndRefreshToken();
-                                updateFortnoxClientInfo();
+                                if (credentials!=null) {
+                                    saveAccessAndRefreshToken();
+                                    updateFortnoxClientInfo();
+                                }
+                            }
+                            if (lastError!=null) {
+                                sendResponse(response, 400, "Login failed: " + lastError);
+                            } else {
+                                sendResponse(response, 200, "Login successful! You can now close this page.");
                             }
                             latch.countDown();
                             scheduleShutdown(serverHolder[0], 5); // Schedule server shutdown with delay
                         } catch (Exception e) {
-                            e.printStackTrace();
-                            sendResponse(response, 400, e.getMessage());
+                            lastError = e.getMessage();
+                            System.out.println("Login failed: " + lastError);
+                            sendResponse(response, 400, "Login failed: " + lastError);
                             latch.countDown();
                             scheduleShutdown(serverHolder[0], 5); // Schedule server shutdown with delay
                         }
@@ -333,8 +357,8 @@ public class Fortnox4jCLI {
 			CompanySetting cs = client3.getCompanySetting();
 			fc.setOrgName(cs.getName());
 		} catch (Exception ee) {
-			System.err.println("Could not get company information for " + orgNo + ": " + ee.getMessage());
-			ee.printStackTrace();
+			lastError = "Tokens were received but company information could not be read for " + orgNo + ": " + ee.getMessage();
+			System.out.println(lastError);
 		}
 		
 		clientManager.updateAndSaveClientInfo(fc);
@@ -345,7 +369,13 @@ public class Fortnox4jCLI {
 	private void getAccessToken(String clientId, String clientSecret, String authCode, String redirectUri) {
 		try {
 			if (redirectUri==null) {
-				redirectUri="http://localhost:8008/login";
+				redirectUri=REDIRECT_URI;
+			}
+			if (clientSecret==null || clientSecret.trim().length()==0 || "DONT_STORE_HERE".equals(clientSecret)) {
+				lastError = "No client secret set for client id " + clientId + ".";
+				System.out.println("Could not get access token: " + lastError);
+				credentials = null;
+				return;
 			}
 			credentials = FortnoxOAuth2Client.getAccessToken(clientId, clientSecret, authCode, redirectUri);
 			System.out.println("Access Token:");
@@ -353,9 +383,100 @@ public class Fortnox4jCLI {
 			System.out.println("Refresh Token:");
 			System.out.println(credentials.getRefreshToken());
 		} catch (Exception e) {
-			e.printStackTrace();
+			String msg = e.getMessage()!=null ? e.getMessage() : e.toString();
+			String error = extractJsonValue(msg, "error");
+			String description = extractJsonValue(msg, "error_description");
+			if (error!=null) {
+				lastError = error + (description!=null ? " (" + description + ")" : "") + ". " + explainOAuthError(error);
+			} else {
+				lastError = msg;
+			}
+			System.out.println("Could not get access token: " + lastError);
 			credentials = null;
 		}
+	}
+	
+	/**
+	 * Checks if Fortnox redirected back with an error instead of an authorization code.
+	 * 
+	 * @param url	The request URI
+	 * @return		An explained error message, or null if no error is present.
+	 */
+	private String getErrorFromURL(String url) {
+		String error = getQueryParameter(url, "error");
+		if (error==null) return null;
+		String description = getQueryParameter(url, "error_description");
+		return error + (description!=null ? " (" + description + ")" : "") + ". " + explainOAuthError(error);
+	}
+	
+	private String getQueryParameter(String url, String name) {
+		Matcher m = Pattern.compile("[?&]" + Pattern.quote(name) + "=([^&]*)").matcher(url);
+		if (!m.find()) return null;
+		try {
+			return URLDecoder.decode(m.group(1), StandardCharsets.UTF_8.name());
+		} catch (Exception e) {
+			return m.group(1);
+		}
+	}
+	
+	private String extractJsonValue(String text, String key) {
+		Matcher m = Pattern.compile("\"" + Pattern.quote(key) + "\"\\s*:\\s*\"([^\"]*)\"").matcher(text);
+		return m.find() ? m.group(1) : null;
+	}
+	
+	/**
+	 * Gives a hint on what to check for a given OAuth error code from Fortnox.
+	 * 
+	 * @param error		The OAuth error code.
+	 * @return			A hint.
+	 */
+	public static String explainOAuthError(String error) {
+		if (error==null) return "";
+		if ("invalid_client".equals(error)) {
+			return "Check that the client secret belongs to the client id and that the redirect URI " + REDIRECT_URI 
+					+ " is registered on the integration in Fortnox Developer Portal (changes there may take a while to take effect).";
+		}
+		if ("invalid_grant".equals(error)) {
+			return "The authorization code is invalid, expired or already used, or the redirect URI doesn't match " + REDIRECT_URI 
+					+ ". Run again with --renew to get a new code.";
+		}
+		if ("invalid_scope".equals(error)) {
+			return "One or more requested scopes are not enabled on the integration. Enable them in Fortnox Developer Portal or use --scope.";
+		}
+		if ("access_denied".equals(error) || "error_access_denied".equals(error)) {
+			return "The login was cancelled or the user is not allowed to authorize the integration.";
+		}
+		if ("unauthorized_client".equals(error)) {
+			return "The integration is not allowed to use this flow. Check the integration settings in Fortnox Developer Portal.";
+		}
+		if ("invalid_request".equals(error)) {
+			return "The request was malformed. Check client id and that the redirect URI " + REDIRECT_URI + " is registered on the integration.";
+		}
+		if (error.contains("license")) {
+			return "The company lacks a license required by the integration (or by the requested scopes).";
+		}
+		if (error.contains("admin")) {
+			return "The user logging in must be system administrator in the Fortnox company.";
+		}
+		return "";
+	}
+	
+	/**
+	 * @return	The last error during the login process, or null if none.
+	 */
+	public String getLastError() {
+		return lastError;
+	}
+	
+	public boolean hasFailed() {
+		return lastError!=null;
+	}
+	
+	/**
+	 * @return	True if an access token was received.
+	 */
+	public boolean hasAccessToken() {
+		return credentials!=null && credentials.getAccessToken()!=null;
 	}
 
 	private String getAuthCodeFromURL(String url) throws Exception {
@@ -382,7 +503,7 @@ public class Fortnox4jCLI {
 		buf.append("client_id=");
 		buf.append(clientId);
 		buf.append("&redirect_uri=");
-		buf.append("http%3A%2F%2Flocalhost%3A8008%2Flogin");
+		buf.append("http%3A%2F%2Flocalhost%3A8008%2Flogin"); // REDIRECT_URI
 		buf.append("&" + scopeStr);
 		buf.append("&access_type=offline");
 		buf.append("&response_type=code");

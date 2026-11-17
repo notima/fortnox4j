@@ -1,6 +1,7 @@
 package org.notima.api.fortnox;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -9,6 +10,7 @@ import java.util.Set;
 public class FortnoxScope {
 
 	private final Set<String> scopes = new HashSet<String>();
+	private final Set<String> invalidScopes = new LinkedHashSet<String>();
 
 	public FortnoxScope() {};
 	
@@ -21,12 +23,9 @@ public class FortnoxScope {
 	public FortnoxScope(String initialScopes) {
 		if (initialScopes==null || initialScopes.trim().length()==0)
 			return;
-		if (initialScopes.contains(","))
-			addScopesFromCommaseparatedString(initialScopes);
-		else if (initialScopes.contains(" "))
-			addScopesFromSpaceSeparatedString(initialScopes);
-		else {
-			addScope(initialScopes);
+		// Comma and/or whitespace separated
+		for (String s : initialScopes.split("[,\\s]+")) {
+			addScope(s);
 		}
 	}
 	
@@ -36,13 +35,32 @@ public class FortnoxScope {
 		}
 	}
 	
+	/**
+	 * Adds a scope. The scope is trimmed and lower cased. Invalid scopes are not added
+	 * but are collected and can be retrieved using getInvalidScopes().
+	 * 
+	 * @param scope
+	 */
 	public void addScope(String scope) {
 		if (scope==null) return;
+		scope = scope.trim().toLowerCase();
+		if (scope.length()==0) return;
 		if (!FortnoxConstants.ALL_SCOPES.contains(scope)) {
-			// Invalid scope
+			invalidScopes.add(scope);
 		} else {
 			scopes.add(scope);
 		}
+	}
+	
+	/**
+	 * @return	Scopes that were given but are not valid Fortnox scopes (and thus not added).
+	 */
+	public Set<String> getInvalidScopes() {
+		return invalidScopes;
+	}
+	
+	public boolean hasInvalidScopes() {
+		return !invalidScopes.isEmpty();
 	}
 	
 	public void removeScope(String scope) {
@@ -90,20 +108,6 @@ public class FortnoxScope {
 		}
 
 		return buf.toString();
-	}
-	
-	private void addScopesFromCommaseparatedString(String scopeStr) {
-		String[] scopeArray = scopeStr.split(",");
-		for (String s : scopeArray) {
-			addScope(s);
-		}
-	}
-	
-	private void addScopesFromSpaceSeparatedString(String scopeStr) {
-		String[] scopeArray = scopeStr.split(" ");
-		for (String s : scopeArray) {
-			addScope(s);
-		}
 	}
 	
 	public boolean isArchive() {

@@ -46,4 +46,18 @@ public class TestFortnoxScope {
 		
 	}
 
+	@Test
+	public void testParseStringWithSpacesAndInvalidScopes() {
+		
+		FortnoxScope scope = new FortnoxScope("invoice, order ,Customer  orders,,payment");
+		Set<String> parsed = new TreeSet<String>();
+		for (String s : scope.getScopesSeparatedByComma().split(",")) parsed.add(s);
+		
+		assertEquals(new TreeSet<String>(java.util.Arrays.asList("customer", "invoice", "order", "payment")), parsed);
+		assertTrue(scope.hasInvalidScopes());
+		assertEquals(1, scope.getInvalidScopes().size());
+		assertTrue(scope.getInvalidScopes().contains("orders"));
+		
+	}
+
 }
