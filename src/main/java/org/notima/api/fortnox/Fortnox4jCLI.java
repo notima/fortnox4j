@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -219,6 +221,7 @@ public class Fortnox4jCLI {
 			fc.getApiKey().setRefreshToken(credentials.getRefreshToken());
 			fc.getApiKey().setLastRefreshToNow();
 			fc.getApiKey().setExpiresIn(credentials.getExpiresIn());
+			fc.getApiKey().setScope(credentials.getScope());
 			clientManager.updateAndSaveClientInfo(fc);
 		}
 	}
@@ -349,6 +352,8 @@ public class Fortnox4jCLI {
 		cred.setRefreshToken(fc.getApiKey().getRefreshToken());
 		// Without expiresIn the token is considered expired and an unnecessary refresh is made.
 		cred.setExpiresIn(fc.getApiKey().getExpiresIn());
+		// The scope granted by Fortnox (from the token response)
+		cred.setScope(credentials!=null && credentials.getScope()!=null ? credentials.getScope() : fc.getApiKey().getScope());
 		cred.setLastRefreshToNow();
 		credentialsProvider.setCredentials(cred);
 		
@@ -382,6 +387,7 @@ public class Fortnox4jCLI {
 			System.out.println(credentials.getAccessToken() + "\n");
 			System.out.println("Refresh Token:");
 			System.out.println(credentials.getRefreshToken());
+			printGrantedScope();
 		} catch (Exception e) {
 			String msg = e.getMessage()!=null ? e.getMessage() : e.toString();
 			String error = extractJsonValue(msg, "error");
@@ -459,6 +465,46 @@ public class Fortnox4jCLI {
 			return "The user logging in must be system administrator in the Fortnox company.";
 		}
 		return "";
+	}
+	
+	/**
+	 * Prints the scope granted by Fortnox and warns for requested scopes that were not granted.
+	 * Fortnox silently leaves out scopes that are not enabled on the integration.
+	 */
+	private void printGrantedScope() {
+		if (credentials==null) return;
+		if (credentials.getScope()==null) {
+			System.out.println("Fortnox did not report the granted scope.");
+			return;
+		}
+		FortnoxScope granted = new FortnoxScope(credentials.getScope());
+		System.out.println("Granted scope: " + granted.getScopesSeparatedByComma());
+		Set<String> missing = getMissingScopes();
+		if (!missing.isEmpty()) {
+			System.out.println("WARNING: Requested but NOT granted: " + String.join(",", missing)
+					+ ". Enable them on the integration in Fortnox Developer Portal and run again with --renew.");
+		}
+	}
+	
+	/**
+	 * @return	Requested scopes that were not granted by Fortnox. Empty if unknown.
+	 */
+	public Set<String> getMissingScopes() {
+		Set<String> missing = new TreeSet<String>();
+		if (credentials==null || credentials.getScope()==null) return missing;
+		FortnoxScope requested = scope!=null && scope.hasScopes() ? scope : new FortnoxScope(defaultScopeStr);
+		FortnoxScope granted = new FortnoxScope(credentials.getScope());
+		for (String s : requested.getScopes()) {
+			if (!granted.getScopes().contains(s)) missing.add(s);
+		}
+		return missing;
+	}
+	
+	/**
+	 * @return	The scope granted by Fortnox, or null if unknown.
+	 */
+	public String getGrantedScope() {
+		return credentials!=null ? credentials.getScope() : null;
 	}
 	
 	/**

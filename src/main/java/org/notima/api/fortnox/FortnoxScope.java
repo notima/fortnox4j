@@ -68,6 +68,13 @@ public class FortnoxScope {
 		scopes.remove(scope);
 	}
 	
+	/**
+	 * @return	The valid scopes.
+	 */
+	public Set<String> getScopes() {
+		return scopes;
+	}
+	
 	public boolean hasScopes() {
 		return !scopes.isEmpty();
 	}
