@@ -860,6 +860,42 @@ public class FortnoxClient3 {
 	
 
 	/**
+	 * Creates or updates a supplier invoice. Fields Fortnox sets (booked, balance, voucher) are
+	 * not sent.
+	 *
+	 * @param invoice			The invoice. To update, it has the given number (Fortnox's number of it).
+	 * @param createNew			True to create it; false to update it.
+	 * @return					The invoice as Fortnox has it, with the given number.
+	 * @throws Exception		If something goes wrong, ie the invoice is booked and can't be changed.
+	 */
+	public SupplierInvoice setSupplierInvoice(SupplierInvoice invoice, boolean createNew) throws Exception {
+		String givenNumber = invoice.getGivenNumber()!=null ? invoice.getGivenNumber().trim() : null;
+		if (!createNew && (givenNumber==null || givenNumber.isEmpty())) {
+			throw new IllegalArgumentException("The supplier invoice has no given number");
+		}
+		invoice.setGivenNumber(null);
+		invoice.setBooked(null);
+		invoice.setBalance(null);
+		invoice.setCancelled(null);
+		invoice.setVoucherNumber(null);
+		invoice.setVoucherSeries(null);
+		invoice.setVoucherYear(null);
+		invoice.setUrl(null);
+		StringWriter result = new StringWriter();
+		JAXB.marshal(invoice, result);
+		StringBuffer output = createNew
+				? callFortnox("/supplierinvoices", null, result.getBuffer(), null, null)
+				: callFortnox("/supplierinvoices/" + URLEncoder.encode(givenNumber, "UTF-8"), null, result.getBuffer(), null, "put");
+		ErrorInformation e = checkIfError(output);
+		if (e!=null) {
+			logger.error(result.toString() + " : " + e.getMessage());
+			throw new FortnoxException(e);
+		}
+		BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(output.toString().getBytes()), "UTF-8"));
+		return JAXB.unmarshal(in, SupplierInvoice.class);
+	}
+
+	/**
 	 * Cancels an customer invoice with specific invoice number
 	 * 
 	 * @param invoiceNo			Fortnox Invoice Number
@@ -2498,7 +2534,23 @@ public class FortnoxClient3 {
 	 * @return	The invoice.
 	 */
 	public Invoice setInvoice(Invoice invoice) throws FortnoxScopeException, FortnoxInvoiceException, Exception {
-		
+		return writeInvoice(invoice, false);
+	}
+
+	/**
+	 * Creates an invoice, with the document number it has if set (else the next in the series).
+	 * Unlike {@link #setInvoice(Invoice)}, a document number doesn't make it an update.
+	 *
+	 * @param invoice			The invoice to create.
+	 * @return					The invoice created.
+	 * @throws Exception		If something goes wrong, ie the number is taken.
+	 */
+	public Invoice createInvoice(Invoice invoice) throws FortnoxScopeException, FortnoxInvoiceException, Exception {
+		return writeInvoice(invoice, true);
+	}
+
+	private Invoice writeInvoice(Invoice invoice, boolean create) throws FortnoxScopeException, FortnoxInvoiceException, Exception {
+
 		StringWriter result = new StringWriter();
 		String invoiceDocumentNo = null;
         
@@ -2525,13 +2577,14 @@ public class FortnoxClient3 {
 		JAXB.marshal(invoice, result);
        
 		invoiceDocumentNo = invoice.getDocumentNumber()!=null ? invoice.getDocumentNumber().trim() : null;
-		
-        StringBuffer output = callFortnox("/invoices" + 
-        		(invoiceDocumentNo!=null && invoiceDocumentNo.length()>0 ? "/" + invoiceDocumentNo : ""), 
-        		null, 
+		boolean update = !create && invoiceDocumentNo!=null && invoiceDocumentNo.length()>0;
+
+        StringBuffer output = callFortnox("/invoices" +
+        		(update ? "/" + invoiceDocumentNo : ""),
+        		null,
         		result.getBuffer(),
         		null, // Headers
-        		(invoiceDocumentNo!=null && invoiceDocumentNo.length()>0 ? "put" : null) // method
+        		(update ? "put" : null) // method
         		);
 		
         Invoice out = null;

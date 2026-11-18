@@ -28,6 +28,7 @@ public class SupplierInvoice implements InvoiceInterface {
 	private String finalPayDate;
 	private Double freight;
 	private String givenNumber;
+	private String invoiceNumber;
 	private String invoiceDate;
 	private Boolean paymentPending;
 	private SupplierInvoiceRows supplierInvoiceRows;
@@ -212,6 +213,16 @@ public class SupplierInvoice implements InvoiceInterface {
 		givenNumber = nr;
 	}
 	
+	/** The supplier's number of the invoice, as printed on it. */
+	@XmlElement(name="InvoiceNumber")
+	public String getInvoiceNumber() {
+		return invoiceNumber;
+	}
+
+	public void setInvoiceNumber(String invoiceNumber) {
+		this.invoiceNumber = invoiceNumber;
+	}
+
 	@XmlElement(name="InvoiceDate")
 	public String getInvoiceDate() {
 		return invoiceDate;
