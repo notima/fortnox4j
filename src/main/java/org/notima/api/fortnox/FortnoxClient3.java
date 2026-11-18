@@ -3023,6 +3023,78 @@ public class FortnoxClient3 {
 	}
 
 	/**
+	 * All articles matching a filter, ie {@code lastmodified=2026-11-18 10:00}, all pages.
+	 *
+	 * @param filter		The filter, or null for all.
+	 * @return				The articles.
+	 * @throws Exception	If something goes wrong.
+	 */
+	public Articles getArticles(String filter) throws Exception {
+		Articles r = getArticles(filter, 0);
+		int currentPage = 1;
+		int totalPages = r.getTotalPages();
+		while (currentPage<totalPages) {
+			Articles subset = getArticles(filter, currentPage+1);
+			if (subset!=null && subset.getArticleSubset()!=null) {
+				r.getArticleSubset().addAll(subset.getArticleSubset());
+				currentPage = subset.getCurrentPage();
+			} else {
+				currentPage++;
+			}
+		}
+		return r;
+	}
+
+	/**
+	 * A page of articles matching a filter.
+	 *
+	 * @param filter		The filter (ie {@code lastmodified=...}), or null.
+	 * @param page			The page.
+	 * @return				A page of articles.
+	 * @throws Exception	If something goes wrong.
+	 */
+	public Articles getArticles(String filter, int page) throws Exception {
+		if (filter==null || filter.trim().isEmpty()) return getArticles(page);
+		String filterWord = filter.contains("=") ? "" : "filter=";
+		StringBuffer result = callFortnox("/articles/?" + filterWord + filter.trim(), (page>1 ? "&page=" + page : null), null);
+		ErrorInformation e = checkIfError(result);
+		Articles r = new Articles();
+		if (e==null) {
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(result.toString().getBytes()), "UTF-8"));
+			return JAXB.unmarshal(in, r.getClass());
+		} else {
+			throw new FortnoxException(e);
+		}
+	}
+
+	/**
+	 * Creates or updates an article. What Fortnox keeps itself (stock quantities and value) is
+	 * not sent.
+	 *
+	 * @param article		The article.
+	 * @param createNew		True to create it, false to update the article with its number.
+	 * @return				The article as Fortnox keeps it.
+	 * @throws Exception	If something goes wrong.
+	 */
+	public Article setArticle(Article article, boolean createNew) throws Exception {
+		article.setQuantityInStock(null);
+		article.setReservedQuantity(null);
+		article.setDisposableQuantity(null);
+		article.setStockValue(null);
+		StringWriter body = new StringWriter();
+		JAXB.marshal(article, body);
+		StringBuffer output = callFortnox("/articles" +
+				(!createNew ? "/" + URLEncoder.encode(article.getArticleNumber(), "UTF-8") : ""),
+				null, body.getBuffer(), null, (!createNew ? "put" : null));
+		ErrorInformation e = checkIfError(output);
+		if (e==null) {
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(output.toString().getBytes()), "UTF-8"));
+			return JAXB.unmarshal(in, Article.class);
+		}
+		throw new FortnoxException(e);
+	}
+
+	/**
 	 * Reads an article from database using articleNo.
 	 * If article doesn't exist, null is returned.
 	 *
@@ -3218,6 +3290,30 @@ public class FortnoxClient3 {
 			}
 		}
 
+	}
+
+	/**
+	 * Creates or updates a price of an article in a price list.
+	 *
+	 * @param price			The price, with its price list, article number and from quantity.
+	 * @param createNew		True to create it, false to update the existing price.
+	 * @return				The price as Fortnox keeps it.
+	 * @throws Exception	If something goes wrong.
+	 */
+	public Price setPrice(Price price, boolean createNew) throws Exception {
+		StringWriter body = new StringWriter();
+		JAXB.marshal(price, body);
+		String path = "/prices" + (!createNew
+				? "/" + URLEncoder.encode(price.getPriceList(), "UTF-8") + "/" + URLEncoder.encode(price.getArticleNumber(), "UTF-8")
+					+ "/" + (price.getFromQuantity() != null ? BigDecimal.valueOf(price.getFromQuantity()).stripTrailingZeros().toPlainString() : "0")
+				: "");
+		StringBuffer output = callFortnox(path, null, body.getBuffer(), null, (!createNew ? "put" : null));
+		ErrorInformation e = checkIfError(output);
+		if (e==null) {
+			BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(output.toString().getBytes()), "UTF-8"));
+			return JAXB.unmarshal(in, Price.class);
+		}
+		throw new FortnoxException(e);
 	}
 
 	/**
